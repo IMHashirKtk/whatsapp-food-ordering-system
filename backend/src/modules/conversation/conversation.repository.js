@@ -40,3 +40,30 @@ export const upsert = (customerId, data) => {
     update: data,
   });
 };
+
+export const findByPhoneNumber = (phoneNumber) => {
+  return prisma.conversation.findUnique({
+    where: {
+      phoneNumber,
+    },
+  });
+};
+
+export const create = (phoneNumber) => {
+  return prisma.conversation.create({
+    data: {
+      phoneNumber,
+      state: "WELCOME",
+      context: {},
+    },
+  });
+};
+
+export const update = (id, data) => {
+  return prisma.conversation.update({
+    where: {
+      id,
+    },
+    data,
+  });
+};

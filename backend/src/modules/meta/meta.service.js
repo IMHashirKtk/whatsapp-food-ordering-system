@@ -7,9 +7,10 @@ export const processWebhook = async (payload) => {
 
   if (!message) return;
 
-  console.log(message);
-
-  await sendMessage(
-    buildTextMessage(message.from, `You said:\n\n${message.text}`),
+  // Temporary conversation object
+  const conversation = await conversationService.getOrCreateConversation(
+    message.from,
   );
+
+  await dispatch(conversation, message);
 };

@@ -1,0 +1,9 @@
+export const ConversationState = {
+  WELCOME: "WELCOME",
+  MAIN_MENU: "MAIN_MENU",
+  CATEGORY: "CATEGORY",
+  PRODUCT: "PRODUCT",
+  CART: "CART",
+  CHECKOUT: "CHECKOUT",
+  COMPLETE: "COMPLETE",
+};

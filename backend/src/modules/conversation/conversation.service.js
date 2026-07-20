@@ -35,3 +35,27 @@ export const resetConversation = async (customerId) => {
     context: {},
   });
 };
+
+export const getOrCreateConversation = async (phoneNumber) => {
+  let conversation =
+    await conversationRepository.findByPhoneNumber(phoneNumber);
+
+  if (!conversation) {
+    conversation = await conversationRepository.create(phoneNumber);
+  }
+
+  return conversation;
+};
+
+export const changeState = async (conversationId, state, context = {}) => {
+  return conversationRepository.update(conversationId, {
+    state,
+    context,
+  });
+};
+
+export const updateContext = async (conversationId, context) => {
+  return conversationRepository.update(conversationId, {
+    context,
+  });
+};
