@@ -8,10 +8,15 @@ import errorHandler from "./middleware/errorHandler.js";
 import customerRoutes from "./routes/customer.routes.js";
 import webhookRoutes from "./routes/webhook.routes.js";
 import testRoutes from "./routes/test.routes.js";
+import menuRoutes from "./modules/menu/menu.routes.js";
+import cartRoutes from "./modules/cart/cart.routes.js";
+import orderRoutes from "./modules/order/order.routes.js";
+import metaRoutes from "./modules/meta/meta.routes.js";
 
 const app = express();
 
 app.use((req, res, next) => {
+  console.log("REQUEST:", req.method, req.originalUrl);
   console.log(`${req.method} ${req.originalUrl}`);
   next();
 });
@@ -33,6 +38,10 @@ app.use("/api/v1/health", healthRoutes);
 app.use("/api/v1/customers", customerRoutes);
 app.use("/api/v1/webhook", webhookRoutes);
 app.use("/api/v1/test", testRoutes);
+app.use("/api/v1/menu", menuRoutes);
+app.use("/api/v1/cart", cartRoutes);
+app.use("/api/v1/orders", orderRoutes);
+app.use("/api/v1/meta", metaRoutes);
 
 // 404 Handler (must be after all routes)
 app.use(notFound);
