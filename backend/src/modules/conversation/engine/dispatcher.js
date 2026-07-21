@@ -4,7 +4,6 @@ import * as welcomeState from "../states/welcome.state.js";
 import * as mainMenuState from "../states/main-menu.state.js";
 import * as categoryState from "../states/category.state.js";
 import * as productState from "../states/product.state.js";
-import * as productOptionsState from "../states/product-options.state.js";
 import * as cartState from "../states/cart.state.js";
 import * as checkoutState from "../states/checkout.state.js";
 import * as completeState from "../states/complete.state.js";
@@ -14,14 +13,20 @@ import { handleButton } from "./button.handler.js";
 import { handleList } from "./list.handler.js";
 
 const stateHandlers = {
-  [ConversationState.WELCOME]: welcomeState,
+  [ConversationState.IDLE]: welcomeState,
+
   [ConversationState.MAIN_MENU]: mainMenuState,
-  [ConversationState.CATEGORY]: categoryState,
-  [ConversationState.PRODUCT]: productState,
-  [ConversationState.PRODUCT_OPTIONS]: productOptionsState,
-  [ConversationState.CART]: cartState,
+
+  [ConversationState.VIEWING_MENU]: categoryState,
+
+  // Product selection + option selection both occur while ORDERING
+  [ConversationState.ORDERING]: productState,
+
+  [ConversationState.VIEWING_CART]: cartState,
+
   [ConversationState.CHECKOUT]: checkoutState,
-  [ConversationState.COMPLETE]: completeState,
+
+  [ConversationState.TRACKING_ORDER]: completeState,
 };
 
 export const dispatch = async (conversation, message) => {

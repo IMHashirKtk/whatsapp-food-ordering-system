@@ -15,7 +15,7 @@ export const handle = async (conversation, message) => {
 
   const order = await orderService.checkout(conversation.customerId);
 
-  await goToState(conversation, ConversationState.COMPLETE);
+  await goToState(conversation, ConversationState.TRACKING_ORDER);
 
   return sendMessage(
     text(

@@ -59,7 +59,7 @@ export const handle = async (conversation, message) => {
 
   switch (message.buttonReply?.id) {
     case "ADD_MORE":
-      await goToState(conversation, ConversationState.CATEGORY);
+      await goToState(conversation, ConversationState.VIEWING_MENU);
 
       return sendMessage(text(message.from, "Let's continue shopping."));
 
@@ -71,7 +71,7 @@ export const handle = async (conversation, message) => {
     case "CLEAR_CART":
       await cartService.clearCart(conversation.customerId);
 
-      await goToState(conversation, ConversationState.CATEGORY);
+      await goToState(conversation, ConversationState.VIEWING_MENU);
 
       return sendMessage(text(message.from, "🗑️ Cart cleared."));
 

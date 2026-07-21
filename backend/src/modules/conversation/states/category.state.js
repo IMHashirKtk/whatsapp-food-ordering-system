@@ -36,7 +36,7 @@ export const handle = async (conversation, message) => {
     categoryId,
   });
 
-  await goToState(conversation, ConversationState.PRODUCT);
+  await goToState(conversation, ConversationState.ORDERING);
 
   return sendMessage(text(message.from, "📋 Loading products..."));
 };

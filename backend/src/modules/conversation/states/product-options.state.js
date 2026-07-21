@@ -16,7 +16,7 @@ export const handle = async (conversation, message) => {
 
   // No option groups → proceed directly to cart
   if (!product.optionGroups.length) {
-    await goToState(conversation, ConversationState.CART);
+    await goToState(conversation, ConversationState.VIEWING_CART);
 
     return sendMessage(
       text(message.from, "Product added.\n\nHow many would you like to order?"),
@@ -36,7 +36,7 @@ export const handle = async (conversation, message) => {
         optionGroupIndex: nextIndex,
       });
 
-      await goToState(conversation, ConversationState.CART);
+      await goToState(conversation, ConversationState.VIEWING_CART);
 
       return sendMessage(
         text(message.from, "How many would you like to order?\n\nExample: 2"),

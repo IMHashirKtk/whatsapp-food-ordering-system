@@ -53,7 +53,7 @@ export const handle = async (conversation, message) => {
     quantity: 1,
   });
 
-  await goToState(conversation, ConversationState.PRODUCT_OPTIONS);
+  await goToState(conversation, ConversationState.ORDERING);
 
   const updatedConversation = await conversationService.getOrCreateConversation(
     conversation.customerId,

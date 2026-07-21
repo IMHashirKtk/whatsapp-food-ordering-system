@@ -7,7 +7,7 @@ import { goToState } from "./state.helper.js";
 export const handle = async (conversation, message) => {
   switch (message.buttonReply?.id) {
     case "ORDER":
-      await goToState(conversation, ConversationState.CATEGORY);
+      await goToState(conversation, ConversationState.VIEWING_MENU);
 
       return categoryState.handle(conversation, message);
 

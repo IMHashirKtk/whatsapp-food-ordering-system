@@ -35,7 +35,7 @@ export const updateContext = async (conversationId, context) => {
 
 export const resetConversation = async (conversationId) => {
   return conversationRepository.updateById(conversationId, {
-    state: CONVERSATION_STATE.MAIN_MENU,
+    state: ConversationState.MAIN_MENU,
     context: {},
   });
 };
