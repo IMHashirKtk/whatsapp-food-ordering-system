@@ -1,4 +1,4 @@
-import { buildButtonMessage } from "../../meta/message.factory.js";
+import { buttons } from "../../meta/message.factory.js";
 import { sendMessage } from "../../meta/meta.api.js";
 
 import { goToState } from "./state.helper.js";
@@ -6,9 +6,9 @@ import { ConversationState } from "./state.constants.js";
 
 export const handle = async (conversation, message) => {
   await sendMessage(
-    buildButtonMessage(
+    buttons(
       message.from,
-      "👋 Welcome to Foodaji!\n\nHow can we help you today?",
+      "👋 Welcome to *Foodaji*!\n\nWhat would you like to do today?",
       [
         {
           type: "reply",
@@ -21,14 +21,14 @@ export const handle = async (conversation, message) => {
           type: "reply",
           reply: {
             id: "ORDERS",
-            title: "📦 Orders",
+            title: "📦 My Orders",
           },
         },
         {
           type: "reply",
           reply: {
             id: "HELP",
-            title: "☎️ Help",
+            title: "💬 Support",
           },
         },
       ],

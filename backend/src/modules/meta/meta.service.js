@@ -1,15 +1,22 @@
 import { parseWebhook } from "./webhook.parser.js";
-import { sendMessage } from "./meta.api.js";
-import { buildTextMessage } from "./message.builder.js";
+
+import { dispatch } from "../conversation/engine/dispatcher.js";
+
+import * as customerService from "../customer/customer.service.js";
+import * as conversationService from "../conversation/conversation.service.js";
 
 export const processWebhook = async (payload) => {
   const message = parseWebhook(payload);
 
   if (!message) return;
 
-  // Temporary conversation object
-  const conversation = await conversationService.getOrCreateConversation(
+  const customer = await customerService.getOrCreateCustomer(
     message.from,
+    message.profileName,
+  );
+
+  const conversation = await conversationService.getOrCreateConversation(
+    customer.id,
   );
 
   await dispatch(conversation, message);

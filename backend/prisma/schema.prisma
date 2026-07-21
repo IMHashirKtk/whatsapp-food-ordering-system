@@ -11,8 +11,6 @@ model Customer {
   whatsappId String  @unique
   name       String?
 
-  state ConversationState @default(IDLE)
-
   messages Message[]
   cart     Cart?
   orders Order[]
@@ -226,7 +224,7 @@ model Conversation {
   customerId String   @unique
   customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
 
-  state String @default("MAIN_MENU")
+  state ConversationState @default(MAIN_MENU)
 
   context Json?
 

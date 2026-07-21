@@ -7,7 +7,11 @@ import * as productState from "../states/product.state.js";
 import * as cartState from "../states/cart.state.js";
 import * as checkoutState from "../states/checkout.state.js";
 
-const handlers = {
+import { handleText } from "./text.handler.js";
+import { handleButton } from "./button.handler.js";
+import { handleList } from "./list.handler.js";
+
+const stateHandlers = {
   [ConversationState.WELCOME]: welcomeState,
   [ConversationState.MAIN_MENU]: mainMenuState,
   [ConversationState.CATEGORY]: categoryState,
@@ -17,8 +21,29 @@ const handlers = {
 };
 
 export const dispatch = async (conversation, message) => {
-  const handler =
-    handlers[conversation.state] ?? handlers[ConversationState.WELCOME];
+  const stateHandler = stateHandlers[conversation.state];
 
-  return handler.handle(conversation, message);
+  if (!stateHandler) {
+    throw new Error(`Unknown conversation state: ${conversation.state}`);
+  }
+
+  switch (message.type) {
+    case "text":
+      return handleText(stateHandler, conversation, message);
+
+    case "button":
+      return handleButton(stateHandler, conversation, message);
+
+    case "interactive_button":
+      return handleButton(stateHandler, conversation, message);
+
+    case "list":
+      return handleList(stateHandler, conversation, message);
+
+    case "interactive_list":
+      return handleList(stateHandler, conversation, message);
+
+    default:
+      return handleText(stateHandler, conversation, message);
+  }
 };

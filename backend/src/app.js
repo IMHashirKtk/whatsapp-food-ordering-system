@@ -6,8 +6,6 @@ import healthRoutes from "./routes/health.routes.js";
 import notFound from "./middleware/notFound.js";
 import errorHandler from "./middleware/errorHandler.js";
 import customerRoutes from "./routes/customer.routes.js";
-import webhookRoutes from "./routes/webhook.routes.js";
-import testRoutes from "./routes/test.routes.js";
 import menuRoutes from "./modules/menu/menu.routes.js";
 import cartRoutes from "./modules/cart/cart.routes.js";
 import orderRoutes from "./modules/order/order.routes.js";
@@ -36,8 +34,6 @@ app.use(express.json());
 // Health check route
 app.use("/api/v1/health", healthRoutes);
 app.use("/api/v1/customers", customerRoutes);
-app.use("/api/v1/webhook", webhookRoutes);
-app.use("/api/v1/test", testRoutes);
 app.use("/api/v1/menu", menuRoutes);
 app.use("/api/v1/cart", cartRoutes);
 app.use("/api/v1/orders", orderRoutes);

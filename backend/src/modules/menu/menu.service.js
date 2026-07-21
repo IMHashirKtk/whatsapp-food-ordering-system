@@ -202,3 +202,7 @@ export const getOptionById = async (id) => {
 
   return option;
 };
+
+export const getActiveCategories = async () => {
+  return menuRepository.getAllCategories();
+};
