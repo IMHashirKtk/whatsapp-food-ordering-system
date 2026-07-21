@@ -1,16 +1,10 @@
 import * as cartRepository from "./cart.repository.js";
 import * as menuService from "../menu/menu.service.js";
 
-/**
- * Create cart if it doesn't exist
- */
 export const getCart = async (customerId) => {
   return cartRepository.getOrCreateCart(customerId);
 };
 
-/**
- * Add item to cart
- */
 export const addItem = async ({
   customerId,
   menuItemId,
@@ -19,33 +13,20 @@ export const addItem = async ({
 }) => {
   const cart = await cartRepository.getOrCreateCart(customerId);
 
-  const menu = await menuService.getMenuTree();
-
-  let menuItem = null;
-
-  for (const category of menu) {
-    const found = category.menuItems.find((item) => item.id === menuItemId);
-
-    if (found) {
-      menuItem = found;
-      break;
-    }
-  }
+  const menuItem = await menuService.getProductWithOptions(menuItemId);
 
   if (!menuItem) {
     throw new Error("Menu item not found.");
   }
 
-  let basePrice = Number(menuItem.basePrice);
-  let optionsTotal = 0;
+  const basePrice = Number(menuItem.basePrice);
 
+  let optionsTotal = 0;
   const selectedOptionObjects = [];
 
-  for (const optionId of selectedOptions) {
-    for (const group of menuItem.optionGroups) {
-      const option = group.options.find((o) => o.id === optionId);
-
-      if (option) {
+  for (const optionGroup of menuItem.optionGroups) {
+    for (const option of optionGroup.options) {
+      if (selectedOptions.includes(option.id)) {
         optionsTotal += Number(option.extraPrice);
 
         selectedOptionObjects.push(option);
@@ -53,46 +34,38 @@ export const addItem = async ({
     }
   }
 
-  const singleItemPrice = basePrice + optionsTotal;
-  const totalPrice = singleItemPrice * quantity;
+  const totalPrice = (basePrice + optionsTotal) * quantity;
 
-  const cartItem = await cartRepository.addItem({
-    cartId: cart.id,
-    menuItemId,
-    quantity,
-    basePrice,
-    totalPrice,
-  });
-
-  for (const option of selectedOptionObjects) {
-    await cartRepository.addItemOption({
-      cartItemId: cartItem.id,
-      optionId: option.id,
-      name: option.name,
-      extraPrice: option.extraPrice,
+  await cartRepository.transaction(async (tx) => {
+    const cartItem = await cartRepository.addItem(tx, {
+      cartId: cart.id,
+      menuItemId,
+      quantity,
+      basePrice,
+      totalPrice,
     });
-  }
+
+    for (const option of selectedOptionObjects) {
+      await cartRepository.addItemOption(tx, {
+        cartItemId: cartItem.id,
+        optionId: option.id,
+        name: option.name,
+        extraPrice: option.extraPrice,
+      });
+    }
+  });
 
   return cartRepository.getCart(customerId);
 };
 
-/**
- * Update quantity
- */
-export const updateQuantity = async (itemId, quantity) => {
+export const updateQuantity = async () => {
   throw new Error("Not implemented yet.");
 };
 
-/**
- * Remove item
- */
 export const removeItem = async (itemId) => {
   return cartRepository.removeItem(itemId);
 };
 
-/**
- * Empty cart
- */
 export const clearCart = async (customerId) => {
   const cart = await cartRepository.getCart(customerId);
 

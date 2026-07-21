@@ -1,4 +1,4 @@
-import asyncHandler from "../utils/asyncHandler.js";
+import asyncHandler from "../utils/async-handler.js";
 import AppError from "../utils/AppError.js";
 import * as customerService from "../services/customer.service.js";
 import {

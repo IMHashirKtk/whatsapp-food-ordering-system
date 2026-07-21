@@ -70,3 +70,7 @@ export const createOrderItemOption = (data, db = prisma) => {
     data,
   });
 };
+
+export const transaction = (callback) => {
+  return prisma.$transaction(callback);
+};

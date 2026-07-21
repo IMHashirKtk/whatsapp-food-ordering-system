@@ -175,6 +175,15 @@ export const deleteOption = async (id) => {
   return menuRepository.deleteOption(id);
 };
 
+export const getProductWithOptions = async (menuItemId) => {
+  const item = await menuRepository.getMenuItemWithOptions(menuItemId);
+
+  if (!item) {
+    throw new AppError("Menu item not found.", 404);
+  }
+
+  return item;
+};
 /* ==========================
    Complete Menu
 ========================== */
@@ -205,4 +214,10 @@ export const getOptionById = async (id) => {
 
 export const getActiveCategories = async () => {
   return menuRepository.getAllCategories();
+};
+
+export const getMenuItemsByCategory = async (categoryId) => {
+  await getCategoryById(categoryId);
+
+  return menuRepository.getMenuItemsByCategory(categoryId);
 };

@@ -1,6 +1,6 @@
 import * as conversationRepository from "./conversation.repository.js";
 
-import { CONVERSATION_STATE } from "../../constants/conversationStates.js";
+import { ConversationState } from "./states/state.constants.js";
 
 export const getOrCreateConversation = async (customerId) => {
   let conversation = await conversationRepository.getByCustomerId(customerId);

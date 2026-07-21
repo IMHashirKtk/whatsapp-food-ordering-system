@@ -1,4 +1,4 @@
-import asyncHandler from "../../utils/asyncHandler.js";
+import asyncHandler from "../../utils/async-handler.js";
 import * as metaService from "./meta.service.js";
 
 export const verifyWebhook = asyncHandler(async (req, res) => {

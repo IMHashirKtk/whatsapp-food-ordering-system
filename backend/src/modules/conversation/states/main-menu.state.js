@@ -1,6 +1,6 @@
 import { buttons, text } from "../../meta/message.factory.js";
 import { sendMessage } from "../../meta/meta.api.js";
-
+import * as categoryState from "./category.state.js";
 import { ConversationState } from "./state.constants.js";
 import { goToState } from "./state.helper.js";
 
@@ -9,7 +9,7 @@ export const handle = async (conversation, message) => {
     case "ORDER":
       await goToState(conversation, ConversationState.CATEGORY);
 
-      return sendMessage(text(message.from, "Loading menu..."));
+      return categoryState.handle(conversation, message);
 
     case "ORDERS":
       return sendMessage(

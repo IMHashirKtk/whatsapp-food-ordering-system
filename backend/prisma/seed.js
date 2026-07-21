@@ -1,10 +1,17 @@
 import "dotenv/config";
 import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
+import pg from "pg";
+import bcrypt from "bcrypt";
 
-const adapter = new PrismaPg({
+const pool = new pg.Pool({
   connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false,
+  },
 });
+
+const adapter = new PrismaPg(pool);
 
 const prisma = new PrismaClient({
   adapter,
@@ -12,6 +19,10 @@ const prisma = new PrismaClient({
 
 async function main() {
   console.log("🌱 Seeding database...");
+
+  /* ==========================
+     Clear Database
+  ========================== */
 
   await prisma.orderItemOption.deleteMany();
   await prisma.orderItem.deleteMany();
@@ -26,6 +37,24 @@ async function main() {
 
   await prisma.menuItem.deleteMany();
   await prisma.category.deleteMany();
+
+  await prisma.customer.deleteMany();
+
+  await prisma.admin.deleteMany();
+
+  /* ==========================
+     Admin User
+  ========================== */
+
+  const password = await bcrypt.hash("Admin@123", 10);
+
+  await prisma.admin.create({
+    data: {
+      name: "Administrator",
+      email: "admin@example.com",
+      password,
+    },
+  });
 
   /* ==========================
      Categories
@@ -77,7 +106,7 @@ async function main() {
     },
   });
 
-  const fajita = await prisma.menuItem.create({
+  await prisma.menuItem.create({
     data: {
       categoryId: pizza.id,
       name: "Fajita Pizza",
@@ -87,7 +116,7 @@ async function main() {
   });
 
   /* ==========================
-     Burger
+     Burgers
   ========================== */
 
   await prisma.menuItem.create({
@@ -189,20 +218,29 @@ async function main() {
         optionGroupId: cheese.id,
         name: "Yes",
         extraPrice: 250,
+        sortOrder: 1,
       },
       {
         optionGroupId: cheese.id,
         name: "No",
         extraPrice: 0,
+        sortOrder: 2,
       },
     ],
   });
 
-  console.log("✅ Seed completed");
+  console.log("✅ Database seeded successfully.");
+  console.log("");
+  console.log("Admin Login");
+  console.log("Email: admin@example.com");
+  console.log("Password: Admin@123");
 }
 
 main()
-  .catch(console.error)
+  .catch((error) => {
+    console.error(error);
+    process.exit(1);
+  })
   .finally(async () => {
     await prisma.$disconnect();
   });

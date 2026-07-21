@@ -1,5 +1,3 @@
-import prisma from "../../database/prisma.js";
-
 import * as orderRepository from "./order.repository.js";
 import * as cartRepository from "../cart/cart.repository.js";
 
@@ -25,7 +23,7 @@ export const checkout = async (customerId) => {
     throw new AppError("Cart is empty.", 400);
   }
 
-  return prisma.$transaction(async (tx) => {
+  return orderRepository.transaction(async (tx) => {
     const subtotal = cart.items.reduce(
       (sum, item) => sum + Number(item.totalPrice),
       0,
@@ -73,19 +71,7 @@ export const checkout = async (customerId) => {
       }
     }
 
-    await tx.cartItemOption.deleteMany({
-      where: {
-        cartItem: {
-          cartId: cart.id,
-        },
-      },
-    });
-
-    await tx.cartItem.deleteMany({
-      where: {
-        cartId: cart.id,
-      },
-    });
+    await cartRepository.clearCartTx(tx, cart.id);
 
     return order;
   });

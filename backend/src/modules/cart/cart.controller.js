@@ -1,5 +1,5 @@
 import * as cartService from "./cart.service.js";
-import asyncHandler from "../../utils/asyncHandler.js";
+import asyncHandler from "../../utils/async-handler.js";
 
 export const getCart = asyncHandler(async (req, res) => {
   const cart = await cartService.getCart(req.params.customerId);

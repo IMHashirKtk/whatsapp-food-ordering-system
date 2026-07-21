@@ -132,6 +132,43 @@ export const updateMenuItem = (id, data) => {
   });
 };
 
+export const getMenuItemsByCategory = (categoryId) => {
+  return prisma.menuItem.findMany({
+    where: {
+      categoryId,
+      isAvailable: true,
+    },
+    orderBy: {
+      name: "asc",
+    },
+  });
+};
+
+export const getMenuItemWithOptions = (menuItemId) => {
+  return prisma.menuItem.findUnique({
+    where: {
+      id: menuItemId,
+    },
+    include: {
+      optionGroups: {
+        orderBy: {
+          sortOrder: "asc",
+        },
+        include: {
+          options: {
+            where: {
+              isAvailable: true,
+            },
+            orderBy: {
+              sortOrder: "asc",
+            },
+          },
+        },
+      },
+    },
+  });
+};
+
 export const deleteMenuItem = (id) => {
   return prisma.menuItem.delete({
     where: { id },

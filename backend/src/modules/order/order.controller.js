@@ -1,5 +1,5 @@
 import * as orderService from "./order.service.js";
-import asyncHandler from "../../utils/asyncHandler.js";
+import asyncHandler from "../../utils/async-handler.js";
 
 /* ==========================
    Checkout

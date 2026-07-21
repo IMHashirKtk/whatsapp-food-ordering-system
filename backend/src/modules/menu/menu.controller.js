@@ -1,5 +1,5 @@
 import * as menuService from "./menu.service.js";
-import asyncHandler from "../../utils/asyncHandler.js";
+import asyncHandler from "../../utils/async-handler.js";
 
 /* ==========================
    Categories

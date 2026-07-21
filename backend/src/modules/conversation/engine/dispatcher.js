@@ -4,8 +4,10 @@ import * as welcomeState from "../states/welcome.state.js";
 import * as mainMenuState from "../states/main-menu.state.js";
 import * as categoryState from "../states/category.state.js";
 import * as productState from "../states/product.state.js";
+import * as productOptionsState from "../states/product-options.state.js";
 import * as cartState from "../states/cart.state.js";
 import * as checkoutState from "../states/checkout.state.js";
+import * as completeState from "../states/complete.state.js";
 
 import { handleText } from "./text.handler.js";
 import { handleButton } from "./button.handler.js";
@@ -16,8 +18,10 @@ const stateHandlers = {
   [ConversationState.MAIN_MENU]: mainMenuState,
   [ConversationState.CATEGORY]: categoryState,
   [ConversationState.PRODUCT]: productState,
+  [ConversationState.PRODUCT_OPTIONS]: productOptionsState,
   [ConversationState.CART]: cartState,
   [ConversationState.CHECKOUT]: checkoutState,
+  [ConversationState.COMPLETE]: completeState,
 };
 
 export const dispatch = async (conversation, message) => {
@@ -32,14 +36,10 @@ export const dispatch = async (conversation, message) => {
       return handleText(stateHandler, conversation, message);
 
     case "button":
-      return handleButton(stateHandler, conversation, message);
-
     case "interactive_button":
       return handleButton(stateHandler, conversation, message);
 
     case "list":
-      return handleList(stateHandler, conversation, message);
-
     case "interactive_list":
       return handleList(stateHandler, conversation, message);
 

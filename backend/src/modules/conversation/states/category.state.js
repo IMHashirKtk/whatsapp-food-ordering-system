@@ -1,44 +1,42 @@
 import * as menuService from "../../menu/menu.service.js";
+import * as conversationService from "../conversation.service.js";
 
 import { list, text } from "../../meta/message.factory.js";
 import { sendMessage } from "../../meta/meta.api.js";
 
-import { saveContext } from "./state.helper.js";
 import { ConversationState } from "./state.constants.js";
 import { goToState } from "./state.helper.js";
 
 export const handle = async (conversation, message) => {
-  const categories = await menuService.getActiveCategories();
+  // Initial entry into the category state
+  if (!message.listReply) {
+    const categories = await menuService.getActiveCategories();
 
-  if (!categories.length) {
+    if (!categories.length) {
+      return sendMessage(text(message.from, "❌ No categories are available."));
+    }
+
     return sendMessage(
-      text(message.from, "Sorry, our menu is currently unavailable."),
+      list(message.from, "🍽️ Please choose a category.", "Browse Categories", [
+        {
+          title: "Categories",
+          rows: categories.map((category) => ({
+            id: category.id,
+            title: category.name,
+            description: category.description || "",
+          })),
+        },
+      ]),
     );
   }
 
-  const sections = [
-    {
-      title: "Food Categories",
-      rows: categories.map((category) => ({
-        id: category.id,
-        title: category.name,
-        description:
-          category.description ?? `${category._count.menuItems} items`,
-      })),
-    },
-  ];
+  const categoryId = message.listReply.id;
 
-  await sendMessage(
-    list(
-      message.from,
-      "Please choose a category.",
-      "Browse",
-      sections,
-      "🍔 Foodaji Menu",
-    ),
-  );
-
-  await saveContext(conversation, {});
+  await conversationService.updateContext(conversation.id, {
+    categoryId,
+  });
 
   await goToState(conversation, ConversationState.PRODUCT);
+
+  return sendMessage(text(message.from, "📋 Loading products..."));
 };

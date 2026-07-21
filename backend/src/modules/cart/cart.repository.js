@@ -16,7 +16,9 @@ export const getCart = (customerId) => {
 
 export const createCart = (customerId) => {
   return prisma.cart.create({
-    data: { customerId },
+    data: {
+      customerId,
+    },
   });
 };
 
@@ -24,40 +26,57 @@ export const getOrCreateCart = async (customerId) => {
   let cart = await getCart(customerId);
 
   if (!cart) {
-    cart = await createCart(customerId);
+    await createCart(customerId);
     cart = await getCart(customerId);
   }
 
   return cart;
 };
 
-export const addItem = (data, db = prisma) => {
-  return db.cartItem.create({
+export const addItem = (tx, data) => {
+  return tx.cartItem.create({
     data,
   });
 };
 
-export const addItemOption = (data, db = prisma) => {
-  return db.cartItemOption.create({
+export const addItemOption = (tx, data) => {
+  return tx.cartItemOption.create({
     data,
   });
 };
 
-export const updateItemQuantity = (id, quantity, db = prisma) => {
-  return db.cartItem.update({
-    where: { id },
-    data: { quantity },
+export const removeItem = (id) => {
+  return prisma.cartItem.delete({
+    where: {
+      id,
+    },
   });
 };
 
-export const removeItem = (id, db = prisma) => {
-  return db.cartItem.delete({
-    where: { id },
+export const clearCart = (cartId) => {
+  return prisma.cartItem.deleteMany({
+    where: {
+      cartId,
+    },
   });
 };
 
-export const clearCart = (cartId, db = prisma) => {
-  return db.cartItem.deleteMany({
-    where: { cartId },
+export const transaction = (callback) => {
+  return prisma.$transaction(callback);
+};
+
+export const clearCartTx = async (tx, cartId) => {
+  await tx.cartItemOption.deleteMany({
+    where: {
+      cartItem: {
+        cartId,
+      },
+    },
+  });
+
+  await tx.cartItem.deleteMany({
+    where: {
+      cartId,
+    },
   });
 };
