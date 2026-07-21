@@ -1,15 +1,17 @@
 import * as customerRepository from "./customer.repository.js";
 
+/* -------------------------------------------------------------------------- */
+/*                                WhatsApp Flow                               */
+/* -------------------------------------------------------------------------- */
+
 export const getOrCreateCustomer = async (whatsappId, profileName) => {
   let customer = await customerRepository.getByWhatsappId(whatsappId);
 
   if (!customer) {
-    customer = await customerRepository.create({
+    return customerRepository.create({
       whatsappId,
       name: profileName,
     });
-
-    return customer;
   }
 
   if (profileName && profileName !== customer.name) {
@@ -21,6 +23,35 @@ export const getOrCreateCustomer = async (whatsappId, profileName) => {
   return customer;
 };
 
-export const getCustomer = (id) => {
-  return customerRepository.getById(id);
+export const findOrCreateCustomer = getOrCreateCustomer;
+
+/* -------------------------------------------------------------------------- */
+/*                                   CRUD                                     */
+/* -------------------------------------------------------------------------- */
+
+export const createCustomer = (data) => customerRepository.create(data);
+
+export const getAllCustomers = () => customerRepository.getAll();
+
+export const getCustomer = (id) => customerRepository.getById(id);
+
+export const getCustomerById = getCustomer;
+
+export const updateCustomer = (id, data) => customerRepository.update(id, data);
+
+export const deleteCustomer = async (id) => {
+  await customerRepository.remove(id);
+
+  return {
+    message: "Customer deleted successfully",
+  };
+};
+
+/* -------------------------------------------------------------------------- */
+/*                            Legacy Compatibility                            */
+/* -------------------------------------------------------------------------- */
+
+export const updateState = async () => {
+  // Customer state is now stored in Conversation.
+  return null;
 };

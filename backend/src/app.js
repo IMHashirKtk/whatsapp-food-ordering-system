@@ -3,8 +3,7 @@ import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
 import path from "path";
-import healthRoutes from "./routes/health.routes.js";
-import customerRoutes from "./routes/customer.routes.js";
+import customerRoutes from "./modules/customer/customer.routes.js";
 import uploadRoutes from "./modules/upload/upload.routes.js";
 import menuRoutes from "./modules/menu/menu.routes.js";
 import cartRoutes from "./modules/cart/cart.routes.js";
@@ -46,8 +45,6 @@ app.use("/uploads", express.static(path.resolve("uploads")));
 /* ==========================================
    API Routes
 ========================================== */
-
-app.use("/api/v1/health", healthRoutes);
 
 app.use("/api/v1/auth", authRoutes);
 

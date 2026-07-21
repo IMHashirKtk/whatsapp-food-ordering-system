@@ -1,5 +1,4 @@
 import * as conversationRepository from "./conversation.repository.js";
-
 import { ConversationState } from "./states/state.constants.js";
 
 export const getOrCreateConversation = async (customerId) => {
@@ -12,6 +11,14 @@ export const getOrCreateConversation = async (customerId) => {
   return conversation;
 };
 
+export const getConversation = async (customerId) => {
+  return conversationRepository.getByCustomerId(customerId);
+};
+
+export const getConversationById = async (conversationId) => {
+  return conversationRepository.getById(conversationId);
+};
+
 export const changeState = async (conversationId, state, context = null) => {
   const data = { state };
 
@@ -20,6 +27,10 @@ export const changeState = async (conversationId, state, context = null) => {
   }
 
   return conversationRepository.updateById(conversationId, data);
+};
+
+export const setState = async (conversationId, state, context = null) => {
+  return changeState(conversationId, state, context);
 };
 
 export const updateContext = async (conversationId, context) => {
@@ -38,4 +49,8 @@ export const resetConversation = async (conversationId) => {
     state: ConversationState.MAIN_MENU,
     context: {},
   });
+};
+
+export const reset = async (conversationId) => {
+  return resetConversation(conversationId);
 };

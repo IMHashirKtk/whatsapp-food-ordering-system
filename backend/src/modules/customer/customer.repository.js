@@ -1,5 +1,13 @@
 import prisma from "../../database/prisma.js";
 
+export const getAll = () => {
+  return prisma.customer.findMany({
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+};
+
 export const getByWhatsappId = (whatsappId) => {
   return prisma.customer.findUnique({
     where: {
@@ -16,12 +24,9 @@ export const getById = (id) => {
   });
 };
 
-export const create = ({ whatsappId, name }) => {
+export const create = (data) => {
   return prisma.customer.create({
-    data: {
-      whatsappId,
-      name,
-    },
+    data,
   });
 };
 
@@ -31,5 +36,13 @@ export const update = (id, data) => {
       id,
     },
     data,
+  });
+};
+
+export const remove = (id) => {
+  return prisma.customer.delete({
+    where: {
+      id,
+    },
   });
 };

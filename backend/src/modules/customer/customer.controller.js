@@ -1,10 +1,10 @@
-import asyncHandler from "../utils/async-handler.js";
-import AppError from "../utils/AppError.js";
-import * as customerService from "../services/customer.service.js";
+import asyncHandler from "../../utils/async-handler.js";
+import AppError from "../../utils/AppError.js";
+import * as customerService from "./customer.service.js";
 import {
   createCustomerSchema,
   updateCustomerSchema,
-} from "../validators/customer.validator.js";
+} from "./customer.validator.js";
 
 export const createCustomer = asyncHandler(async (req, res) => {
   const validation = createCustomerSchema.safeParse(req.body);
