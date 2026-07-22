@@ -10,8 +10,9 @@ import { goToState } from "./state.helper.js";
 import * as productOptionsState from "./product-options.state.js";
 
 export const handle = async (conversation, message) => {
+  console.log(">>> ENTERED PRODUCT STATE");
   conversation = await conversationService.getConversationById(conversation.id);
-  console.log("Context in product state:", conversation.context);
+  console.log("Conversation context:", conversation.context);
   const { categoryId } = conversation.context || {};
 
   if (!categoryId) {
