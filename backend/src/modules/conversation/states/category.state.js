@@ -31,10 +31,17 @@ export const handle = async (conversation, message) => {
   }
 
   const categoryId = message.listReply.id;
+  console.log("Selected category:", categoryId);
 
   await conversationService.updateContext(conversation.id, {
     categoryId,
   });
+
+  const refreshed = await conversationService.getConversationById(
+    conversation.id,
+  );
+
+  console.log("Context after save:", refreshed.context);
 
   await goToState(conversation, ConversationState.ORDERING);
 
