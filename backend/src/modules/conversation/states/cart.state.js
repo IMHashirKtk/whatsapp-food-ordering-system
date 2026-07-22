@@ -9,6 +9,7 @@ import { goToState } from "./state.helper.js";
 import { formatCart } from "../../cart/cart.helper.js";
 
 export const handle = async (conversation, message) => {
+  console.log(">>> CART STATE");
   // Waiting for quantity
   if (message.type === "text") {
     const quantity = Number(message.text?.body);

@@ -8,6 +8,7 @@ import { ConversationState } from "./state.constants.js";
 import { goToState } from "./state.helper.js";
 
 export const handle = async (conversation, message) => {
+  console.log(">>> CATEGORY STATE");
   // Initial entry into the category state
   if (!message.listReply) {
     const categories = await menuService.getActiveCategories();
