@@ -31,7 +31,8 @@ export const handle = async (conversation, message) => {
   }
 
   const categoryId = message.listReply.id;
-  console.log("Selected category:", categoryId);
+  console.log("Category ID from WhatsApp:", categoryId);
+  console.log("Conversation ID:", conversation.id);
 
   await conversationService.updateContext(conversation.id, {
     categoryId,
@@ -44,6 +45,7 @@ export const handle = async (conversation, message) => {
   console.log("Context after save:", refreshed.context);
 
   await goToState(conversation, ConversationState.ORDERING);
+  console.log("Full listReply:", message.listReply);
 
   return sendMessage(text(message.from, "📋 Loading products..."));
 };

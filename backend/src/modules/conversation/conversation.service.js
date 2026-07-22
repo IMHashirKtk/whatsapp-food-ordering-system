@@ -34,14 +34,24 @@ export const setState = async (conversationId, state, context = null) => {
 };
 
 export const updateContext = async (conversationId, context) => {
+  console.log("updateContext called");
+  console.log("conversationId:", conversationId);
+  console.log("new context:", context);
+
   const conversation = await conversationRepository.getById(conversationId);
 
-  return conversationRepository.updateById(conversationId, {
+  console.log("existing context:", conversation.context);
+
+  const updated = await conversationRepository.updateById(conversationId, {
     context: {
       ...(conversation.context || {}),
       ...context,
     },
   });
+
+  console.log("saved context:", updated.context);
+
+  return updated;
 };
 
 export const resetConversation = async (conversationId) => {
