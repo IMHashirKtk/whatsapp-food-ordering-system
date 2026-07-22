@@ -8,11 +8,15 @@ import * as conversationService from "../conversation/conversation.service.js";
 export const processWebhook = async (payload) => {
   const message = parseWebhook(payload);
 
-  console.log("========== NEW WEBHOOK ==========");
-  console.log("Message type:", message?.type);
-  console.log("Message:", JSON.stringify(message, null, 2));
+  if (!message) {
+    console.log("Status webhook (ignored)");
+    return;
+  }
 
-  if (!message) return;
+  console.log("\n==============================");
+  console.log("NEW USER MESSAGE");
+  console.log("==============================");
+  console.log(JSON.stringify(message, null, 2));
 
   const customer = await customerService.getOrCreateCustomer(
     message.from,
