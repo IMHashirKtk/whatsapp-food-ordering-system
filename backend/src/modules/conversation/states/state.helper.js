@@ -1,6 +1,6 @@
 import * as conversationService from "../conversation.service.js";
 
-export const goToState = (conversation, state, context = {}) => {
+export const goToState = (conversation, state, context = null) => {
   return conversationService.changeState(conversation.id, state, context);
 };
 
