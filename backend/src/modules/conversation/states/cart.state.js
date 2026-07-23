@@ -15,7 +15,9 @@ export const handle = async (conversation, message) => {
   console.log("message:", JSON.stringify(message, null, 2));
   // Waiting for quantity
   if (message.type === "text") {
-    const quantity = Number(message.text?.body);
+    const quantity = Number(
+      typeof message.text === "string" ? message.text : message.text?.body,
+    );
 
     if (!Number.isInteger(quantity) || quantity <= 0) {
       return sendMessage(
