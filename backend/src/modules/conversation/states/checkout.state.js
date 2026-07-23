@@ -22,7 +22,14 @@ export const handle = async (conversation, message) => {
   });
 
   // Create the order
-  const order = await orderService.checkout(conversation.customerId);
+  const address =
+    typeof message.text === "string" ? message.text : message.text?.body;
+
+  await conversationService.updateContext(conversation.id, {
+    deliveryAddress: address,
+  });
+
+  const order = await orderService.checkout(conversation.customerId, address);
 
   // Move to tracking state
   await goToState(conversation, ConversationState.TRACKING_ORDER);

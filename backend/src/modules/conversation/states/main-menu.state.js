@@ -1,6 +1,7 @@
 import { buttons, text } from "../../meta/message.factory.js";
 import { sendMessage } from "../../meta/meta.api.js";
 import * as categoryState from "./category.state.js";
+import * as orderService from "../../order/order.service.js";
 import { ConversationState } from "./state.constants.js";
 import { goToState } from "./state.helper.js";
 
@@ -11,10 +12,28 @@ export const handle = async (conversation, message) => {
 
       return categoryState.handle(conversation, message);
 
-    case "ORDERS":
-      return sendMessage(
-        text(message.from, "📦 You don't have any orders yet."),
+    case "ORDERS": {
+      const orders = await orderService.getCustomerOrders(
+        conversation.customerId,
       );
+
+      if (!orders.length) {
+        return sendMessage(
+          text(message.from, "📦 You don't have any orders yet."),
+        );
+      }
+
+      const messageText =
+        "📦 Your Orders:\n\n" +
+        orders
+          .map(
+            (order) =>
+              `Order: ${order.orderNumber}\nStatus: ${order.status}\nTotal: Rs. ${order.total}`,
+          )
+          .join("\n\n");
+
+      return sendMessage(text(message.from, messageText));
+    }
 
     case "HELP":
       return sendMessage(

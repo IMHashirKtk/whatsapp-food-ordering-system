@@ -12,7 +12,7 @@ const generateOrderNumber = () => {
    Checkout
 ========================== */
 
-export const checkout = async (customerId) => {
+export const checkout = async (customerId, deliveryAddress) => {
   const cart = await cartRepository.getCart(customerId);
 
   if (!cart) {
@@ -37,6 +37,7 @@ export const checkout = async (customerId) => {
       {
         orderNumber: generateOrderNumber(),
         customerId,
+        deliveryAddress,
         subtotal,
         tax,
         deliveryFee,
