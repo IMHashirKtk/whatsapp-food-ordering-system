@@ -7,7 +7,7 @@ import * as productState from "../states/product.state.js";
 import * as cartState from "../states/cart.state.js";
 import * as checkoutState from "../states/checkout.state.js";
 import * as completeState from "../states/complete.state.js";
-
+import * as productOptionsState from "../states/product-options.state.js";
 import { handleText } from "./text.handler.js";
 import { handleButton } from "./button.handler.js";
 import { handleList } from "./list.handler.js";
@@ -19,8 +19,9 @@ const stateHandlers = {
 
   [ConversationState.VIEWING_MENU]: categoryState,
 
-  // Product selection + option selection both occur while ORDERING
   [ConversationState.ORDERING]: productState,
+
+  [ConversationState.SELECTING_OPTIONS]: productOptionsState,
 
   [ConversationState.VIEWING_CART]: cartState,
 

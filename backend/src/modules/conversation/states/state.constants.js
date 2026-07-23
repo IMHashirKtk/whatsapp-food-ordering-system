@@ -7,6 +7,8 @@ export const ConversationState = {
 
   ORDERING: "ORDERING",
 
+  SELECTING_OPTIONS: "SELECTING_OPTIONS",
+
   VIEWING_CART: "VIEWING_CART",
 
   CHECKOUT: "CHECKOUT",
