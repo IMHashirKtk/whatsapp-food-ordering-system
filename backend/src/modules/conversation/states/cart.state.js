@@ -10,6 +10,9 @@ import { formatCart } from "../../cart/cart.helper.js";
 
 export const handle = async (conversation, message) => {
   console.log(">>> CART STATE");
+  console.log("message.type:", message.type);
+  console.log("message.text:", message.text);
+  console.log("message:", JSON.stringify(message, null, 2));
   // Waiting for quantity
   if (message.type === "text") {
     const quantity = Number(message.text?.body);
