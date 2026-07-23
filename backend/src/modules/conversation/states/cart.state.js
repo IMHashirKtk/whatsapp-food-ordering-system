@@ -72,7 +72,9 @@ export const handle = async (conversation, message) => {
     case "CHECKOUT":
       await goToState(conversation, ConversationState.CHECKOUT);
 
-      return sendMessage(text(message.from, "Preparing checkout..."));
+      return sendMessage(
+        text(message.from, "📍 Please enter your delivery address."),
+      );
 
     case "CLEAR_CART":
       await cartService.clearCart(conversation.customerId);
