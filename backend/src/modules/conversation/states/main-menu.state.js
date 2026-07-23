@@ -19,17 +19,49 @@ export const handle = async (conversation, message) => {
 
       if (!orders.length) {
         return sendMessage(
-          text(message.from, "📦 You don't have any orders yet."),
+          text(
+            message.from,
+            "📦 You haven't placed any orders yet.\n\nTap *🍔 Order Food* to place your first order!",
+          ),
         );
       }
 
+      const statusMap = {
+        PENDING: "⏳ Preparing",
+        CONFIRMED: "👨‍🍳 Confirmed",
+        PREPARING: "🍳 Preparing",
+        READY: "📦 Ready for Pickup",
+        OUT_FOR_DELIVERY: "🛵 On the Way",
+        DELIVERED: "✅ Delivered",
+        CANCELLED: "❌ Cancelled",
+      };
+
       const messageText =
-        "📦 Your Orders:\n\n" +
+        "📦 *Your Orders*\n\n" +
         orders
-          .map(
-            (order) =>
-              `Order: ${order.orderNumber}\nStatus: ${order.status}\nTotal: Rs. ${order.total}`,
-          )
+          .map((order) => {
+            const items = order.items
+              .map((item) => {
+                const options =
+                  item.options.length > 0
+                    ? "\n" +
+                      item.options
+                        .map((option) => `   ➕ ${option.name}`)
+                        .join("\n")
+                    : "";
+
+                return `• ${item.menuItem.name} ×${item.quantity}${options}`;
+              })
+              .join("\n");
+
+            return (
+              `━━━━━━━━━━━━━━━━━━\n` +
+              `🧾 *Order #${order.orderNumber}*\n\n` +
+              `🍽️ *Items*\n${items}\n\n` +
+              `💰 *Total:* Rs. ${Number(order.total).toFixed(2)}\n` +
+              `📌 *Status:* ${statusMap[order.status] || order.status}`
+            );
+          })
           .join("\n\n");
 
       return sendMessage(text(message.from, messageText));
