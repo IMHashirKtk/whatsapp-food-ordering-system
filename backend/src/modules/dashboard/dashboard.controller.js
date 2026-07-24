@@ -1,8 +1,12 @@
 import * as service from "./dashboard.service.js";
 import { successResponse } from "../../utils/api-response.js";
 
-export const getDashboard = async (req, res) => {
-  const dashboard = await service.getDashboard();
+export const getSummary = async (req, res) => {
+  const dashboard = await service.getSummary(req.user.restaurantId);
 
-  return successResponse(res, dashboard);
+  return successResponse(
+    res,
+    dashboard,
+    "Dashboard summary fetched successfully.",
+  );
 };

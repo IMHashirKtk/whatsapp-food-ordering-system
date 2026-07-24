@@ -1,11 +1,16 @@
 import AppError from "../utils/AppError.js";
 
-export const authorize = (...roles) => {
+const authorize = (...roles) => {
   return (req, res, next) => {
     if (!roles.includes(req.user.role)) {
-      return next(new AppError("Forbidden.", 403));
+      return res.status(403).json({
+        success: false,
+        message: "Forbidden",
+      });
     }
 
     next();
   };
 };
+
+export default authorize;
