@@ -79,7 +79,7 @@ export const getSummary = async (restaurantId) => {
           select: {
             id: true,
             name: true,
-            phone: true,
+            whatsappId: true,
           },
         },
       },
