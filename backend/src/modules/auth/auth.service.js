@@ -6,17 +6,17 @@ import * as authRepository from "./auth.repository.js";
 import AppError from "../../utils/AppError.js";
 
 export const login = async (email, password) => {
-  const admin = await authRepository.getByEmail(email);
+  const user = await authRepository.getByEmail(email);
 
-  if (!admin) {
+  if (!user) {
     throw new AppError("Invalid email or password.", 401);
   }
 
-  if (!admin.isActive) {
+  if (!user.isActive) {
     throw new AppError("Account is inactive.", 403);
   }
 
-  const validPassword = await bcrypt.compare(password, admin.password);
+  const validPassword = await bcrypt.compare(password, user.password);
 
   if (!validPassword) {
     throw new AppError("Invalid email or password.", 401);
@@ -24,8 +24,10 @@ export const login = async (email, password) => {
 
   const accessToken = jwt.sign(
     {
-      id: admin.id,
-      email: admin.email,
+      id: user.id,
+      restaurantId: user.restaurantId,
+      role: user.role,
+      email: user.email,
     },
     process.env.JWT_SECRET,
     {
@@ -35,6 +37,13 @@ export const login = async (email, password) => {
 
   return {
     accessToken,
+    user: {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      restaurantId: user.restaurantId,
+    },
   };
 };
 

@@ -6,26 +6,83 @@ datasource db {
   provider = "postgresql"
 }
 
-model Admin {
-  id        String   @id @default(cuid())
-  name      String
-  email     String   @unique
-  password  String
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model Restaurant {
+  id          String              @id @default(cuid())
+  name        String
+  slug        String              @unique
+  phone       String?
+  email       String?
+  imageUrl    String?
+  address     String?
+  currency    String              @default("PKR")
+  taxRate     Decimal             @default(0) @db.Decimal(5, 2)
+  deliveryFee Decimal             @default(0) @db.Decimal(10, 2)
+  openingTime String?
+  closingTime String?
+  isOpen      Boolean             @default(true)
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+  customers   Customer[]
+  categories  Category[]
+  menuItems   MenuItem[]
+  orders      Order[]
+  settings    RestaurantSettings?
+  users       User[]
+}
+
+model RestaurantSettings {
+  id                    String     @id @default(cuid())
+  restaurantId          String     @unique
+  welcomeMessage        String?
+  closedMessage         String?
+  minimumOrder          Decimal    @default(0) @db.Decimal(10, 2)
+  estimatedDeliveryTime Int        @default(30)
+  facebook              String?
+  instagram             String?
+  website               String?
+  googleMaps            String?
+  createdAt             DateTime   @default(now())
+  updatedAt             DateTime   @updatedAt
+  restaurant            Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+
+  @@map("restaurant_settings")
+}
+
+model User {
+  id           String     @id @default(cuid())
+  restaurantId String
+  name         String
+  email        String     @unique
+  password     String
+  role         UserRole   @default(OWNER)
+  isActive     Boolean    @default(true)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+
+  @@index([restaurantId])
+  @@map("users")
 }
 
 model Customer {
-  id           String        @id @default(cuid())
-  whatsappId   String        @unique
-  name         String?
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  messages     Message[]
-  cart         Cart?
-  conversation Conversation?
-  orders       Order[]
+  id            String        @id @default(cuid())
+  whatsappId    String
+  name          String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  email         String?
+  lastOrderAt   DateTime?
+  lifetimeSpend Decimal       @default(0) @db.Decimal(10, 2)
+  restaurantId  String
+  totalOrders   Int           @default(0)
+  restaurant    Restaurant    @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  messages      Message[]
+  cart          Cart?
+  conversation  Conversation?
+  orders        Order[]
+
+  @@unique([restaurantId, whatsappId])
+  @@index([restaurantId])
 }
 
 model Message {
@@ -41,35 +98,45 @@ model Message {
 }
 
 model Category {
-  id          String     @id @default(cuid())
-  name        String     @unique
-  description String?
-  image       String?
-  isActive    Boolean    @default(true)
-  sortOrder   Int        @default(0)
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  menuItems   MenuItem[]
+  id           String     @id @default(cuid())
+  name         String
+  description  String?
+  image        String?
+  isActive     Boolean    @default(true)
+  sortOrder    Int        @default(0)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  restaurantId String
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  menuItems    MenuItem[]
 
+  @@unique([restaurantId, name])
+  @@index([restaurantId])
   @@map("categories")
 }
 
 model MenuItem {
-  id           String        @id @default(cuid())
-  categoryId   String
-  name         String
-  description  String?
-  image        String?
-  basePrice    Decimal       @db.Decimal(10, 2)
-  isAvailable  Boolean       @default(true)
-  isFeatured   Boolean       @default(false)
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  cartItems    CartItem[]
-  category     Category      @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  optionGroups OptionGroup[]
-  orderItems   OrderItem[]
+  id              String        @id @default(cuid())
+  categoryId      String
+  name            String
+  description     String?
+  image           String?
+  basePrice       Decimal       @db.Decimal(10, 2)
+  isAvailable     Boolean       @default(true)
+  isFeatured      Boolean       @default(false)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  preparationTime Int           @default(15)
+  restaurantId    String
+  sortOrder       Int           @default(0)
+  cartItems       CartItem[]
+  category        Category      @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  restaurant      Restaurant    @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  optionGroups    OptionGroup[]
+  orderItems      OrderItem[]
 
+  @@unique([restaurantId, categoryId, name])
+  @@index([restaurantId])
   @@index([categoryId])
   @@map("menu_items")
 }
@@ -163,21 +230,27 @@ model Conversation {
 }
 
 model Order {
-  id                String      @id @default(cuid())
-  orderNumber       String      @unique
-  customerId        String
-  deliveryAddress   String?
-  status            OrderStatus @default(PENDING)
-  subtotal          Decimal     @db.Decimal(10, 2)
-  tax               Decimal     @default(0) @db.Decimal(10, 2)
-  deliveryFee       Decimal     @default(0) @db.Decimal(10, 2)
-  total             Decimal     @db.Decimal(10, 2)
-  notes             String?
-  createdAt         DateTime    @default(now())
-  updatedAt         DateTime    @updatedAt
-  items             OrderItem[]
-  customer          Customer    @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  id                 String      @id @default(cuid())
+  orderNumber        String      @unique
+  customerId         String
+  status             OrderStatus @default(PENDING)
+  subtotal           Decimal     @db.Decimal(10, 2)
+  tax                Decimal     @default(0) @db.Decimal(10, 2)
+  deliveryFee        Decimal     @default(0) @db.Decimal(10, 2)
+  total              Decimal     @db.Decimal(10, 2)
+  notes              String?
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
+  deliveryAddress    String?
+  estimatedReadyTime Int?
+  paymentMethod      String?
+  paymentStatus      String?
+  restaurantId       String
+  items              OrderItem[]
+  customer           Customer    @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  restaurant         Restaurant  @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
 
+  @@index([restaurantId])
   @@index([customerId])
   @@map("orders")
 }
@@ -209,6 +282,12 @@ model OrderItemOption {
   @@map("order_item_options")
 }
 
+enum UserRole {
+  OWNER
+  MANAGER
+  STAFF
+}
+
 enum MessageDirection {
   INCOMING
   OUTGOING
@@ -234,15 +313,15 @@ enum ConversationState {
   MAIN_MENU
   VIEWING_MENU
   ORDERING
-  SELECTING_OPTIONS
   VIEWING_CART
   CHECKOUT
   TRACKING_ORDER
+  SELECTING_OPTIONS
 }
 
 enum OrderStatus {
   PENDING
-  CONFIRMED
+  ACCEPTED
   PREPARING
   READY
   OUT_FOR_DELIVERY

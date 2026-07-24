@@ -5,13 +5,13 @@ import { successResponse } from "../../utils/api-response.js";
 export const login = async (req, res) => {
   const { email, password } = req.validated.body;
 
-  const token = await authService.login(email, password);
+  const data = await authService.login(email, password);
 
-  return successResponse(res, token, "Login successful.");
+  return successResponse(res, data, "Login successful.");
 };
 
 export const me = async (req, res) => {
-  const admin = await authService.getProfile(req.user.id);
+  const user = await authService.getProfile(req.user.id);
 
-  return successResponse(res, admin);
+  return successResponse(res, user);
 };
