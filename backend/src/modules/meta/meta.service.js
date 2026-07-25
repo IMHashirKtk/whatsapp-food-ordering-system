@@ -8,6 +8,7 @@ import * as conversationService from "../conversation/conversation.service.js";
 
 export const processWebhook = async (payload) => {
   const message = parseWebhook(payload);
+  console.log("Parsed message:", message);
 
   if (!message) {
     console.log("Status webhook (ignored)");

@@ -38,21 +38,75 @@ async function main() {
   await prisma.menuItem.deleteMany();
   await prisma.category.deleteMany();
 
+  await prisma.message.deleteMany();
+  await prisma.conversation.deleteMany();
+
   await prisma.customer.deleteMany();
 
-  await prisma.admin.deleteMany();
+  await prisma.user.deleteMany();
+
+  await prisma.restaurantSettings.deleteMany();
+
+  await prisma.restaurant.deleteMany();
 
   /* ==========================
-     Admin User
+     Restaurant
+  ========================== */
+
+  const restaurant = await prisma.restaurant.create({
+    data: {
+      name: "Demo Restaurant",
+      slug: "demo-restaurant",
+      phone: "+923001234567",
+      email: "info@demo.com",
+      address: "Pakistan",
+      currency: "PKR",
+      taxRate: 0,
+      deliveryFee: 0,
+      isOpen: true,
+    },
+  });
+
+  /* ==========================
+     Restaurant Settings
+  ========================== */
+
+  await prisma.restaurantSettings.create({
+    data: {
+      restaurantId: restaurant.id,
+
+      isConfigured: false,
+
+      language: "en",
+      timezone: "Asia/Karachi",
+      currencySymbol: "Rs",
+      orderPrefix: "ORD",
+
+      autoAcceptOrders: false,
+
+      aiEnabled: true,
+
+      welcomeMessage: "Welcome to Demo Restaurant. Reply MENU to see our menu.",
+
+      orderConfirmation:
+        "Thank you for your order. We have received it successfully.",
+    },
+  });
+
+  /* ==========================
+     Owner User
   ========================== */
 
   const password = await bcrypt.hash("Admin@123", 10);
 
-  await prisma.admin.create({
+  await prisma.user.create({
     data: {
+      restaurantId: restaurant.id,
       name: "Administrator",
       email: "admin@example.com",
       password,
+      role: "OWNER",
+      isActive: true,
     },
   });
 
@@ -62,6 +116,7 @@ async function main() {
 
   const pizza = await prisma.category.create({
     data: {
+      restaurantId: restaurant.id,
       name: "Pizza",
       description: "Fresh oven baked pizzas",
       sortOrder: 1,
@@ -70,6 +125,7 @@ async function main() {
 
   const burgers = await prisma.category.create({
     data: {
+      restaurantId: restaurant.id,
       name: "Burgers",
       description: "Premium grilled burgers",
       sortOrder: 2,
@@ -78,6 +134,7 @@ async function main() {
 
   const shawarma = await prisma.category.create({
     data: {
+      restaurantId: restaurant.id,
       name: "Shawarma",
       description: "Arabic style shawarma",
       sortOrder: 3,
@@ -86,6 +143,7 @@ async function main() {
 
   const drinks = await prisma.category.create({
     data: {
+      restaurantId: restaurant.id,
       name: "Drinks",
       description: "Cold beverages",
       sortOrder: 4,
@@ -98,20 +156,24 @@ async function main() {
 
   const chickenTikka = await prisma.menuItem.create({
     data: {
+      restaurantId: restaurant.id,
       categoryId: pizza.id,
       name: "Chicken Tikka Pizza",
       description: "Loaded with chicken tikka",
       basePrice: 1299,
       isFeatured: true,
+      sortOrder: 1,
     },
   });
 
   await prisma.menuItem.create({
     data: {
+      restaurantId: restaurant.id,
       categoryId: pizza.id,
       name: "Fajita Pizza",
       description: "Spicy fajita chicken",
       basePrice: 1399,
+      sortOrder: 2,
     },
   });
 
@@ -121,19 +183,23 @@ async function main() {
 
   await prisma.menuItem.create({
     data: {
+      restaurantId: restaurant.id,
       categoryId: burgers.id,
       name: "Zinger Burger",
       description: "Crispy chicken fillet",
       basePrice: 699,
+      sortOrder: 1,
     },
   });
 
   await prisma.menuItem.create({
     data: {
+      restaurantId: restaurant.id,
       categoryId: burgers.id,
       name: "Beef Burger",
       description: "Juicy beef patty",
       basePrice: 799,
+      sortOrder: 2,
     },
   });
 
@@ -143,10 +209,12 @@ async function main() {
 
   await prisma.menuItem.create({
     data: {
+      restaurantId: restaurant.id,
       categoryId: shawarma.id,
       name: "Chicken Shawarma",
       description: "Arabic wrap",
       basePrice: 399,
+      sortOrder: 1,
     },
   });
 
@@ -156,10 +224,12 @@ async function main() {
 
   await prisma.menuItem.create({
     data: {
+      restaurantId: restaurant.id,
       categoryId: drinks.id,
       name: "Coca Cola",
       description: "500ml",
       basePrice: 120,
+      sortOrder: 1,
     },
   });
 
@@ -229,11 +299,20 @@ async function main() {
     ],
   });
 
+  console.log("");
   console.log("✅ Database seeded successfully.");
   console.log("");
+
+  console.log("Restaurant");
+  console.log("-----------------------");
+  console.log(`ID   : ${restaurant.id}`);
+  console.log(`Slug : ${restaurant.slug}`);
+  console.log("");
+
   console.log("Admin Login");
-  console.log("Email: admin@example.com");
-  console.log("Password: Admin@123");
+  console.log("-----------------------");
+  console.log("Email    : admin@example.com");
+  console.log("Password : Admin@123");
 }
 
 main()
