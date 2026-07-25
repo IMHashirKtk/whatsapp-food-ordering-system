@@ -12,7 +12,7 @@ const generateOrderNumber = () => {
    Checkout
 ========================== */
 
-export const checkout = async (customerId, deliveryAddress) => {
+export const checkout = async (restaurantId, customerId, deliveryAddress) => {
   const cart = await cartRepository.getCart(customerId);
 
   if (!cart) {
@@ -35,6 +35,7 @@ export const checkout = async (customerId, deliveryAddress) => {
 
     const order = await orderRepository.createOrder(
       {
+        restaurantId,
         orderNumber: generateOrderNumber(),
         customerId,
         deliveryAddress,
@@ -72,6 +73,8 @@ export const checkout = async (customerId, deliveryAddress) => {
       }
     }
 
+    await orderRepository.updateCustomerStats(customerId, total, tx);
+
     await cartRepository.clearCartTx(tx, cart.id);
 
     return order;
@@ -82,8 +85,8 @@ export const checkout = async (customerId, deliveryAddress) => {
    Orders
 ========================== */
 
-export const getOrder = async (id) => {
-  const order = await orderRepository.getOrderById(id);
+export const getOrder = async (id, restaurantId) => {
+  const order = await orderRepository.getOrderById(id, restaurantId);
 
   if (!order) {
     throw new AppError("Order not found.", 404);
@@ -92,12 +95,43 @@ export const getOrder = async (id) => {
   return order;
 };
 
-export const getCustomerOrders = (customerId) => {
-  return orderRepository.getCustomerOrders(customerId);
+export const getCustomerOrders = (customerId, restaurantId) => {
+  return orderRepository.getCustomerOrders(customerId, restaurantId);
 };
 
-export const updateStatus = async (id, status) => {
-  await getOrder(id);
+export const getOrders = async (restaurantId, query) => {
+  const page = Number(query.page) || 1;
+  const limit = Number(query.limit) || 20;
 
-  return orderRepository.updateStatus(id, status);
+  const status = query.status;
+
+  const [orders, total] = await Promise.all([
+    orderRepository.getOrders({
+      restaurantId,
+      page,
+      limit,
+      status,
+    }),
+
+    orderRepository.countOrders({
+      restaurantId,
+      status,
+    }),
+  ]);
+
+  return {
+    orders,
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
+    },
+  };
+};
+
+export const updateStatus = async (id, restaurantId, status) => {
+  await getOrder(id, restaurantId);
+
+  return orderRepository.updateStatus(id, restaurantId, status);
 };

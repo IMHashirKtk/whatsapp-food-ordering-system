@@ -10,9 +10,12 @@ export const createOrder = (data, db = prisma) => {
   });
 };
 
-export const getOrderById = (id) => {
-  return prisma.order.findUnique({
-    where: { id },
+export const getOrderById = (id, restaurantId) => {
+  return prisma.order.findFirst({
+    where: {
+      id,
+      restaurantId,
+    },
     include: {
       customer: true,
       items: {
@@ -25,15 +28,21 @@ export const getOrderById = (id) => {
   });
 };
 
-export const getOrderByNumber = (orderNumber) => {
-  return prisma.order.findUnique({
-    where: { orderNumber },
+export const getOrderByNumber = (orderNumber, restaurantId) => {
+  return prisma.order.findFirst({
+    where: {
+      orderNumber,
+      restaurantId,
+    },
   });
 };
 
-export const getCustomerOrders = (customerId) => {
+export const getCustomerOrders = (customerId, restaurantId) => {
   return prisma.order.findMany({
-    where: { customerId },
+    where: {
+      customerId,
+      restaurantId,
+    },
     include: {
       items: {
         include: {
@@ -48,10 +57,64 @@ export const getCustomerOrders = (customerId) => {
   });
 };
 
-export const updateStatus = (id, status, db = prisma) => {
+export const getOrders = ({ restaurantId, page = 1, limit = 20, status }) => {
+  return prisma.order.findMany({
+    where: {
+      restaurantId,
+      ...(status && { status }),
+    },
+    include: {
+      customer: {
+        select: {
+          id: true,
+          name: true,
+          whatsappId: true,
+        },
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+    skip: (page - 1) * limit,
+    take: limit,
+  });
+};
+
+export const countOrders = ({ restaurantId, status }) => {
+  return prisma.order.count({
+    where: {
+      restaurantId,
+      ...(status && { status }),
+    },
+  });
+};
+
+export const updateStatus = (id, restaurantId, status, db = prisma) => {
   return db.order.update({
-    where: { id },
-    data: { status },
+    where: {
+      id,
+      restaurantId,
+    },
+    data: {
+      status,
+    },
+  });
+};
+
+export const updateCustomerStats = (customerId, total, db = prisma) => {
+  return db.customer.update({
+    where: {
+      id: customerId,
+    },
+    data: {
+      totalOrders: {
+        increment: 1,
+      },
+      lifetimeSpend: {
+        increment: total,
+      },
+      lastOrderAt: new Date(),
+    },
   });
 };
 
@@ -70,6 +133,10 @@ export const createOrderItemOption = (data, db = prisma) => {
     data,
   });
 };
+
+/* ==========================
+   Transactions
+========================== */
 
 export const transaction = (callback) => {
   return prisma.$transaction(callback);

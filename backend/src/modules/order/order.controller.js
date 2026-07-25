@@ -6,9 +6,13 @@ import asyncHandler from "../../utils/async-handler.js";
 ========================== */
 
 export const checkout = asyncHandler(async (req, res) => {
-  const { customerId } = req.body;
+  const { customerId, deliveryAddress } = req.body;
 
-  const order = await orderService.checkout(customerId);
+  const order = await orderService.checkout(
+    req.user.restaurantId,
+    customerId,
+    deliveryAddress,
+  );
 
   res.status(201).json({
     success: true,
@@ -21,8 +25,21 @@ export const checkout = asyncHandler(async (req, res) => {
    Orders
 ========================== */
 
+export const getOrders = asyncHandler(async (req, res) => {
+  const result = await orderService.getOrders(req.user.restaurantId, req.query);
+
+  res.json({
+    success: true,
+    data: result.orders,
+    pagination: result.pagination,
+  });
+});
+
 export const getOrder = asyncHandler(async (req, res) => {
-  const order = await orderService.getOrder(req.params.id);
+  const order = await orderService.getOrder(
+    req.params.id,
+    req.user.restaurantId,
+  );
 
   res.json({
     success: true,
@@ -31,7 +48,10 @@ export const getOrder = asyncHandler(async (req, res) => {
 });
 
 export const getCustomerOrders = asyncHandler(async (req, res) => {
-  const orders = await orderService.getCustomerOrders(req.params.customerId);
+  const orders = await orderService.getCustomerOrders(
+    req.params.customerId,
+    req.user.restaurantId,
+  );
 
   res.json({
     success: true,
@@ -40,7 +60,11 @@ export const getCustomerOrders = asyncHandler(async (req, res) => {
 });
 
 export const updateStatus = asyncHandler(async (req, res) => {
-  const order = await orderService.updateStatus(req.params.id, req.body.status);
+  const order = await orderService.updateStatus(
+    req.params.id,
+    req.user.restaurantId,
+    req.body.status,
+  );
 
   res.json({
     success: true,
