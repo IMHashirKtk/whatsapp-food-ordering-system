@@ -15,6 +15,6 @@ export const verifyWebhook = asyncHandler(async (req, res) => {
 
 export const receiveWebhook = asyncHandler(async (req, res) => {
   await metaService.processWebhook(req.body);
-
+  console.log("1. Webhook received");
   return res.sendStatus(200);
 });

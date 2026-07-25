@@ -28,11 +28,14 @@ export const processWebhook = async (payload) => {
     message.from,
     message.profileName,
   );
+  console.log("3. Customer found:", customer.id);
 
   const conversation = await conversationService.getOrCreateConversation(
     customer.id,
     restaurant.id,
   );
+  console.log("4. Conversation found:", conversation.id);
 
   await dispatch(conversation, message);
+  console.log("5. Dispatch completed");
 };
