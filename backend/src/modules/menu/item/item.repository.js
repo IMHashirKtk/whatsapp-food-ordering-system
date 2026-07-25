@@ -1,20 +1,39 @@
 import prisma from "../../../database/prisma.js";
 
-export const getAll = () => {
+/* ==========================
+   Menu Items
+========================== */
+
+export const getAll = (restaurantId) => {
   return prisma.menuItem.findMany({
+    where: {
+      restaurantId,
+    },
     include: {
       category: true,
-      optionGroups: true,
+      optionGroups: {
+        include: {
+          options: true,
+        },
+      },
     },
-    orderBy: {
-      name: "asc",
-    },
+    orderBy: [
+      {
+        sortOrder: "asc",
+      },
+      {
+        name: "asc",
+      },
+    ],
   });
 };
 
-export const getById = (id) => {
-  return prisma.menuItem.findUnique({
-    where: { id },
+export const getById = (id, restaurantId) => {
+  return prisma.menuItem.findFirst({
+    where: {
+      id,
+      restaurantId,
+    },
     include: {
       category: true,
       optionGroups: {
@@ -26,16 +45,34 @@ export const getById = (id) => {
   });
 };
 
-export const getByCategory = (categoryId) => {
+export const getByCategory = (categoryId, restaurantId) => {
   return prisma.menuItem.findMany({
     where: {
       categoryId,
+      restaurantId,
     },
     include: {
       category: true,
     },
-    orderBy: {
-      name: "asc",
+    orderBy: [
+      {
+        sortOrder: "asc",
+      },
+      {
+        name: "asc",
+      },
+    ],
+  });
+};
+
+export const findByName = (restaurantId, categoryId, name) => {
+  return prisma.menuItem.findUnique({
+    where: {
+      restaurantId_categoryId_name: {
+        restaurantId,
+        categoryId,
+        name,
+      },
     },
   });
 };
@@ -46,19 +83,27 @@ export const create = (data) => {
   });
 };
 
-export const update = (id, data) => {
+export const update = (id, restaurantId, data) => {
   return prisma.menuItem.update({
     where: {
       id,
+      restaurantId,
     },
     data,
   });
-};
-
-export const remove = (id) => {
-  return prisma.menuItem.delete({
+  return prisma.menuItem.findFirst({
     where: {
       id,
+      restaurantId,
+    },
+  });
+};
+
+export const remove = (id, restaurantId) => {
+  return prisma.menuItem.deleteMany({
+    where: {
+      id,
+      restaurantId,
     },
   });
 };

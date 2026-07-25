@@ -1,14 +1,52 @@
 import prisma from "../../../database/prisma.js";
 
-export const getAll = () => {
+/* ==========================
+   Categories
+========================== */
+
+export const getAll = (restaurantId) => {
   return prisma.category.findMany({
-    orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
+    where: {
+      restaurantId,
+    },
+    orderBy: [
+      {
+        sortOrder: "asc",
+      },
+      {
+        name: "asc",
+      },
+    ],
+    include: {
+      _count: {
+        select: {
+          menuItems: true,
+        },
+      },
+    },
   });
 };
 
-export const getById = (id) => {
+export const getById = (id, restaurantId) => {
+  return prisma.category.findFirst({
+    where: {
+      id,
+      restaurantId,
+    },
+    include: {
+      menuItems: true,
+    },
+  });
+};
+
+export const findByName = (restaurantId, name) => {
   return prisma.category.findUnique({
-    where: { id },
+    where: {
+      restaurantId_name: {
+        restaurantId,
+        name,
+      },
+    },
   });
 };
 
@@ -18,15 +56,31 @@ export const create = (data) => {
   });
 };
 
-export const update = (id, data) => {
-  return prisma.category.update({
-    where: { id },
+export const update = async (id, restaurantId, data) => {
+  await prisma.category.updateMany({
+    where: {
+      id,
+      restaurantId,
+    },
     data,
+  });
+
+  return prisma.category.findFirst({
+    where: {
+      id,
+      restaurantId,
+    },
+    include: {
+      menuItems: true,
+    },
   });
 };
 
-export const remove = (id) => {
-  return prisma.category.delete({
-    where: { id },
+export const remove = (id, restaurantId) => {
+  return prisma.category.deleteMany({
+    where: {
+      id,
+      restaurantId,
+    },
   });
 };

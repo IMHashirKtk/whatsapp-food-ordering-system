@@ -13,7 +13,10 @@ export const createCustomer = asyncHandler(async (req, res) => {
     throw new AppError(validation.error.issues[0].message, 400);
   }
 
-  const customer = await customerService.createCustomer(validation.data);
+  const customer = await customerService.createCustomer(
+    req.user.restaurantId,
+    validation.data,
+  );
 
   res.status(201).json({
     success: true,
@@ -22,7 +25,9 @@ export const createCustomer = asyncHandler(async (req, res) => {
 });
 
 export const getAllCustomers = asyncHandler(async (req, res) => {
-  const customers = await customerService.getAllCustomers();
+  const customers = await customerService.getAllCustomers(
+    req.user.restaurantId,
+  );
 
   res.status(200).json({
     success: true,
@@ -32,9 +37,10 @@ export const getAllCustomers = asyncHandler(async (req, res) => {
 });
 
 export const getCustomerById = asyncHandler(async (req, res) => {
-  const { id } = req.params;
-
-  const customer = await customerService.getCustomerById(id);
+  const customer = await customerService.getCustomerById(
+    req.params.id,
+    req.user.restaurantId,
+  );
 
   res.status(200).json({
     success: true,
@@ -43,15 +49,17 @@ export const getCustomerById = asyncHandler(async (req, res) => {
 });
 
 export const updateCustomer = asyncHandler(async (req, res) => {
-  const { id } = req.params;
-
   const validation = updateCustomerSchema.safeParse(req.body);
 
   if (!validation.success) {
     throw new AppError(validation.error.issues[0].message, 400);
   }
 
-  const customer = await customerService.updateCustomer(id, validation.data);
+  const customer = await customerService.updateCustomer(
+    req.params.id,
+    req.user.restaurantId,
+    validation.data,
+  );
 
   res.status(200).json({
     success: true,
@@ -60,9 +68,10 @@ export const updateCustomer = asyncHandler(async (req, res) => {
 });
 
 export const deleteCustomer = asyncHandler(async (req, res) => {
-  const { id } = req.params;
-
-  const result = await customerService.deleteCustomer(id);
+  const result = await customerService.deleteCustomer(
+    req.params.id,
+    req.user.restaurantId,
+  );
 
   res.status(200).json({
     success: true,

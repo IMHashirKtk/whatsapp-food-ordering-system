@@ -1,23 +1,27 @@
 import * as cartRepository from "./cart.repository.js";
 import * as menuService from "../menu/menu.service.js";
 
-export const getCart = async (customerId) => {
-  return cartRepository.getOrCreateCart(customerId);
+export const getCart = async (customerId, restaurantId) => {
+  return cartRepository.getOrCreateCart(customerId, restaurantId);
 };
 
 export const addItem = async ({
+  restaurantId,
   customerId,
   menuItemId,
   quantity,
   selectedOptions = [],
 }) => {
-  const cart = await cartRepository.getOrCreateCart(customerId);
-
-  const menuItem = await menuService.getProductWithOptions(menuItemId);
-
-  if (!menuItem) {
-    throw new Error("Menu item not found.");
+  if (!Number.isInteger(quantity) || quantity < 1) {
+    throw new Error("Quantity must be a positive integer.");
   }
+
+  const cart = await cartRepository.getOrCreateCart(customerId, restaurantId);
+
+  const menuItem = await menuService.getProductWithOptions(
+    menuItemId,
+    restaurantId,
+  );
 
   const basePrice = Number(menuItem.basePrice);
 
@@ -28,7 +32,6 @@ export const addItem = async ({
     for (const option of optionGroup.options) {
       if (selectedOptions.includes(option.id)) {
         optionsTotal += Number(option.extraPrice);
-
         selectedOptionObjects.push(option);
       }
     }
@@ -55,19 +58,19 @@ export const addItem = async ({
     }
   });
 
-  return cartRepository.getCart(customerId);
+  return cartRepository.getCart(customerId, restaurantId);
 };
 
 export const updateQuantity = async () => {
   throw new Error("Not implemented yet.");
 };
 
-export const removeItem = async (itemId) => {
-  return cartRepository.removeItem(itemId);
+export const removeItem = async (itemId, restaurantId) => {
+  return cartRepository.removeItem(itemId, restaurantId);
 };
 
-export const clearCart = async (customerId) => {
-  const cart = await cartRepository.getCart(customerId);
+export const clearCart = async (customerId, restaurantId) => {
+  const cart = await cartRepository.getCart(customerId, restaurantId);
 
   if (!cart) {
     return;

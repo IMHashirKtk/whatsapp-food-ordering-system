@@ -1,12 +1,16 @@
 import * as repository from "./item.repository.js";
 import AppError from "../../../utils/AppError.js";
 
-export const getAll = () => {
-  return repository.getAll();
+/* ==========================
+   Read
+========================== */
+
+export const getAll = (restaurantId) => {
+  return repository.getAll(restaurantId);
 };
 
-export const getById = async (id) => {
-  const item = await repository.getById(id);
+export const getById = async (id, restaurantId) => {
+  const item = await repository.getById(id, restaurantId);
 
   if (!item) {
     throw new AppError("Menu item not found.", 404);
@@ -15,17 +19,21 @@ export const getById = async (id) => {
   return item;
 };
 
-export const getByCategory = (categoryId) => {
-  return repository.getByCategory(categoryId);
+export const getByCategory = (categoryId, restaurantId) => {
+  return repository.getByCategory(categoryId, restaurantId);
 };
 
-export const create = async (data) => {
-  const items = await repository.getAll();
+/* ==========================
+   Create
+========================== */
 
-  const exists = items.find(
-    (item) =>
-      item.categoryId === data.categoryId &&
-      item.name.toLowerCase() === data.name.toLowerCase(),
+export const create = async (restaurantId, data) => {
+  data.name = data.name.trim();
+
+  const exists = await repository.findByName(
+    restaurantId,
+    data.categoryId,
+    data.name,
   );
 
   if (exists) {
@@ -35,36 +43,48 @@ export const create = async (data) => {
     );
   }
 
-  return repository.create(data);
+  return repository.create({
+    ...data,
+    restaurantId,
+  });
 };
 
-export const update = async (id, data) => {
-  const item = await getById(id);
+/* ==========================
+   Update
+========================== */
 
-  if (data.name && data.name.toLowerCase() !== item.name.toLowerCase()) {
-    const items = await repository.getByCategory(
+export const update = async (id, restaurantId, data) => {
+  const item = await getById(id, restaurantId);
+
+  if (
+    data.name &&
+    data.name.trim().toLowerCase() !== item.name.trim().toLowerCase()
+  ) {
+    const exists = await repository.findByName(
+      restaurantId,
       data.categoryId ?? item.categoryId,
+      data.name.trim(),
     );
 
-    const exists = items.find(
-      (menuItem) =>
-        menuItem.id !== id &&
-        menuItem.name.toLowerCase() === data.name.toLowerCase(),
-    );
-
-    if (exists) {
+    if (exists && exists.id !== id) {
       throw new AppError(
         "A menu item with this name already exists in the selected category.",
         409,
       );
     }
+
+    data.name = data.name.trim();
   }
 
-  return repository.update(id, data);
+  return repository.update(id, restaurantId, data);
 };
 
-export const remove = async (id) => {
-  await getById(id);
+/* ==========================
+   Delete
+========================== */
 
-  return repository.remove(id);
+export const remove = async (id, restaurantId) => {
+  await getById(id, restaurantId);
+
+  return repository.remove(id, restaurantId);
 };

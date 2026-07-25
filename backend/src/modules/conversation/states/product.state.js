@@ -11,6 +11,7 @@ import * as productOptionsState from "./product-options.state.js";
 
 export const handle = async (conversation, message) => {
   console.log(">>> ENTERED PRODUCT STATE");
+
   conversation = await conversationService.getConversationById(conversation.id);
 
   console.log("Conversation:", {
@@ -18,10 +19,12 @@ export const handle = async (conversation, message) => {
     state: conversation.state,
     context: conversation.context,
   });
+
   const { categoryId } = conversation.context || {};
 
   if (!categoryId) {
     return sendMessage(
+      conversation.restaurantId,
       text(
         message.from,
         "❌ Category not found. Please start your order again.",
@@ -31,15 +34,20 @@ export const handle = async (conversation, message) => {
 
   // First entry into PRODUCT state
   if (!message.listReply) {
-    const products = await menuService.getMenuItemsByCategory(categoryId);
+    const products = await menuService.getMenuItemsByCategory(
+      categoryId,
+      conversation.restaurantId,
+    );
 
     if (!products.length) {
       return sendMessage(
+        conversation.restaurantId,
         text(message.from, "❌ No products are available in this category."),
       );
     }
 
     return sendMessage(
+      conversation.restaurantId,
       list(message.from, "🍴 Please choose a product.", "Browse Products", [
         {
           title: "Products",
@@ -65,6 +73,7 @@ export const handle = async (conversation, message) => {
 
   const updatedConversation = await conversationService.getOrCreateConversation(
     conversation.customerId,
+    conversation.restaurantId,
   );
 
   return productOptionsState.handle(updatedConversation, message);

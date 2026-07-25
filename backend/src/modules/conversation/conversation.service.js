@@ -1,11 +1,14 @@
 import * as conversationRepository from "./conversation.repository.js";
 import { ConversationState } from "./states/state.constants.js";
 
-export const getOrCreateConversation = async (customerId) => {
+export const getOrCreateConversation = async (customerId, restaurantId) => {
   let conversation = await conversationRepository.getByCustomerId(customerId);
 
   if (!conversation) {
-    conversation = await conversationRepository.create(customerId);
+    conversation = await conversationRepository.create(
+      customerId,
+      restaurantId,
+    );
   }
 
   return conversation;
@@ -34,24 +37,18 @@ export const setState = async (conversationId, state, context = null) => {
 };
 
 export const updateContext = async (conversationId, context) => {
-  console.log("updateContext called");
-  console.log("conversationId:", conversationId);
-  console.log("new context:", context);
-
   const conversation = await conversationRepository.getById(conversationId);
 
-  console.log("existing context:", conversation.context);
+  if (!conversation) {
+    throw new Error("Conversation not found.");
+  }
 
-  const updated = await conversationRepository.updateById(conversationId, {
+  return conversationRepository.updateById(conversationId, {
     context: {
       ...(conversation.context || {}),
       ...context,
     },
   });
-
-  console.log("saved context:", updated.context);
-
-  return updated;
 };
 
 export const resetConversation = async (conversationId) => {

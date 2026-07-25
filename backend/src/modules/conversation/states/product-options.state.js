@@ -12,13 +12,17 @@ export const handle = async (conversation, message) => {
 
   const { menuItemId, optionGroupIndex = 0, selectedOptions = [] } = context;
 
-  const product = await menuService.getProductWithOptions(menuItemId);
+  const product = await menuService.getProductWithOptions(
+    menuItemId,
+    conversation.restaurantId,
+  );
 
   // No option groups → proceed directly to cart
   if (!product.optionGroups.length) {
     await goToState(conversation, ConversationState.VIEWING_CART);
 
     return sendMessage(
+      conversation.restaurantId,
       text(message.from, "Product added.\n\nHow many would you like to order?"),
     );
   }
@@ -39,6 +43,7 @@ export const handle = async (conversation, message) => {
       await goToState(conversation, ConversationState.VIEWING_CART);
 
       return sendMessage(
+        conversation.restaurantId,
         text(message.from, "How many would you like to order?\n\nExample: 2"),
       );
     }
@@ -55,6 +60,7 @@ export const handle = async (conversation, message) => {
     ];
 
   return sendMessage(
+    conversation.restaurantId,
     list(message.from, currentGroup.name, "Choose", [
       {
         title: currentGroup.name,

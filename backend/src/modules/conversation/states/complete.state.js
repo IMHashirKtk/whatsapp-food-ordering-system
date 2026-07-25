@@ -8,6 +8,7 @@ export const handle = async (conversation, message) => {
   await goToState(conversation, ConversationState.MAIN_MENU);
 
   return sendMessage(
+    conversation.restaurantId,
     buttons(message.from, "Would you like anything else?", [
       {
         type: "reply",

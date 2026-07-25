@@ -10,6 +10,7 @@ import {
   checkoutSchema,
   orderIdSchema,
   customerOrdersSchema,
+  getOrdersSchema,
   updateStatusSchema,
 } from "./order.validation.js";
 
@@ -34,6 +35,7 @@ router.get(
   "/",
   authenticate,
   authorize("OWNER", "MANAGER"),
+  validate(getOrdersSchema),
   orderController.getOrders,
 );
 

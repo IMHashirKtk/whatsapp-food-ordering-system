@@ -1,32 +1,61 @@
 import * as service from "./option-group.service.js";
 import { successResponse } from "../../../utils/api-response.js";
 
-export const getAll = async (req, res) =>
-  successResponse(res, await service.getAll());
+/* ==========================
+   Read
+========================== */
 
-export const getById = async (req, res) =>
-  successResponse(res, await service.getById(req.params.id));
+export const getAll = async (req, res) => {
+  const groups = await service.getAll(req.user.restaurantId);
 
-export const getByMenuItem = async (req, res) =>
-  successResponse(res, await service.getByMenuItem(req.params.menuItemId));
+  return successResponse(res, groups);
+};
 
-export const create = async (req, res) =>
-  successResponse(
-    res,
-    await service.create(req.validated.body),
-    "Option group created successfully.",
-    201,
+export const getById = async (req, res) => {
+  const group = await service.getById(req.params.id, req.user.restaurantId);
+
+  return successResponse(res, group);
+};
+
+export const getByMenuItem = async (req, res) => {
+  const groups = await service.getByMenuItem(
+    req.params.menuItemId,
+    req.user.restaurantId,
   );
 
-export const update = async (req, res) =>
-  successResponse(
-    res,
-    await service.update(req.params.id, req.validated.body),
-    "Option group updated successfully.",
+  return successResponse(res, groups);
+};
+
+/* ==========================
+   Create
+========================== */
+
+export const create = async (req, res) => {
+  const group = await service.create(req.user.restaurantId, req.validated.body);
+
+  return successResponse(res, group, "Option group created successfully.", 201);
+};
+
+/* ==========================
+   Update
+========================== */
+
+export const update = async (req, res) => {
+  const group = await service.update(
+    req.params.id,
+    req.user.restaurantId,
+    req.validated.body,
   );
+
+  return successResponse(res, group, "Option group updated successfully.");
+};
+
+/* ==========================
+   Delete
+========================== */
 
 export const remove = async (req, res) => {
-  await service.remove(req.params.id);
+  await service.remove(req.params.id, req.user.restaurantId);
 
   return successResponse(res, null, "Option group deleted successfully.");
 };

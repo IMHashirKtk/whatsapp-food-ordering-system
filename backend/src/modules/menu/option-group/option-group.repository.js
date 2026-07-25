@@ -1,18 +1,39 @@
 import prisma from "../../../database/prisma.js";
 
-export const getAll = () => {
+/* ==========================
+   Option Groups
+========================== */
+
+export const getAll = (restaurantId) => {
   return prisma.optionGroup.findMany({
+    where: {
+      menuItem: {
+        restaurantId,
+      },
+    },
     include: {
       options: true,
       menuItem: true,
     },
-    orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
+    orderBy: [
+      {
+        sortOrder: "asc",
+      },
+      {
+        name: "asc",
+      },
+    ],
   });
 };
 
-export const getById = (id) => {
-  return prisma.optionGroup.findUnique({
-    where: { id },
+export const getById = (id, restaurantId) => {
+  return prisma.optionGroup.findFirst({
+    where: {
+      id,
+      menuItem: {
+        restaurantId,
+      },
+    },
     include: {
       options: true,
       menuItem: true,
@@ -20,9 +41,14 @@ export const getById = (id) => {
   });
 };
 
-export const getByMenuItem = (menuItemId) => {
+export const getByMenuItem = (menuItemId, restaurantId) => {
   return prisma.optionGroup.findMany({
-    where: { menuItemId },
+    where: {
+      menuItemId,
+      menuItem: {
+        restaurantId,
+      },
+    },
     include: {
       options: true,
     },
@@ -38,15 +64,38 @@ export const create = (data) => {
   });
 };
 
-export const update = (id, data) => {
-  return prisma.optionGroup.update({
-    where: { id },
+export const update = async (id, restaurantId, data) => {
+  await prisma.optionGroup.updateMany({
+    where: {
+      id,
+      menuItem: {
+        restaurantId,
+      },
+    },
     data,
+  });
+
+  return prisma.optionGroup.findFirst({
+    where: {
+      id,
+      menuItem: {
+        restaurantId,
+      },
+    },
+    include: {
+      options: true,
+      menuItem: true,
+    },
   });
 };
 
-export const remove = (id) => {
-  return prisma.optionGroup.delete({
-    where: { id },
+export const remove = (id, restaurantId) => {
+  return prisma.optionGroup.deleteMany({
+    where: {
+      id,
+      menuItem: {
+        restaurantId,
+      },
+    },
   });
 };

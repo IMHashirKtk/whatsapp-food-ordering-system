@@ -4,7 +4,8 @@ import * as controller from "./item.controller.js";
 
 import asyncHandler from "../../../utils/async-handler.js";
 import validate from "../../../middleware/validate.js";
-import { authenticate } from "../../auth/auth.middleware.js";
+import authenticate from "../../../middleware/authenticate.js";
+import authorize from "../../../middleware/authorize.js";
 
 import {
   createMenuItemSchema,
@@ -19,12 +20,18 @@ const router = Router();
    Read
 ========================== */
 
-router.get("/", asyncHandler(controller.getAll));
+router.get("/", authenticate, asyncHandler(controller.getAll));
 
-router.get("/:id", validate(idSchema), asyncHandler(controller.getById));
+router.get(
+  "/:id",
+  authenticate,
+  validate(idSchema),
+  asyncHandler(controller.getById),
+);
 
 router.get(
   "/category/:categoryId",
+  authenticate,
   validate(categoryIdSchema),
   asyncHandler(controller.getByCategory),
 );
@@ -36,6 +43,7 @@ router.get(
 router.post(
   "/",
   authenticate,
+  authorize("OWNER", "MANAGER"),
   validate(createMenuItemSchema),
   asyncHandler(controller.create),
 );
@@ -43,6 +51,7 @@ router.post(
 router.put(
   "/:id",
   authenticate,
+  authorize("OWNER", "MANAGER"),
   validate(idSchema),
   validate(updateMenuItemSchema),
   asyncHandler(controller.update),
@@ -51,6 +60,7 @@ router.put(
 router.delete(
   "/:id",
   authenticate,
+  authorize("OWNER", "MANAGER"),
   validate(idSchema),
   asyncHandler(controller.remove),
 );

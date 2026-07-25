@@ -1,8 +1,13 @@
 import prisma from "../../database/prisma.js";
 
-export const getCart = (customerId) => {
-  return prisma.cart.findUnique({
-    where: { customerId },
+export const getCart = (customerId, restaurantId) => {
+  return prisma.cart.findFirst({
+    where: {
+      customerId,
+      customer: {
+        restaurantId,
+      },
+    },
     include: {
       items: {
         include: {
@@ -22,12 +27,12 @@ export const createCart = (customerId) => {
   });
 };
 
-export const getOrCreateCart = async (customerId) => {
-  let cart = await getCart(customerId);
+export const getOrCreateCart = async (customerId, restaurantId) => {
+  let cart = await getCart(customerId, restaurantId);
 
   if (!cart) {
     await createCart(customerId);
-    cart = await getCart(customerId);
+    cart = await getCart(customerId, restaurantId);
   }
 
   return cart;
@@ -45,10 +50,15 @@ export const addItemOption = (tx, data) => {
   });
 };
 
-export const removeItem = (id) => {
-  return prisma.cartItem.delete({
+export const removeItem = (id, restaurantId) => {
+  return prisma.cartItem.deleteMany({
     where: {
       id,
+      cart: {
+        customer: {
+          restaurantId,
+        },
+      },
     },
   });
 };

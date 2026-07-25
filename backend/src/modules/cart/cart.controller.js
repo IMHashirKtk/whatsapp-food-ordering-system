@@ -2,7 +2,10 @@ import * as cartService from "./cart.service.js";
 import asyncHandler from "../../utils/async-handler.js";
 
 export const getCart = asyncHandler(async (req, res) => {
-  const cart = await cartService.getCart(req.params.customerId);
+  const cart = await cartService.getCart(
+    req.params.customerId,
+    req.user.restaurantId,
+  );
 
   res.json({
     success: true,
@@ -11,7 +14,10 @@ export const getCart = asyncHandler(async (req, res) => {
 });
 
 export const addItem = asyncHandler(async (req, res) => {
-  const cart = await cartService.addItem(req.body);
+  const cart = await cartService.addItem({
+    ...req.body,
+    restaurantId: req.user.restaurantId,
+  });
 
   res.status(201).json({
     success: true,
@@ -42,7 +48,7 @@ export const removeItem = asyncHandler(async (req, res) => {
 });
 
 export const clearCart = asyncHandler(async (req, res) => {
-  await cartService.clearCart(req.params.customerId);
+  await cartService.clearCart(req.params.customerId, req.user.restaurantId);
 
   res.json({
     success: true,

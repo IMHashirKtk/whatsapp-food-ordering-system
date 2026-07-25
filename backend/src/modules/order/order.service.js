@@ -13,7 +13,10 @@ const generateOrderNumber = () => {
 ========================== */
 
 export const checkout = async (restaurantId, customerId, deliveryAddress) => {
-  const cart = await cartRepository.getCart(customerId);
+  if (!deliveryAddress || !deliveryAddress.trim()) {
+    throw new AppError("Delivery address is required.", 400);
+  }
+  const cart = await cartRepository.getCart(customerId, restaurantId);
 
   if (!cart) {
     throw new AppError("Cart not found.", 404);
@@ -132,6 +135,10 @@ export const getOrders = async (restaurantId, query) => {
 
 export const updateStatus = async (id, restaurantId, status) => {
   await getOrder(id, restaurantId);
+
+  if (!Object.values(ORDER_STATUS).includes(status)) {
+    throw new AppError("Invalid order status.", 400);
+  }
 
   return orderRepository.updateStatus(id, restaurantId, status);
 };

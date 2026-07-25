@@ -1,6 +1,7 @@
 import * as menuService from "../../menu/menu.service.js";
 import * as conversationService from "../conversation.service.js";
 import * as productState from "./product.state.js";
+
 import { list, text } from "../../meta/message.factory.js";
 import { sendMessage } from "../../meta/meta.api.js";
 
@@ -9,15 +10,22 @@ import { goToState } from "./state.helper.js";
 
 export const handle = async (conversation, message) => {
   console.log(">>> CATEGORY STATE");
+
   // Initial entry into the category state
   if (!message.listReply) {
-    const categories = await menuService.getActiveCategories();
+    const categories = await menuService.getActiveCategories(
+      conversation.restaurantId,
+    );
 
     if (!categories.length) {
-      return sendMessage(text(message.from, "❌ No categories are available."));
+      return sendMessage(
+        conversation.restaurantId,
+        text(message.from, "❌ No categories are available."),
+      );
     }
 
     return sendMessage(
+      conversation.restaurantId,
       list(message.from, "🍽️ Please choose a category.", "Browse Categories", [
         {
           title: "Categories",

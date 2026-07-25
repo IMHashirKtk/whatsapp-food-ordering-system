@@ -1,7 +1,9 @@
 import { buttons, text } from "../../meta/message.factory.js";
 import { sendMessage } from "../../meta/meta.api.js";
+
 import * as categoryState from "./category.state.js";
 import * as orderService from "../../order/order.service.js";
+
 import { ConversationState } from "./state.constants.js";
 import { goToState } from "./state.helper.js";
 
@@ -15,10 +17,12 @@ export const handle = async (conversation, message) => {
     case "ORDERS": {
       const orders = await orderService.getCustomerOrders(
         conversation.customerId,
+        conversation.restaurantId,
       );
 
       if (!orders.length) {
         return sendMessage(
+          conversation.restaurantId,
           text(
             message.from,
             "📦 You haven't placed any orders yet.\n\nTap *🍔 Order Food* to place your first order!",
@@ -27,10 +31,10 @@ export const handle = async (conversation, message) => {
       }
 
       const statusMap = {
-        PENDING: "⏳ Preparing",
-        CONFIRMED: "👨‍🍳 Confirmed",
-        PREPARING: "🍳 Preparing",
-        READY: "📦 Ready for Pickup",
+        PENDING: "⏳ Pending",
+        ACCEPTED: "✅ Accepted",
+        PREPARING: "👨‍🍳 Preparing",
+        READY: "📦 Ready",
         OUT_FOR_DELIVERY: "🛵 On the Way",
         DELIVERED: "✅ Delivered",
         CANCELLED: "❌ Cancelled",
@@ -64,11 +68,15 @@ export const handle = async (conversation, message) => {
           })
           .join("\n\n");
 
-      return sendMessage(text(message.from, messageText));
+      return sendMessage(
+        conversation.restaurantId,
+        text(message.from, messageText),
+      );
     }
 
     case "HELP":
       return sendMessage(
+        conversation.restaurantId,
         text(
           message.from,
           "💬 A support representative will assist you shortly.",
@@ -77,6 +85,7 @@ export const handle = async (conversation, message) => {
 
     default:
       return sendMessage(
+        conversation.restaurantId,
         buttons(message.from, "Please choose an option below.", [
           {
             type: "reply",

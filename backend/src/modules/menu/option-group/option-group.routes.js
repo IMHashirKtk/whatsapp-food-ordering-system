@@ -4,7 +4,8 @@ import * as controller from "./option-group.controller.js";
 
 import asyncHandler from "../../../utils/async-handler.js";
 import validate from "../../../middleware/validate.js";
-import { authenticate } from "../../auth/auth.middleware.js";
+import authenticate from "../../../middleware/authenticate.js";
+import authorize from "../../../middleware/authorize.js";
 
 import {
   createOptionGroupSchema,
@@ -15,19 +16,34 @@ import {
 
 const router = Router();
 
-router.get("/", asyncHandler(controller.getAll));
+/* ==========================
+   Read
+========================== */
 
-router.get("/:id", validate(idSchema), asyncHandler(controller.getById));
+router.get("/", authenticate, asyncHandler(controller.getAll));
+
+router.get(
+  "/:id",
+  authenticate,
+  validate(idSchema),
+  asyncHandler(controller.getById),
+);
 
 router.get(
   "/menu-item/:menuItemId",
+  authenticate,
   validate(menuItemIdSchema),
   asyncHandler(controller.getByMenuItem),
 );
 
+/* ==========================
+   Write
+========================== */
+
 router.post(
   "/",
   authenticate,
+  authorize("OWNER", "MANAGER"),
   validate(createOptionGroupSchema),
   asyncHandler(controller.create),
 );
@@ -35,6 +51,7 @@ router.post(
 router.put(
   "/:id",
   authenticate,
+  authorize("OWNER", "MANAGER"),
   validate(idSchema),
   validate(updateOptionGroupSchema),
   asyncHandler(controller.update),
@@ -43,6 +60,7 @@ router.put(
 router.delete(
   "/:id",
   authenticate,
+  authorize("OWNER", "MANAGER"),
   validate(idSchema),
   asyncHandler(controller.remove),
 );

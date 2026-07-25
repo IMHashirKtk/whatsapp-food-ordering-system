@@ -7,59 +7,82 @@ datasource db {
 }
 
 model Restaurant {
-  id          String              @id @default(cuid())
-  name        String
-  slug        String              @unique
-  phone       String?
-  email       String?
-  imageUrl    String?
-  address     String?
-  currency    String              @default("PKR")
-  taxRate     Decimal             @default(0) @db.Decimal(5, 2)
-  deliveryFee Decimal             @default(0) @db.Decimal(10, 2)
+  id       String  @id @default(cuid())
+  name     String
+  slug     String  @unique
+  phone    String?
+  email    String?
+  imageUrl String?
+  address  String?
+
+  currency    String  @default("PKR")
+  taxRate     Decimal @default(0) @db.Decimal(5, 2)
+  deliveryFee Decimal @default(0) @db.Decimal(10, 2)
+
   openingTime String?
   closingTime String?
-  isOpen      Boolean             @default(true)
-  createdAt   DateTime            @default(now())
-  updatedAt   DateTime            @updatedAt
-  customers   Customer[]
-  categories  Category[]
-  menuItems   MenuItem[]
-  orders      Order[]
-  settings    RestaurantSettings?
-  users       User[]
+
+  isOpen Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  customers     Customer[]
+  categories    Category[]
+  menuItems     MenuItem[]
+  orders        Order[]
+  users         User[]
+  conversations Conversation[]
+
+  settings RestaurantSettings?
 }
 
 model RestaurantSettings {
-  id                    String     @id @default(cuid())
-  restaurantId          String     @unique
-  welcomeMessage        String?
-  closedMessage         String?
-  minimumOrder          Decimal    @default(0) @db.Decimal(10, 2)
-  estimatedDeliveryTime Int        @default(30)
-  facebook              String?
-  instagram             String?
-  website               String?
-  googleMaps            String?
-  createdAt             DateTime   @default(now())
-  updatedAt             DateTime   @updatedAt
-  restaurant            Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  id String @id @default(cuid())
 
-  @@map("restaurant_settings")
+  restaurantId String     @unique
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+
+  isConfigured Boolean @default(false)
+
+  // Restaurant Preferences
+  language         String  @default("en")
+  timezone         String  @default("Asia/Karachi")
+  currencySymbol   String  @default("Rs")
+  orderPrefix      String  @default("ORD")
+  autoAcceptOrders Boolean @default(false)
+
+  // Meta WhatsApp Cloud API
+  metaPhoneNumberId     String? @unique
+  metaDisplayPhone      String?
+  metaBusinessAccountId String?
+  metaAccessToken       String? @db.Text
+  metaVerifyToken       String?
+  webhookSecret         String?
+
+  // AI
+  aiEnabled         Boolean @default(true)
+  welcomeMessage    String? @db.Text
+  orderConfirmation String? @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model User {
-  id           String     @id @default(cuid())
+  id           String   @id @default(cuid())
   restaurantId String
   name         String
-  email        String     @unique
+  email        String
   password     String
-  role         UserRole   @default(OWNER)
-  isActive     Boolean    @default(true)
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
-  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  role         UserRole @default(OWNER)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+
+  @@unique([restaurantId, email])
   @@index([restaurantId])
   @@map("users")
 }
@@ -218,20 +241,27 @@ model CartItemOption {
 }
 
 model Conversation {
-  id         String            @id @default(cuid())
-  customerId String            @unique
-  context    Json?
-  createdAt  DateTime          @default(now())
-  updatedAt  DateTime          @updatedAt
-  state      ConversationState @default(MAIN_MENU)
-  customer   Customer          @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  id String @id @default(cuid())
 
+  customerId String   @unique
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  restaurantId String
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+
+  context Json?
+  state   ConversationState @default(MAIN_MENU)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([restaurantId])
   @@map("conversations")
 }
 
 model Order {
   id                 String      @id @default(cuid())
-  orderNumber        String      @unique
+  orderNumber        String
   customerId         String
   status             OrderStatus @default(PENDING)
   subtotal           Decimal     @db.Decimal(10, 2)
@@ -246,12 +276,16 @@ model Order {
   paymentMethod      String?
   paymentStatus      String?
   restaurantId       String
-  items              OrderItem[]
-  customer           Customer    @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  restaurant         Restaurant  @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
 
+  items      OrderItem[]
+  customer   Customer    @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  restaurant Restaurant  @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+
+  @@unique([restaurantId, orderNumber])
+  @@unique([id, restaurantId])
   @@index([restaurantId])
   @@index([customerId])
+  @@index([restaurantId, status])
   @@map("orders")
 }
 
@@ -271,13 +305,16 @@ model OrderItem {
 }
 
 model OrderItemOption {
-  id          String    @id @default(cuid())
+  id          String  @id @default(cuid())
   orderItemId String
   optionId    String
   name        String
-  extraPrice  Decimal   @db.Decimal(10, 2)
-  option      Option    @relation(fields: [optionId], references: [id])
-  orderItem   OrderItem @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+  extraPrice  Decimal @db.Decimal(10, 2)
+
+  createdAt DateTime @default(now())
+
+  option    Option    @relation(fields: [optionId], references: [id])
+  orderItem OrderItem @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
 
   @@map("order_item_options")
 }

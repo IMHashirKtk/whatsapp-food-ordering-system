@@ -1,25 +1,36 @@
 import prisma from "../../database/prisma.js";
 
-export const getAll = () => {
+/* ==========================
+   Customers
+========================== */
+
+export const getAll = (restaurantId) => {
   return prisma.customer.findMany({
+    where: {
+      restaurantId,
+    },
     orderBy: {
       createdAt: "desc",
     },
   });
 };
 
-export const getByWhatsappId = (whatsappId) => {
+export const getByWhatsappId = (restaurantId, whatsappId) => {
   return prisma.customer.findUnique({
     where: {
-      whatsappId,
+      restaurantId_whatsappId: {
+        restaurantId,
+        whatsappId,
+      },
     },
   });
 };
 
-export const getById = (id) => {
-  return prisma.customer.findUnique({
+export const getById = (id, restaurantId) => {
+  return prisma.customer.findFirst({
     where: {
       id,
+      restaurantId,
     },
   });
 };
@@ -30,19 +41,28 @@ export const create = (data) => {
   });
 };
 
-export const update = (id, data) => {
-  return prisma.customer.update({
+export const update = async (id, restaurantId, data) => {
+  await prisma.customer.updateMany({
     where: {
       id,
+      restaurantId,
     },
     data,
   });
-};
 
-export const remove = (id) => {
-  return prisma.customer.delete({
+  return prisma.customer.findFirst({
     where: {
       id,
+      restaurantId,
+    },
+  });
+};
+
+export const remove = (id, restaurantId) => {
+  return prisma.customer.deleteMany({
+    where: {
+      id,
+      restaurantId,
     },
   });
 };

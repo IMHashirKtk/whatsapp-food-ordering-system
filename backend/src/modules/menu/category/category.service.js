@@ -1,12 +1,16 @@
 import * as repository from "./category.repository.js";
 import AppError from "../../../utils/AppError.js";
 
-export const getAll = () => {
-  return repository.getAll();
+/* ==========================
+   Read
+========================== */
+
+export const getAll = (restaurantId) => {
+  return repository.getAll(restaurantId);
 };
 
-export const getById = async (id) => {
-  const category = await repository.getById(id);
+export const getById = async (id, restaurantId) => {
+  const category = await repository.getById(id, restaurantId);
 
   if (!category) {
     throw new AppError("Category not found.", 404);
@@ -15,41 +19,54 @@ export const getById = async (id) => {
   return category;
 };
 
-export const create = async (data) => {
-  const categories = await repository.getAll();
+/* ==========================
+   Create
+========================== */
 
-  const exists = categories.find(
-    (category) => category.name.toLowerCase() === data.name.toLowerCase(),
-  );
+export const create = async (restaurantId, data) => {
+  data.name = data.name.trim();
+
+  const exists = await repository.findByName(restaurantId, data.name);
 
   if (exists) {
     throw new AppError("Category already exists.", 409);
   }
 
-  return repository.create(data);
+  return repository.create({
+    ...data,
+    restaurantId,
+  });
 };
 
-export const update = async (id, data) => {
-  const category = await getById(id);
+/* ==========================
+   Update
+========================== */
 
-  if (data.name && data.name.toLowerCase() !== category.name.toLowerCase()) {
-    const categories = await repository.getAll();
+export const update = async (id, restaurantId, data) => {
+  const category = await getById(id, restaurantId);
 
-    const exists = categories.find(
-      (item) =>
-        item.id !== id && item.name.toLowerCase() === data.name.toLowerCase(),
-    );
+  if (
+    data.name &&
+    data.name.trim().toLowerCase() !== category.name.trim().toLowerCase()
+  ) {
+    const exists = await repository.findByName(restaurantId, data.name.trim());
 
-    if (exists) {
+    if (exists && exists.id !== id) {
       throw new AppError("Category already exists.", 409);
     }
+
+    data.name = data.name.trim();
   }
 
-  return repository.update(id, data);
+  return repository.update(id, restaurantId, data);
 };
 
-export const remove = async (id) => {
-  await getById(id);
+/* ==========================
+   Delete
+========================== */
 
-  return repository.remove(id);
+export const remove = async (id, restaurantId) => {
+  await getById(id, restaurantId);
+
+  return repository.remove(id, restaurantId);
 };

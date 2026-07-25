@@ -11,30 +11,31 @@ export const handle = async (conversation, message) => {
   // We only expect a text address here
   if (message.type !== "text") {
     return sendMessage(
+      conversation.restaurantId,
       text(message.from, "📍 Please type your delivery address."),
     );
   }
 
-  // Save address in conversation context
-  await conversationService.updateContext(conversation.id, {
-    deliveryAddress:
-      typeof message.text === "string" ? message.text : message.text?.body,
-  });
-
-  // Create the order
   const address =
     typeof message.text === "string" ? message.text : message.text?.body;
 
+  // Save address in conversation context
   await conversationService.updateContext(conversation.id, {
     deliveryAddress: address,
   });
 
-  const order = await orderService.checkout(conversation.customerId, address);
+  // Create the order
+  const order = await orderService.checkout(
+    conversation.restaurantId,
+    conversation.customerId,
+    address,
+  );
 
   // Move to tracking state
   await goToState(conversation, ConversationState.TRACKING_ORDER);
 
   return sendMessage(
+    conversation.restaurantId,
     text(
       message.from,
       `✅ Order placed successfully!

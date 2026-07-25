@@ -89,14 +89,21 @@ export const countOrders = ({ restaurantId, status }) => {
   });
 };
 
-export const updateStatus = (id, restaurantId, status, db = prisma) => {
-  return db.order.update({
+export const updateStatus = async (id, restaurantId, status, db = prisma) => {
+  await db.order.updateMany({
     where: {
       id,
       restaurantId,
     },
     data: {
       status,
+    },
+  });
+
+  return db.order.findFirst({
+    where: {
+      id,
+      restaurantId,
     },
   });
 };

@@ -1,9 +1,10 @@
 import prisma from "../../database/prisma.js";
 
-export const getByEmail = (email) => {
-  return prisma.user.findUnique({
+export const getByEmail = (email, restaurantId) => {
+  return prisma.user.findFirst({
     where: {
       email,
+      restaurantId,
     },
     include: {
       restaurant: true,
