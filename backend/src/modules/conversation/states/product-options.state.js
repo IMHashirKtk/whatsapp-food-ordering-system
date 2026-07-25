@@ -10,58 +10,68 @@ import { goToState } from "./state.helper.js";
 export const handle = async (conversation, message) => {
   const context = conversation.context || {};
 
-  const { menuItemId, optionGroupIndex = 0, selectedOptions = [] } = context;
+  let { menuItemId, optionGroupIndex = 0, selectedOptions = [] } = context;
 
   const product = await menuService.getProductWithOptions(
     menuItemId,
     conversation.restaurantId,
   );
 
-  // No option groups → proceed directly to cart
-  if (!product.optionGroups.length) {
+  if (!product) {
+    throw new Error("Product not found.");
+  }
+
+  // Product has no option groups
+  if (product.optionGroups.length === 0) {
     await goToState(conversation, ConversationState.VIEWING_CART);
 
     return sendMessage(
       conversation.restaurantId,
-      text(message.from, "Product added.\n\nHow many would you like to order?"),
+      text(message.from, "How many would you like to order?\n\nExample: 2"),
     );
   }
 
-  // User selected an option
+  /**
+   * Process an option selection ONLY if the selected id
+   * belongs to the current option group.
+   *
+   * This prevents the initial product selection listReply
+   * from being treated as an option.
+   */
   if (message.listReply) {
-    selectedOptions.push(message.listReply.id);
+    const currentGroup = product.optionGroups[optionGroupIndex];
 
-    const nextIndex = optionGroupIndex + 1;
+    const selectedOption = currentGroup.options.find(
+      (option) => option.id === message.listReply.id,
+    );
 
-    // Finished all option groups
-    if (nextIndex >= product.optionGroups.length) {
+    if (selectedOption) {
+      selectedOptions.push(selectedOption.id);
+
+      optionGroupIndex++;
+
       await conversationService.updateContext(conversation.id, {
         selectedOptions,
-        optionGroupIndex: nextIndex,
+        optionGroupIndex,
       });
-
-      await goToState(conversation, ConversationState.VIEWING_CART);
-
-      return sendMessage(
-        conversation.restaurantId,
-        text(message.from, "How many would you like to order?\n\nExample: 2"),
-      );
     }
-
-    await conversationService.updateContext(conversation.id, {
-      selectedOptions,
-      optionGroupIndex: nextIndex,
-    });
   }
 
-  const currentGroup =
-    product.optionGroups[
-      message.listReply ? optionGroupIndex + 1 : optionGroupIndex
-    ];
+  // Finished all option groups
+  if (optionGroupIndex >= product.optionGroups.length) {
+    await goToState(conversation, ConversationState.VIEWING_CART);
+
+    return sendMessage(
+      conversation.restaurantId,
+      text(message.from, "How many would you like to order?\n\nExample: 2"),
+    );
+  }
+
+  const currentGroup = product.optionGroups[optionGroupIndex];
 
   return sendMessage(
     conversation.restaurantId,
-    list(message.from, currentGroup.name, "Choose", [
+    list(message.from, `Customize ${product.name}`, currentGroup.name, [
       {
         title: currentGroup.name,
         rows: currentGroup.options.map((option) => ({
