@@ -8,6 +8,7 @@ import * as conversationService from "../conversation/conversation.service.js";
 
 export const processWebhook = async (payload) => {
   const message = parseWebhook(payload);
+  console.log("===== BOT VERSION 2026-07-25 =====");
   console.log("Parsed message:", message);
 
   if (!message) {
