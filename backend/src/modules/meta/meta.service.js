@@ -36,8 +36,10 @@ export const processWebhook = async (payload) => {
     customer.id,
     restaurant.id,
   );
+
   console.log("4. Conversation found:", conversation.id);
+  console.log("Conversation state:", conversation.state);
+  console.log("Conversation context:", conversation.context);
 
   await dispatch(conversation, message);
-  console.log("5. Dispatch completed");
 };

@@ -8,6 +8,11 @@ import { ConversationState } from "./state.constants.js";
 import { goToState } from "./state.helper.js";
 
 export const handle = async (conversation, message) => {
+  console.log(">>> ENTERED PRODUCT OPTIONS STATE");
+
+  // Always work with the latest conversation
+  conversation = await conversationService.getConversationById(conversation.id);
+
   const context = conversation.context || {};
 
   let { menuItemId, optionGroupIndex = 0, selectedOptions = [] } = context;
@@ -25,19 +30,17 @@ export const handle = async (conversation, message) => {
   if (product.optionGroups.length === 0) {
     await goToState(conversation, ConversationState.ADDING_TO_CART);
 
+    const updatedConversation = await conversationService.getConversationById(
+      conversation.id,
+    );
+
     return sendMessage(
-      conversation.restaurantId,
+      updatedConversation.restaurantId,
       text(message.from, "How many would you like to order?\n\nExample: 2"),
     );
   }
 
-  /**
-   * Process an option selection ONLY if the selected id
-   * belongs to the current option group.
-   *
-   * This prevents the initial product selection listReply
-   * from being treated as an option.
-   */
+  // Process selected option
   if (message.listReply) {
     const currentGroup = product.optionGroups[optionGroupIndex];
 
@@ -47,13 +50,23 @@ export const handle = async (conversation, message) => {
 
     if (selectedOption) {
       selectedOptions.push(selectedOption.id);
-
       optionGroupIndex++;
 
       await conversationService.updateContext(conversation.id, {
         selectedOptions,
         optionGroupIndex,
       });
+
+      // Reload latest context
+      conversation = await conversationService.getConversationById(
+        conversation.id,
+      );
+
+      ({
+        menuItemId,
+        optionGroupIndex = 0,
+        selectedOptions = [],
+      } = conversation.context);
     }
   }
 
@@ -61,8 +74,14 @@ export const handle = async (conversation, message) => {
   if (optionGroupIndex >= product.optionGroups.length) {
     await goToState(conversation, ConversationState.ADDING_TO_CART);
 
+    const updatedConversation = await conversationService.getConversationById(
+      conversation.id,
+    );
+
+    console.log("State after transition:", updatedConversation.state);
+
     return sendMessage(
-      conversation.restaurantId,
+      updatedConversation.restaurantId,
       text(message.from, "How many would you like to order?\n\nExample: 2"),
     );
   }
