@@ -114,6 +114,10 @@ export const getCustomerOrders = (customerId, restaurantId) => {
   return orderRepository.getCustomerOrders(customerId, restaurantId);
 };
 
+export const getActiveCustomerOrders = (customerId, restaurantId) => {
+  return orderRepository.getActiveCustomerOrders(customerId, restaurantId);
+};
+
 export const getOrders = async (restaurantId, query) => {
   const page = Number(query.page) || 1;
   const limit = Number(query.limit) || 20;

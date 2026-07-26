@@ -57,6 +57,29 @@ export const getCustomerOrders = (customerId, restaurantId) => {
   });
 };
 
+export const getActiveCustomerOrders = (customerId, restaurantId) => {
+  return prisma.order.findMany({
+    where: {
+      customerId,
+      restaurantId,
+      status: {
+        in: ["PENDING", "ACCEPTED", "PREPARING", "READY", "OUT_FOR_DELIVERY"],
+      },
+    },
+    include: {
+      items: {
+        include: {
+          menuItem: true,
+          options: true,
+        },
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+};
+
 export const getOrders = ({ restaurantId, page = 1, limit = 20, status }) => {
   return prisma.order.findMany({
     where: {

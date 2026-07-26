@@ -14,7 +14,7 @@ const statusMap = {
 };
 
 export const handle = async (conversation, message) => {
-  const orders = await orderService.getCustomerOrders(
+  const orders = await orderService.getActiveCustomerOrders(
     conversation.customerId,
     conversation.restaurantId,
   );
