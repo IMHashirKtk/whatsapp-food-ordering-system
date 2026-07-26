@@ -3,7 +3,7 @@ import * as homeAction from "../actions/home.action.js";
 import * as ordersAction from "../actions/orders.action.js";
 import * as helpAction from "../actions/help.action.js";
 import * as conversationService from "../conversation.service.js";
-
+import { ConversationState } from "../states/state.constants.js";
 import { GlobalCommand } from "./command.constants.js";
 
 export const handleCommand = async (conversation, message) => {
@@ -13,7 +13,17 @@ export const handleCommand = async (conversation, message) => {
 
   switch (message.command) {
     case GlobalCommand.CART:
+      await conversationService.pushNavigation(conversation.id);
+
+      await conversationService.changeState(
+        conversation.id,
+        ConversationState.ADDING_TO_CART,
+      );
+
+      conversation.state = ConversationState.ADDING_TO_CART;
+
       await cartAction.handle(conversation, message);
+
       return true;
 
     case GlobalCommand.HOME:
