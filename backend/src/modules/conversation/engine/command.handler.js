@@ -5,6 +5,7 @@ import * as helpAction from "../actions/help.action.js";
 import * as conversationService from "../conversation.service.js";
 import { ConversationState } from "../states/state.constants.js";
 import { GlobalCommand } from "./command.constants.js";
+import * as categoryState from "../states/category.state.js";
 
 export const handleCommand = async (conversation, message) => {
   if (!message.command) {
@@ -23,6 +24,20 @@ export const handleCommand = async (conversation, message) => {
       conversation.state = ConversationState.ADDING_TO_CART;
 
       await cartAction.handle(conversation, message);
+
+      return true;
+
+    case GlobalCommand.MENU:
+      await conversationService.pushNavigation(conversation.id);
+
+      await conversationService.changeState(
+        conversation.id,
+        ConversationState.VIEWING_MENU,
+      );
+
+      conversation.state = ConversationState.VIEWING_MENU;
+
+      await categoryState.handle(conversation, message);
 
       return true;
 
