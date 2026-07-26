@@ -51,6 +51,12 @@ export const updateContext = async (conversationId, context) => {
   });
 };
 
+export const setPaymentMethod = async (conversationId, paymentMethod) => {
+  return updateContext(conversationId, {
+    paymentMethod,
+  });
+};
+
 export const pushNavigation = async (conversationId) => {
   const conversation = await conversationRepository.getById(conversationId);
 

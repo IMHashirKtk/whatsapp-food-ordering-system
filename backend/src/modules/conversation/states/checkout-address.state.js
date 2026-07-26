@@ -2,7 +2,7 @@ import * as customerService from "../../customer/customer.service.js";
 
 import { buttons, text } from "../../meta/message.factory.js";
 import { sendMessage } from "../../meta/meta.api.js";
-
+import * as checkoutPaymentState from "./checkout-payment.state.js";
 import { ButtonAction } from "../engine/command.constants.js";
 import { ConversationState } from "./state.constants.js";
 import { goToState } from "./state.helper.js";
@@ -63,13 +63,7 @@ export const handle = async (conversation, message) => {
     case ButtonAction.USE_SAVED_ADDRESS:
       await goToState(conversation, ConversationState.CHECKOUT_PAYMENT);
 
-      return sendMessage(
-        conversation.restaurantId,
-        text(
-          message.from,
-          "✅ Saved address selected.\n\n💳 Payment step coming next.",
-        ),
-      );
+      return checkoutPaymentState.show(conversation, message.from);
 
     case ButtonAction.NEW_ADDRESS:
       await goToState(conversation, ConversationState.CHECKOUT_ADDRESS_INPUT);
