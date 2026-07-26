@@ -59,10 +59,11 @@ export const handle = async (conversation, message) => {
         listReply: null,
       });
 
-    case GlobalCommand.CHECKOUT:
+    case GlobalCommand.CHECKOUT: {
       await goToState(conversation, ConversationState.CHECKOUT_ADDRESS);
 
-      return checkoutAddressState.handle(conversation, message);
+      return checkoutAddressState.show(conversation, message.from);
+    }
 
     case ButtonAction.CLEAR_CART:
       await cartService.clearCart(
