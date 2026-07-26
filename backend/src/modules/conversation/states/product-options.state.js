@@ -72,6 +72,7 @@ export const handle = async (conversation, message) => {
 
   // Finished all option groups
   if (optionGroupIndex >= product.optionGroups.length) {
+    console.log("Transitioning to:", ConversationState.ADDING_TO_CART);
     await goToState(conversation, ConversationState.ADDING_TO_CART);
 
     const updatedConversation = await conversationService.getConversationById(
