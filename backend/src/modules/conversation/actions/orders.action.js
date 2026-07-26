@@ -62,6 +62,7 @@ export const handle = async (conversation, message) => {
         const orderedAt = new Date(order.createdAt).toLocaleString("en-PK", {
           dateStyle: "medium",
           timeStyle: "short",
+          timeZone: "Asia/Karachi",
         });
 
         return (
