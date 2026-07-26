@@ -12,10 +12,16 @@ const generateOrderNumber = () => {
    Checkout
 ========================== */
 
-export const checkout = async (restaurantId, customerId, deliveryAddress) => {
+export const checkout = async (
+  restaurantId,
+  customerId,
+  deliveryAddress,
+  paymentMethod,
+) => {
   if (!deliveryAddress || !deliveryAddress.trim()) {
     throw new AppError("Delivery address is required.", 400);
   }
+
   const cart = await cartRepository.getCart(customerId, restaurantId);
 
   if (!cart) {
@@ -25,6 +31,10 @@ export const checkout = async (restaurantId, customerId, deliveryAddress) => {
   if (cart.items.length === 0) {
     throw new AppError("Cart is empty.", 400);
   }
+
+  // Automatically determine payment status
+  const paymentStatus =
+    paymentMethod === "COD" ? "UNPAID" : "PENDING_VERIFICATION";
 
   return orderRepository.transaction(async (tx) => {
     const subtotal = cart.items.reduce(
@@ -46,6 +56,8 @@ export const checkout = async (restaurantId, customerId, deliveryAddress) => {
         tax,
         deliveryFee,
         total,
+        paymentMethod,
+        paymentStatus,
         status: ORDER_STATUS.PENDING,
       },
       tx,
@@ -115,7 +127,6 @@ export const getOrders = async (restaurantId, query) => {
       limit,
       status,
     }),
-
     orderRepository.countOrders({
       restaurantId,
       status,

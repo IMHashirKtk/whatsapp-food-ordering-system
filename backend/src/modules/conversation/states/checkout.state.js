@@ -26,9 +26,11 @@ export const handle = async (conversation, message) => {
 
   // Create the order
   const order = await orderService.checkout(
-    conversation.restaurantId,
-    conversation.customerId,
-    address,
+    restaurantId,
+    customerId,
+    deliveryAddress,
+    paymentMethod,
+    paymentStatus,
   );
 
   // Move to tracking state

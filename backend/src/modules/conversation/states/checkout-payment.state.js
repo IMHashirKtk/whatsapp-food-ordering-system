@@ -174,13 +174,14 @@ Continue?`,
     case ButtonAction.CONFIRM_COD:
       await goToState(conversation, ConversationState.CHECKOUT_CONFIRM);
 
-      return sendMessage(
-        conversation.restaurantId,
-        text(
-          message.from,
-          "✅ Payment method saved.\n\nPreparing your order summary...",
-        ),
+      // Load updated conversation with payment method
+      const updatedConversation = await conversationService.getConversationById(
+        conversation.id,
       );
+
+      const checkoutConfirmState = await import("./checkout-confirm.state.js");
+
+      return checkoutConfirmState.show(updatedConversation, message.from);
 
     default:
       return show(conversation, message.from);

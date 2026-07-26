@@ -277,9 +277,10 @@ model Order {
   updatedAt          DateTime    @updatedAt
   deliveryAddress    String?
   estimatedReadyTime Int?
-  paymentMethod      String?
-  paymentStatus      String?
+  
   restaurantId       String
+  paymentMethod     PaymentMethod  @default(COD)
+  paymentStatus     PaymentStatus @default(UNPAID)
 
   items      OrderItem[]
   customer   Customer    @relation(fields: [customerId], references: [id], onDelete: Cascade)
@@ -383,4 +384,18 @@ enum OrderStatus {
   OUT_FOR_DELIVERY
   DELIVERED
   CANCELLED
+}
+
+
+enum PaymentMethod {
+  EASYPAISA
+  JAZZCASH
+  BANK_TRANSFER
+  COD
+}
+
+enum PaymentStatus {
+  PENDING_VERIFICATION
+  UNPAID
+  PAID
 }
