@@ -102,6 +102,14 @@ export const deleteCustomer = async (id, restaurantId) => {
   };
 };
 
+export const updateAddress = async (id, restaurantId, address) => {
+  await getCustomer(id, restaurantId);
+
+  return customerRepository.update(id, restaurantId, {
+    address,
+  });
+};
+
 /* -------------------------------------------------------------------------- */
 /*                            Legacy Compatibility                            */
 /* -------------------------------------------------------------------------- */

@@ -7,6 +7,7 @@ import * as homeAction from "../actions/home.action.js";
 import { ConversationState } from "./state.constants.js";
 import { goToState } from "./state.helper.js";
 import * as categoryState from "./category.state.js";
+import * as checkoutAddressState from "./checkout-address.state.js";
 
 export const handle = async (conversation, message) => {
   console.log(">>> CART STATE");
@@ -59,12 +60,9 @@ export const handle = async (conversation, message) => {
       });
 
     case GlobalCommand.CHECKOUT:
-      await goToState(conversation, ConversationState.CHECKOUT);
+      await goToState(conversation, ConversationState.CHECKOUT_ADDRESS);
 
-      return sendMessage(
-        conversation.restaurantId,
-        text(message.from, "📍 Please enter your delivery address."),
-      );
+      return checkoutAddressState.handle(conversation, message);
 
     case ButtonAction.CLEAR_CART:
       await cartService.clearCart(

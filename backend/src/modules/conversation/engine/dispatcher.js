@@ -5,9 +5,15 @@ import * as mainMenuState from "../states/main-menu.state.js";
 import * as categoryState from "../states/category.state.js";
 import * as productState from "../states/product.state.js";
 import * as cartState from "../states/add-to-cart.state.js";
-import * as checkoutState from "../states/checkout.state.js";
-import * as completeState from "../states/complete.state.js";
 import * as productOptionsState from "../states/product-options.state.js";
+
+import * as checkoutAddressState from "../states/checkout-address.state.js";
+import * as checkoutAddressInputState from "../states/checkout-address-input.state.js";
+import * as checkoutPaymentState from "../states/checkout-payment.state.js";
+import * as checkoutConfirmState from "../states/checkout-confirm.state.js";
+
+import * as completeState from "../states/complete.state.js";
+
 import { handleText } from "./text.handler.js";
 import { handleButton } from "./button.handler.js";
 import { handleList } from "./list.handler.js";
@@ -26,7 +32,13 @@ const stateHandlers = {
 
   [ConversationState.ADDING_TO_CART]: cartState,
 
-  [ConversationState.CHECKOUT]: checkoutState,
+  [ConversationState.CHECKOUT_ADDRESS]: checkoutAddressState,
+
+  [ConversationState.CHECKOUT_ADDRESS_INPUT]: checkoutAddressInputState,
+
+  [ConversationState.CHECKOUT_PAYMENT]: checkoutPaymentState,
+
+  [ConversationState.CHECKOUT_CONFIRM]: checkoutConfirmState,
 
   [ConversationState.TRACKING_ORDER]: completeState,
 };
@@ -34,9 +46,8 @@ const stateHandlers = {
 export const dispatch = async (conversation, message) => {
   const handled = await handleCommand(conversation, message);
 
-  if (handled) {
-    return;
-  }
+  if (handled) return;
+
   const stateHandler = stateHandlers[conversation.state];
 
   if (!stateHandler) {

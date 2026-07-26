@@ -91,13 +91,17 @@ model Customer {
   id            String        @id @default(cuid())
   whatsappId    String
   name          String?
+  email         String?
+
+  address       String?
+
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
-  email         String?
   lastOrderAt   DateTime?
   lifetimeSpend Decimal       @default(0) @db.Decimal(10, 2)
   restaurantId  String
   totalOrders   Int           @default(0)
+
   restaurant    Restaurant    @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
   messages      Message[]
   cart          Cart?
@@ -347,13 +351,27 @@ enum MessageType {
 
 enum ConversationState {
   IDLE
+
   MAIN_MENU
+
   VIEWING_MENU
+
   ORDERING
+
   SELECTING_OPTIONS
+
   ADDING_TO_CART
+
   VIEWING_CART
-  CHECKOUT
+
+  CHECKOUT_ADDRESS
+
+  CHECKOUT_ADDRESS_INPUT
+
+  CHECKOUT_PAYMENT
+
+  CHECKOUT_CONFIRM
+
   TRACKING_ORDER
 }
 

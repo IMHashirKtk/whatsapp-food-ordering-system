@@ -1,0 +1,2 @@
+-- AlterEnum
+ALTER TYPE "ConversationState" ADD VALUE 'CHECKOUT_ADDRESS_INPUT';
