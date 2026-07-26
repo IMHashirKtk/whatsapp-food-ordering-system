@@ -58,9 +58,5 @@ export const updateAISettings = asyncHandler(async (req, res) => {
     req.validated.body,
   );
 
-  res.status(200).json({
-    success: true,
-    message: "AI settings updated successfully.",
-    data: settings,
-  });
+  successResponse(res, settings, "Settings updated successfully.");
 });

@@ -1,3 +1,8 @@
+import {
+  GlobalCommand,
+  ButtonAction,
+} from "../conversation/engine/command.constants.js";
+
 export const formatCart = (cart) => {
   if (!cart || cart.items.length === 0) {
     return "🛒 Your cart is empty.";
@@ -34,4 +39,42 @@ export const formatCart = (cart) => {
   message += `*Grand Total: Rs ${grandTotal}*`;
 
   return message;
+};
+
+export const getCartButtons = (cart) => {
+  if (!cart || cart.items.length === 0) {
+    return [
+      {
+        type: "reply",
+        reply: {
+          id: GlobalCommand.MENU,
+          title: "🍽 Browse Menu",
+        },
+      },
+    ];
+  }
+
+  return [
+    {
+      type: "reply",
+      reply: {
+        id: ButtonAction.CONTINUE_SHOPPING,
+        title: "🛍 Continue",
+      },
+    },
+    {
+      type: "reply",
+      reply: {
+        id: GlobalCommand.CHECKOUT,
+        title: "✅ Checkout",
+      },
+    },
+    {
+      type: "reply",
+      reply: {
+        id: ButtonAction.CLEAR_CART,
+        title: "🗑 Clear Cart",
+      },
+    },
+  ];
 };

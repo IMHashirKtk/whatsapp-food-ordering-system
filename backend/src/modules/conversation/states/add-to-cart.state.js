@@ -1,12 +1,12 @@
 import * as cartService from "../../cart/cart.service.js";
-
+import { formatCart, getCartButtons } from "../../cart/cart.helper.js";
 import { buttons, text } from "../../meta/message.factory.js";
 import { sendMessage } from "../../meta/meta.api.js";
-
+import { GlobalCommand, ButtonAction } from "../engine/command.constants.js";
+import * as homeAction from "../actions/home.action.js";
 import { ConversationState } from "./state.constants.js";
 import { goToState } from "./state.helper.js";
-
-import { formatCart } from "../../cart/cart.helper.js";
+import * as categoryState from "./category.state.js";
 
 export const handle = async (conversation, message) => {
   console.log(">>> CART STATE");
@@ -44,42 +44,21 @@ export const handle = async (conversation, message) => {
 
     return sendMessage(
       conversation.restaurantId,
-      buttons(message.from, formatCart(cart), [
-        {
-          type: "reply",
-          reply: {
-            id: "ADD_MORE",
-            title: "➕ Add More",
-          },
-        },
-        {
-          type: "reply",
-          reply: {
-            id: "CHECKOUT",
-            title: "✅ Checkout",
-          },
-        },
-        {
-          type: "reply",
-          reply: {
-            id: "CLEAR_CART",
-            title: "🗑️ Clear Cart",
-          },
-        },
-      ]),
+      buttons(message.from, formatCart(cart), getCartButtons(cart)),
     );
   }
 
   switch (message.buttonReply?.id) {
-    case "ADD_MORE":
+    case ButtonAction.CONTINUE_SHOPPING:
       await goToState(conversation, ConversationState.VIEWING_MENU);
 
-      return sendMessage(
-        conversation.restaurantId,
-        text(message.from, "Let's continue shopping."),
-      );
+      return categoryState.handle(conversation, {
+        ...message,
+        buttonReply: null,
+        listReply: null,
+      });
 
-    case "CHECKOUT":
+    case GlobalCommand.CHECKOUT:
       await goToState(conversation, ConversationState.CHECKOUT);
 
       return sendMessage(
@@ -87,18 +66,15 @@ export const handle = async (conversation, message) => {
         text(message.from, "📍 Please enter your delivery address."),
       );
 
-    case "CLEAR_CART":
+    case ButtonAction.CLEAR_CART:
       await cartService.clearCart(
         conversation.customerId,
         conversation.restaurantId,
       );
 
-      await goToState(conversation, ConversationState.VIEWING_MENU);
+      await goToState(conversation, ConversationState.MAIN_MENU);
 
-      return sendMessage(
-        conversation.restaurantId,
-        text(message.from, "🗑️ Cart cleared."),
-      );
+      return homeAction.handle(conversation, message);
 
     default:
       return sendMessage(

@@ -1,114 +1,27 @@
-import { buttons, text } from "../../meta/message.factory.js";
+import { text } from "../../meta/message.factory.js";
 import { sendMessage } from "../../meta/meta.api.js";
-
+import { GlobalCommand } from "../engine/command.constants.js";
 import * as categoryState from "./category.state.js";
-import * as orderService from "../../order/order.service.js";
-
+import * as helpAction from "../actions/help.action.js";
+import * as ordersAction from "../actions/orders.action.js";
+import * as homeAction from "../actions/home.action.js";
 import { ConversationState } from "./state.constants.js";
 import { goToState } from "./state.helper.js";
 
 export const handle = async (conversation, message) => {
   switch (message.buttonReply?.id) {
-    case "ORDER":
+    case GlobalCommand.MENU:
       await goToState(conversation, ConversationState.VIEWING_MENU);
 
       return categoryState.handle(conversation, message);
 
-    case "ORDERS": {
-      const orders = await orderService.getCustomerOrders(
-        conversation.customerId,
-        conversation.restaurantId,
-      );
+    case GlobalCommand.TRACK:
+      return ordersAction.handle(conversation, message);
 
-      if (!orders.length) {
-        return sendMessage(
-          conversation.restaurantId,
-          text(
-            message.from,
-            "📦 You haven't placed any orders yet.\n\nTap *🍔 Order Food* to place your first order!",
-          ),
-        );
-      }
-
-      const statusMap = {
-        PENDING: "⏳ Pending",
-        ACCEPTED: "✅ Accepted",
-        PREPARING: "👨‍🍳 Preparing",
-        READY: "📦 Ready",
-        OUT_FOR_DELIVERY: "🛵 On the Way",
-        DELIVERED: "✅ Delivered",
-        CANCELLED: "❌ Cancelled",
-      };
-
-      const messageText =
-        "📦 *Your Orders*\n\n" +
-        orders
-          .map((order) => {
-            const items = order.items
-              .map((item) => {
-                const options =
-                  item.options.length > 0
-                    ? "\n" +
-                      item.options
-                        .map((option) => `   ➕ ${option.name}`)
-                        .join("\n")
-                    : "";
-
-                return `• ${item.menuItem.name} ×${item.quantity}${options}`;
-              })
-              .join("\n");
-
-            return (
-              `━━━━━━━━━━━━━━━━━━\n` +
-              `🧾 *Order #${order.orderNumber}*\n\n` +
-              `🍽️ *Items*\n${items}\n\n` +
-              `💰 *Total:* Rs. ${Number(order.total).toFixed(2)}\n` +
-              `📌 *Status:* ${statusMap[order.status] || order.status}`
-            );
-          })
-          .join("\n\n");
-
-      return sendMessage(
-        conversation.restaurantId,
-        text(message.from, messageText),
-      );
-    }
-
-    case "HELP":
-      return sendMessage(
-        conversation.restaurantId,
-        text(
-          message.from,
-          "💬 A support representative will assist you shortly.",
-        ),
-      );
+    case GlobalCommand.HELP:
+      return helpAction.handle(conversation, message);
 
     default:
-      return sendMessage(
-        conversation.restaurantId,
-        buttons(message.from, "Please choose an option below.", [
-          {
-            type: "reply",
-            reply: {
-              id: "ORDER",
-              title: "🍔 Order Food",
-            },
-          },
-          {
-            type: "reply",
-            reply: {
-              id: "ORDERS",
-              title: "📦 My Orders",
-            },
-          },
-          {
-            type: "reply",
-            reply: {
-              id: "HELP",
-              title: "💬 Support",
-            },
-          },
-        ]),
-      );
+      return homeAction.handle(conversation, message);
   }
 };

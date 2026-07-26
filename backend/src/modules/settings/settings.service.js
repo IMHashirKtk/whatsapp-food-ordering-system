@@ -1,3 +1,4 @@
+import * as repository from "./settings.repository.js";
 /* ==========================
    Get Settings
 ========================== */

@@ -23,7 +23,7 @@ export const handle = async (conversation, message) => {
 
   // Product has no option groups
   if (product.optionGroups.length === 0) {
-    await goToState(conversation, ConversationState.VIEWING_CART);
+    await goToState(conversation, ConversationState.ADDING_TO_CART);
 
     return sendMessage(
       conversation.restaurantId,
@@ -59,7 +59,7 @@ export const handle = async (conversation, message) => {
 
   // Finished all option groups
   if (optionGroupIndex >= product.optionGroups.length) {
-    await goToState(conversation, ConversationState.VIEWING_CART);
+    await goToState(conversation, ConversationState.ADDING_TO_CART);
 
     return sendMessage(
       conversation.restaurantId,

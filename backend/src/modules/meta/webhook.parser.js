@@ -1,3 +1,5 @@
+import { parseCommand } from "./command.parser.js";
+
 export const parseWebhook = (payload) => {
   const entry = payload?.entry?.[0];
   if (!entry) return null;
@@ -10,7 +12,18 @@ export const parseWebhook = (payload) => {
   const message = value?.messages?.[0];
   if (!message) return null;
 
-  return {
+  const buttonReply =
+    message.type === "interactive" &&
+    message.interactive.type === "button_reply"
+      ? message.interactive.button_reply
+      : null;
+
+  const listReply =
+    message.type === "interactive" && message.interactive.type === "list_reply"
+      ? message.interactive.list_reply
+      : null;
+
+  const parsedMessage = {
     // Restaurant identification
     phoneNumberId: value.metadata?.phone_number_id ?? null,
     displayPhoneNumber: value.metadata?.display_phone_number ?? null,
@@ -23,20 +36,18 @@ export const parseWebhook = (payload) => {
     // Message
     timestamp: Number(message.timestamp),
     type: message.type,
+
     text: message.type === "text" ? message.text.body : null,
 
-    buttonReply:
-      message.type === "interactive" &&
-      message.interactive.type === "button_reply"
-        ? message.interactive.button_reply
-        : null,
+    buttonReply,
 
-    listReply:
-      message.type === "interactive" &&
-      message.interactive.type === "list_reply"
-        ? message.interactive.list_reply
-        : null,
+    listReply,
 
     raw: payload,
   };
+
+  // Normalize global command (if any)
+  parsedMessage.command = parseCommand(parsedMessage);
+
+  return parsedMessage;
 };

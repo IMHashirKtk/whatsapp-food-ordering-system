@@ -4,13 +4,14 @@ import * as welcomeState from "../states/welcome.state.js";
 import * as mainMenuState from "../states/main-menu.state.js";
 import * as categoryState from "../states/category.state.js";
 import * as productState from "../states/product.state.js";
-import * as cartState from "../states/cart.state.js";
+import * as cartState from "../states/add-to-cart.state.js";
 import * as checkoutState from "../states/checkout.state.js";
 import * as completeState from "../states/complete.state.js";
 import * as productOptionsState from "../states/product-options.state.js";
 import { handleText } from "./text.handler.js";
 import { handleButton } from "./button.handler.js";
 import { handleList } from "./list.handler.js";
+import { handleCommand } from "./command.handler.js";
 
 const stateHandlers = {
   [ConversationState.IDLE]: welcomeState,
@@ -23,7 +24,7 @@ const stateHandlers = {
 
   [ConversationState.SELECTING_OPTIONS]: productOptionsState,
 
-  [ConversationState.VIEWING_CART]: cartState,
+  [ConversationState.ADDING_TO_CART]: cartState,
 
   [ConversationState.CHECKOUT]: checkoutState,
 
@@ -31,6 +32,11 @@ const stateHandlers = {
 };
 
 export const dispatch = async (conversation, message) => {
+  const handled = await handleCommand(conversation, message);
+
+  if (handled) {
+    return;
+  }
   const stateHandler = stateHandlers[conversation.state];
 
   if (!stateHandler) {
