@@ -1,20 +1,43 @@
 import prisma from "../../database/prisma.js";
+import { OrderStatus } from "@prisma/client";
+
+const ACTIVE_ORDER_STATUSES = [
+  OrderStatus.PENDING,
+  OrderStatus.ACCEPTED,
+  OrderStatus.PREPARING,
+  OrderStatus.READY,
+  OrderStatus.OUT_FOR_DELIVERY,
+];
+
+const STATUS_KEY_MAP = {
+  [OrderStatus.PENDING]: "pending",
+  [OrderStatus.ACCEPTED]: "accepted",
+  [OrderStatus.PREPARING]: "preparing",
+  [OrderStatus.READY]: "ready",
+  [OrderStatus.OUT_FOR_DELIVERY]: "outForDelivery",
+};
 
 export const getSummary = async (restaurantId) => {
-  const today = new Date();
+  const now = new Date();
 
-  const startOfToday = new Date(today);
+  const startOfToday = new Date(now);
   startOfToday.setHours(0, 0, 0, 0);
 
-  const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
   const [
     customers,
     menuItems,
     categories,
-    pendingOrders,
+
     todayOrders,
     monthOrders,
+
+    todayRevenue,
+    monthRevenue,
+
+    statusCounts,
+
     recentOrders,
   ] = await Promise.all([
     prisma.customer.count({
@@ -38,31 +61,57 @@ export const getSummary = async (restaurantId) => {
     prisma.order.count({
       where: {
         restaurantId,
-        status: "PENDING",
-      },
-    }),
-
-    prisma.order.findMany({
-      where: {
-        restaurantId,
         createdAt: {
           gte: startOfToday,
         },
       },
-      select: {
-        total: true,
-      },
     }),
 
-    prisma.order.findMany({
+    prisma.order.count({
       where: {
         restaurantId,
         createdAt: {
           gte: startOfMonth,
         },
       },
-      select: {
+    }),
+
+    prisma.order.aggregate({
+      where: {
+        restaurantId,
+        createdAt: {
+          gte: startOfToday,
+        },
+      },
+      _sum: {
         total: true,
+      },
+    }),
+
+    prisma.order.aggregate({
+      where: {
+        restaurantId,
+        createdAt: {
+          gte: startOfMonth,
+        },
+      },
+      _sum: {
+        total: true,
+      },
+    }),
+
+    prisma.order.groupBy({
+      by: ["status"],
+
+      where: {
+        restaurantId,
+        status: {
+          in: ACTIVE_ORDER_STATUSES,
+        },
+      },
+
+      _count: {
+        status: true,
       },
     }),
 
@@ -70,11 +119,20 @@ export const getSummary = async (restaurantId) => {
       where: {
         restaurantId,
       },
+
       take: 10,
+
       orderBy: {
         createdAt: "desc",
       },
-      include: {
+
+      select: {
+        id: true,
+        orderNumber: true,
+        total: true,
+        status: true,
+        createdAt: true,
+
         customer: {
           select: {
             id: true,
@@ -86,34 +144,37 @@ export const getSummary = async (restaurantId) => {
     }),
   ]);
 
-  const todayRevenue = todayOrders.reduce(
-    (sum, order) => sum + Number(order.total),
-    0,
-  );
+  const orderStatus = {
+    pending: 0,
+    accepted: 0,
+    preparing: 0,
+    ready: 0,
+    outForDelivery: 0,
+  };
 
-  const monthRevenue = monthOrders.reduce(
-    (sum, order) => sum + Number(order.total),
-    0,
-  );
+  statusCounts.forEach(({ status, _count }) => {
+    const key = STATUS_KEY_MAP[status];
+
+    if (key) {
+      orderStatus[key] = _count.status;
+    }
+  });
 
   return {
-    today: {
-      orders: todayOrders.length,
-      revenue: todayRevenue,
+    debug: "NEW_DASHBOARD_V2",
+    stats: {
+      todayOrders,
+      todayRevenue: Number(todayRevenue._sum.total ?? 0),
+
+      monthOrders,
+      monthRevenue: Number(monthRevenue._sum.total ?? 0),
+
+      customers,
+      menuItems,
+      categories,
     },
 
-    month: {
-      orders: monthOrders.length,
-      revenue: monthRevenue,
-    },
-
-    pendingOrders,
-
-    customers,
-
-    menuItems,
-
-    categories,
+    orderStatus,
 
     recentOrders,
   };
