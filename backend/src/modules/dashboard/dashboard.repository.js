@@ -161,7 +161,6 @@ export const getSummary = async (restaurantId) => {
   });
 
   return {
-    debug: "NEW_DASHBOARD_V2",
     stats: {
       todayOrders,
       todayRevenue: Number(todayRevenue._sum.total ?? 0),
