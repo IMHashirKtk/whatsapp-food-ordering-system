@@ -1,5 +1,7 @@
 import * as orderRepository from "./order.repository.js";
 import * as cartRepository from "../cart/cart.repository.js";
+import * as metaService from "../meta/meta.service.js";
+import * as restaurantService from "../restaurant/restaurant.service.js";
 
 import AppError from "../../utils/AppError.js";
 import { ORDER_STATUS } from "../../constants/orderStatus.js";
@@ -152,11 +154,35 @@ export const getOrders = async (restaurantId, query) => {
 };
 
 export const updateStatus = async (id, restaurantId, status) => {
-  await getOrder(id, restaurantId);
+  const existingOrder = await getOrder(id, restaurantId);
 
   if (!Object.values(ORDER_STATUS).includes(status)) {
     throw new AppError("Invalid order status.", 400);
   }
 
-  return orderRepository.updateStatus(id, restaurantId, status);
+  const updatedOrder = await orderRepository.updateStatus(
+    id,
+    restaurantId,
+    status,
+  );
+
+  try {
+    const restaurant = await restaurantService.getRestaurantById(restaurantId);
+
+    await metaService.sendOrderStatusNotification({
+      restaurantId,
+      to: existingOrder.customer?.whatsappId,
+      status,
+      orderNumber: existingOrder.orderNumber,
+      restaurantName: restaurant.name,
+    });
+  } catch (error) {
+    console.error("Failed to send order status WhatsApp notification.", {
+      orderId: id,
+      status,
+      error,
+    });
+  }
+
+  return updatedOrder;
 };

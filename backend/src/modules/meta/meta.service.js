@@ -1,10 +1,11 @@
 import { parseWebhook } from "./webhook.parser.js";
 
-import { dispatch } from "../conversation/engine/dispatcher.js";
-
 import * as restaurantService from "../restaurant/restaurant.service.js";
 import * as customerService from "../customer/customer.service.js";
 import * as conversationService from "../conversation/conversation.service.js";
+import { text } from "./message.factory.js";
+import { sendMessage } from "./meta.api.js";
+import { getOrderStatusNotificationMessage } from "./meta.templates.js";
 
 export const processWebhook = async (payload) => {
   const message = parseWebhook(payload);
@@ -41,5 +42,31 @@ export const processWebhook = async (payload) => {
   console.log("Conversation state:", conversation.state);
   console.log("Conversation context:", conversation.context);
 
+  const { dispatch } = await import("../conversation/engine/dispatcher.js");
+
   await dispatch(conversation, message);
+};
+
+export const sendOrderStatusNotification = async ({
+  restaurantId,
+  to,
+  status,
+  orderNumber,
+  restaurantName,
+}) => {
+  const message = getOrderStatusNotificationMessage({
+    status,
+    orderNumber,
+    restaurantName,
+  });
+
+  if (!message) {
+    return null;
+  }
+
+  if (!to) {
+    throw new Error("Customer WhatsApp number is missing.");
+  }
+
+  return sendMessage(restaurantId, text(to, message));
 };
