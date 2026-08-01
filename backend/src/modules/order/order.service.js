@@ -123,6 +123,7 @@ export const getOrders = async (restaurantId, query) => {
   const limit = Number(query.limit) || 20;
 
   const status = query.status;
+  const search = query.search?.trim() || undefined;
 
   const [orders, total] = await Promise.all([
     orderRepository.getOrders({
@@ -130,10 +131,12 @@ export const getOrders = async (restaurantId, query) => {
       page,
       limit,
       status,
+      search,
     }),
     orderRepository.countOrders({
       restaurantId,
       status,
+      search,
     }),
   ]);
 

@@ -80,12 +80,52 @@ export const getActiveCustomerOrders = (customerId, restaurantId) => {
   });
 };
 
-export const getOrders = ({ restaurantId, page = 1, limit = 20, status }) => {
+const buildOrdersWhere = ({ restaurantId, status, search }) => {
+  return {
+    restaurantId,
+    ...(status && { status }),
+    ...(search && {
+      OR: [
+        {
+          orderNumber: {
+            contains: search,
+            mode: "insensitive",
+          },
+        },
+        {
+          customer: {
+            is: {
+              name: {
+                contains: search,
+                mode: "insensitive",
+              },
+            },
+          },
+        },
+        {
+          customer: {
+            is: {
+              whatsappId: {
+                contains: search,
+                mode: "insensitive",
+              },
+            },
+          },
+        },
+      ],
+    }),
+  };
+};
+
+export const getOrders = ({
+  restaurantId,
+  page = 1,
+  limit = 20,
+  status,
+  search,
+}) => {
   return prisma.order.findMany({
-    where: {
-      restaurantId,
-      ...(status && { status }),
-    },
+    where: buildOrdersWhere({ restaurantId, status, search }),
     include: {
       customer: {
         select: {
@@ -103,12 +143,9 @@ export const getOrders = ({ restaurantId, page = 1, limit = 20, status }) => {
   });
 };
 
-export const countOrders = ({ restaurantId, status }) => {
+export const countOrders = ({ restaurantId, status, search }) => {
   return prisma.order.count({
-    where: {
-      restaurantId,
-      ...(status && { status }),
-    },
+    where: buildOrdersWhere({ restaurantId, status, search }),
   });
 };
 
