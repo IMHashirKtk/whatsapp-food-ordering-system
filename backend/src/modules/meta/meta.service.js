@@ -53,11 +53,13 @@ export const sendOrderStatusNotification = async ({
   status,
   orderNumber,
   restaurantName,
+  cancellationReason,
 }) => {
   const message = getOrderStatusNotificationMessage({
     status,
     orderNumber,
     restaurantName,
+    cancellationReason,
   });
 
   if (!message) {

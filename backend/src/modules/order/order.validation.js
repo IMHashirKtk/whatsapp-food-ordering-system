@@ -4,6 +4,9 @@ export const checkoutSchema = z.object({
   body: z.object({
     customerId: z.string().cuid(),
     deliveryAddress: z.string().trim().min(1).optional(),
+    paymentMethod: z
+      .enum(["EASYPAISA", "JAZZCASH", "BANK_TRANSFER", "COD"])
+      .optional(),
   }),
 });
 
@@ -52,5 +55,6 @@ export const updateStatusSchema = z.object({
       "DELIVERED",
       "CANCELLED",
     ]),
+    cancellationReason: z.string().trim().min(3).max(500).optional(),
   }),
 });

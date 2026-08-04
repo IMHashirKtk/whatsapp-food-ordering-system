@@ -6,12 +6,13 @@ import asyncHandler from "../../utils/async-handler.js";
 ========================== */
 
 export const checkout = asyncHandler(async (req, res) => {
-  const { customerId, deliveryAddress } = req.body;
+  const { customerId, deliveryAddress, paymentMethod } = req.validated.body;
 
   const order = await orderService.checkout(
     req.user.restaurantId,
     customerId,
     deliveryAddress,
+    paymentMethod,
   );
 
   res.status(201).json({
@@ -60,10 +61,12 @@ export const getCustomerOrders = asyncHandler(async (req, res) => {
 });
 
 export const updateStatus = asyncHandler(async (req, res) => {
+  const { status, cancellationReason } = req.validated.body;
   const order = await orderService.updateStatus(
     req.params.id,
     req.user.restaurantId,
-    req.body.status,
+    status,
+    cancellationReason,
   );
 
   res.json({

@@ -40,19 +40,19 @@ router.get(
 );
 
 router.get(
-  "/:id",
-  authenticate,
-  authorize("OWNER", "MANAGER"),
-  validate(orderIdSchema),
-  orderController.getOrder,
-);
-
-router.get(
   "/customer/:customerId",
   authenticate,
   authorize("OWNER", "MANAGER"),
   validate(customerOrdersSchema),
   orderController.getCustomerOrders,
+);
+
+router.get(
+  "/:id",
+  authenticate,
+  authorize("OWNER", "MANAGER"),
+  validate(orderIdSchema),
+  orderController.getOrder,
 );
 
 router.patch(

@@ -14,6 +14,7 @@ import dashboardRoutes from "./modules/dashboard/dashboard.routes.js";
 import notFound from "./middleware/not-found.js";
 import errorHandler from "./middleware/error-handler.js";
 import { swaggerUi, specs } from "./config/swagger.js";
+import env from "./config/env.js";
 
 const app = express();
 
@@ -25,7 +26,7 @@ app.use(helmet());
 
 app.use(
   cors({
-    origin: true,
+    origin: env.corsOrigin,
     credentials: true,
   }),
 );

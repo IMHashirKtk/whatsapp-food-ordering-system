@@ -10,6 +10,20 @@ export const createOrder = (data, db = prisma) => {
   });
 };
 
+export const createOrderWithCustomerSummary = (data, db = prisma) => {
+  return db.order.create({
+    data,
+    include: {
+      customer: {
+        select: {
+          name: true,
+          whatsappId: true,
+        },
+      },
+    },
+  });
+};
+
 export const getOrderById = (id, restaurantId) => {
   return prisma.order.findFirst({
     where: {
@@ -117,14 +131,14 @@ const buildOrdersWhere = ({ restaurantId, status, search }) => {
   };
 };
 
-export const getOrders = ({
+export const getOrders = async ({
   restaurantId,
   page = 1,
   limit = 20,
   status,
   search,
 }) => {
-  return prisma.order.findMany({
+  const orders = await prisma.order.findMany({
     where: buildOrdersWhere({ restaurantId, status, search }),
     include: {
       customer: {
@@ -134,6 +148,11 @@ export const getOrders = ({
           whatsappId: true,
         },
       },
+      _count: {
+        select: {
+          items: true,
+        },
+      },
     },
     orderBy: {
       createdAt: "desc",
@@ -141,6 +160,11 @@ export const getOrders = ({
     skip: (page - 1) * limit,
     take: limit,
   });
+
+  return orders.map(({ _count, ...order }) => ({
+    ...order,
+    itemCount: _count.items,
+  }));
 };
 
 export const countOrders = ({ restaurantId, status, search }) => {
@@ -149,16 +173,29 @@ export const countOrders = ({ restaurantId, status, search }) => {
   });
 };
 
-export const updateStatus = async (id, restaurantId, status, db = prisma) => {
-  await db.order.updateMany({
+export const updateStatus = async (
+  id,
+  restaurantId,
+  currentStatus,
+  status,
+  cancellationReason,
+  db = prisma,
+) => {
+  const result = await db.order.updateMany({
     where: {
       id,
       restaurantId,
+      status: currentStatus,
     },
     data: {
       status,
+      ...(status === "CANCELLED" && { cancellationReason }),
     },
   });
+
+  if (result.count === 0) {
+    return null;
+  }
 
   return db.order.findFirst({
     where: {

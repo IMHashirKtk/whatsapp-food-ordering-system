@@ -12,12 +12,16 @@ const orderStatusMessages = {
 
   DELIVERED: ({ orderNumber, restaurantName }) =>
     `🎉 Your order #${orderNumber} has been delivered. Thank you for ordering from ${restaurantName}.`,
+
+  CANCELLED: ({ orderNumber, restaurantName, cancellationReason }) =>
+    `❌ Your order #${orderNumber} from ${restaurantName} has been cancelled. Reason: ${cancellationReason}`,
 };
 
 export const getOrderStatusNotificationMessage = ({
   status,
   orderNumber,
   restaurantName,
+  cancellationReason,
 }) => {
   const messageFactory = orderStatusMessages[status];
 
@@ -28,5 +32,6 @@ export const getOrderStatusNotificationMessage = ({
   return messageFactory({
     orderNumber,
     restaurantName,
+    cancellationReason,
   });
 };
