@@ -58,6 +58,15 @@ export const getByMenuItem = (menuItemId, restaurantId) => {
   });
 };
 
+export const getMenuItemById = (id, restaurantId) => {
+  return prisma.menuItem.findFirst({
+    where: {
+      id,
+      restaurantId,
+    },
+  });
+};
+
 export const create = (data) => {
   return prisma.optionGroup.create({
     data,

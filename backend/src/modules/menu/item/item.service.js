@@ -23,12 +23,24 @@ export const getByCategory = (categoryId, restaurantId) => {
   return repository.getByCategory(categoryId, restaurantId);
 };
 
+const ensureCategoryBelongsToRestaurant = async (categoryId, restaurantId) => {
+  const category = await repository.getCategoryById(categoryId, restaurantId);
+
+  if (!category) {
+    throw new AppError("Category not found.", 404);
+  }
+
+  return category;
+};
+
 /* ==========================
    Create
 ========================== */
 
 export const create = async (restaurantId, data) => {
   data.name = data.name.trim();
+
+  await ensureCategoryBelongsToRestaurant(data.categoryId, restaurantId);
 
   const exists = await repository.findByName(
     restaurantId,
@@ -56,14 +68,20 @@ export const create = async (restaurantId, data) => {
 export const update = async (id, restaurantId, data) => {
   const item = await getById(id, restaurantId);
 
-  if (
-    data.name &&
-    data.name.trim().toLowerCase() !== item.name.trim().toLowerCase()
-  ) {
+  if (data.categoryId) {
+    await ensureCategoryBelongsToRestaurant(data.categoryId, restaurantId);
+  }
+
+  const nextName = data.name ? data.name.trim() : item.name;
+  const nextCategoryId = data.categoryId ?? item.categoryId;
+  const nameChanged = nextName.toLowerCase() !== item.name.trim().toLowerCase();
+  const categoryChanged = nextCategoryId !== item.categoryId;
+
+  if (nameChanged || categoryChanged) {
     const exists = await repository.findByName(
       restaurantId,
-      data.categoryId ?? item.categoryId,
-      data.name.trim(),
+      nextCategoryId,
+      nextName,
     );
 
     if (exists && exists.id !== id) {
@@ -72,8 +90,10 @@ export const update = async (id, restaurantId, data) => {
         409,
       );
     }
+  }
 
-    data.name = data.name.trim();
+  if (data.name) {
+    data.name = nextName;
   }
 
   return repository.update(id, restaurantId, data);

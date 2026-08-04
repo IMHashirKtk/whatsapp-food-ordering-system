@@ -65,6 +65,15 @@ export const getByCategory = (categoryId, restaurantId) => {
   });
 };
 
+export const getCategoryById = (id, restaurantId) => {
+  return prisma.category.findFirst({
+    where: {
+      id,
+      restaurantId,
+    },
+  });
+};
+
 export const findByName = (restaurantId, categoryId, name) => {
   return prisma.menuItem.findUnique({
     where: {
@@ -90,12 +99,6 @@ export const update = (id, restaurantId, data) => {
       restaurantId,
     },
     data,
-  });
-  return prisma.menuItem.findFirst({
-    where: {
-      id,
-      restaurantId,
-    },
   });
 };
 

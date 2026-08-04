@@ -4,7 +4,8 @@ import * as controller from "./category.controller.js";
 
 import asyncHandler from "../../../utils/async-handler.js";
 import validate from "../../../middleware/validate.js";
-import { authenticate } from "../../auth/auth.middleware.js";
+import authenticate from "../../../middleware/authenticate.js";
+import authorize from "../../../middleware/authorize.js";
 
 import {
   createCategorySchema,
@@ -18,9 +19,20 @@ const router = Router();
    Read
 ========================== */
 
-router.get("/", asyncHandler(controller.getAll));
+router.get(
+  "/",
+  authenticate,
+  authorize("OWNER", "MANAGER"),
+  asyncHandler(controller.getAll),
+);
 
-router.get("/:id", validate(idSchema), asyncHandler(controller.getById));
+router.get(
+  "/:id",
+  authenticate,
+  authorize("OWNER", "MANAGER"),
+  validate(idSchema),
+  asyncHandler(controller.getById),
+);
 
 /* ==========================
    Write

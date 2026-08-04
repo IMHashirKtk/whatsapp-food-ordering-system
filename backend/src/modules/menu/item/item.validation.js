@@ -8,6 +8,8 @@ const itemBody = {
   basePrice: z.coerce.number().min(0),
   isAvailable: z.boolean().default(true),
   isFeatured: z.boolean().default(false),
+  preparationTime: z.coerce.number().int().min(0).default(15),
+  sortOrder: z.coerce.number().int().min(0).default(0),
 };
 
 export const createMenuItemSchema = z.object({
@@ -23,6 +25,8 @@ export const updateMenuItemSchema = z.object({
     basePrice: itemBody.basePrice.optional(),
     isAvailable: itemBody.isAvailable.optional(),
     isFeatured: itemBody.isFeatured.optional(),
+    preparationTime: itemBody.preparationTime.optional(),
+    sortOrder: itemBody.sortOrder.optional(),
   }),
 });
 

@@ -59,6 +59,17 @@ export const getByGroup = (optionGroupId, restaurantId) => {
   });
 };
 
+export const getOptionGroupById = (id, restaurantId) => {
+  return prisma.optionGroup.findFirst({
+    where: {
+      id,
+      menuItem: {
+        restaurantId,
+      },
+    },
+  });
+};
+
 export const create = (data) => {
   return prisma.option.create({
     data,

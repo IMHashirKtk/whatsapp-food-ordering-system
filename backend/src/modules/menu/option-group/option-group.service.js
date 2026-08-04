@@ -23,19 +23,39 @@ export const getByMenuItem = (menuItemId, restaurantId) => {
   return repository.getByMenuItem(menuItemId, restaurantId);
 };
 
+const ensureMenuItemBelongsToRestaurant = async (menuItemId, restaurantId) => {
+  const menuItem = await repository.getMenuItemById(menuItemId, restaurantId);
+
+  if (!menuItem) {
+    throw new AppError("Menu item not found.", 404);
+  }
+
+  return menuItem;
+};
+
+const ensureSelectionRules = ({ isRequired, minSelect, maxSelect }) => {
+  if (minSelect > maxSelect) {
+    throw new AppError(
+      "minSelect must be less than or equal to maxSelect.",
+      400,
+    );
+  }
+
+  if (isRequired && minSelect < 1) {
+    throw new AppError(
+      "Required option groups must allow at least one selection.",
+      400,
+    );
+  }
+};
+
 /* ==========================
    Create
 ========================== */
 
 export const create = async (restaurantId, data) => {
-  const menuItem = await repository.getByMenuItem(
-    data.menuItemId,
-    restaurantId,
-  );
-
-  if (!menuItem.length) {
-    throw new AppError("Menu item not found.", 404);
-  }
+  await ensureMenuItemBelongsToRestaurant(data.menuItemId, restaurantId);
+  ensureSelectionRules(data);
 
   return repository.create(data);
 };
@@ -45,7 +65,17 @@ export const create = async (restaurantId, data) => {
 ========================== */
 
 export const update = async (id, restaurantId, data) => {
-  await getById(id, restaurantId);
+  const group = await getById(id, restaurantId);
+
+  if (data.menuItemId) {
+    await ensureMenuItemBelongsToRestaurant(data.menuItemId, restaurantId);
+  }
+
+  ensureSelectionRules({
+    isRequired: data.isRequired ?? group.isRequired,
+    minSelect: data.minSelect ?? group.minSelect,
+    maxSelect: data.maxSelect ?? group.maxSelect,
+  });
 
   return repository.update(id, restaurantId, data);
 };

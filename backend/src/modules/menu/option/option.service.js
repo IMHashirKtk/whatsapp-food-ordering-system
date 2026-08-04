@@ -23,16 +23,28 @@ export const getByGroup = (optionGroupId, restaurantId) => {
   return repository.getByGroup(optionGroupId, restaurantId);
 };
 
+const ensureOptionGroupBelongsToRestaurant = async (
+  optionGroupId,
+  restaurantId,
+) => {
+  const optionGroup = await repository.getOptionGroupById(
+    optionGroupId,
+    restaurantId,
+  );
+
+  if (!optionGroup) {
+    throw new AppError("Option group not found.", 404);
+  }
+
+  return optionGroup;
+};
+
 /* ==========================
    Create
 ========================== */
 
 export const create = async (restaurantId, data) => {
-  const groups = await repository.getByGroup(data.optionGroupId, restaurantId);
-
-  if (!groups.length) {
-    throw new AppError("Option group not found.", 404);
-  }
+  await ensureOptionGroupBelongsToRestaurant(data.optionGroupId, restaurantId);
 
   return repository.create(data);
 };
@@ -43,6 +55,13 @@ export const create = async (restaurantId, data) => {
 
 export const update = async (id, restaurantId, data) => {
   await getById(id, restaurantId);
+
+  if (data.optionGroupId) {
+    await ensureOptionGroupBelongsToRestaurant(
+      data.optionGroupId,
+      restaurantId,
+    );
+  }
 
   return repository.update(id, restaurantId, data);
 };
