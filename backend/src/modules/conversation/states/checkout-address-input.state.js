@@ -5,6 +5,7 @@ import { sendMessage } from "../../meta/meta.api.js";
 
 import { ConversationState } from "./state.constants.js";
 import { goToState } from "./state.helper.js";
+import * as checkoutPaymentState from "./checkout-payment.state.js";
 
 export const handle = async (conversation, message) => {
   if (message.type !== "text") {
@@ -25,11 +26,5 @@ export const handle = async (conversation, message) => {
 
   await goToState(conversation, ConversationState.CHECKOUT_PAYMENT);
 
-  return sendMessage(
-    conversation.restaurantId,
-    text(
-      message.from,
-      "✅ Address saved.\n\n💳 Payment selection will be implemented next.",
-    ),
-  );
+  return checkoutPaymentState.show(conversation, message.from);
 };
