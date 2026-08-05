@@ -1,7 +1,15 @@
+import { randomUUID } from "node:crypto";
+
 import * as orderRepository from "./order.repository.js";
 import * as cartRepository from "../cart/cart.repository.js";
 import * as metaService from "../meta/meta.service.js";
 import * as restaurantService from "../restaurant/restaurant.service.js";
+import * as settingsRepository from "../settings/settings.repository.js";
+import {
+  formatCurrency,
+  getUsablePaymentMethods,
+  validateSelectedPaymentMethod,
+} from "../conversation/payment.helper.js";
 import {
   publishOrderCreated,
   publishOrderUpdated,
@@ -14,8 +22,98 @@ import {
   ORDER_STATUS,
 } from "../../constants/orderStatus.js";
 
-const generateOrderNumber = () => {
-  return `ORD-${Date.now()}`;
+const generateOrderNumber = (orderPrefix) => {
+  const prefix =
+    orderPrefix
+      ?.trim()
+      .replace(/[^a-zA-Z0-9]/g, "")
+      .slice(0, 20)
+      .toUpperCase() || "ORD";
+
+  return `${prefix}-${Date.now()}-${randomUUID().slice(0, 8).toUpperCase()}`;
+};
+
+const toCents = (value) => Math.round(Number(value || 0) * 100);
+
+const fromCents = (value) => Number((value / 100).toFixed(2));
+
+export const calculateCheckoutTotals = (cartItems, checkoutSettings) => {
+  const restaurant = checkoutSettings?.restaurant || checkoutSettings;
+  const settings = checkoutSettings?.settings;
+
+  if (!restaurant || !settings) {
+    throw new AppError("Checkout is temporarily unavailable.", 503);
+  }
+
+  const subtotalCents = cartItems.reduce(
+    (sum, item) => sum + toCents(item.totalPrice),
+    0,
+  );
+  const minimumOrderAmountCents = toCents(settings.minimumOrderAmount);
+  const configuredDeliveryFeeCents = toCents(restaurant.deliveryFee);
+  const freeDeliveryThresholdCents = toCents(settings.freeDeliveryThreshold);
+  const taxRateBasisPoints = Math.round(Number(restaurant.taxRate || 0) * 100);
+  const taxCents = Math.round((subtotalCents * taxRateBasisPoints) / 10000);
+  const deliveryFeeCents =
+    freeDeliveryThresholdCents > 0 &&
+    subtotalCents >= freeDeliveryThresholdCents
+      ? 0
+      : configuredDeliveryFeeCents;
+
+  return {
+    subtotal: fromCents(subtotalCents),
+    tax: fromCents(taxCents),
+    deliveryFee: fromCents(deliveryFeeCents),
+    total: fromCents(subtotalCents + taxCents + deliveryFeeCents),
+    minimumOrderAmount: fromCents(minimumOrderAmountCents),
+    isBelowMinimum: subtotalCents < minimumOrderAmountCents,
+  };
+};
+
+const loadAndValidateCheckoutSettings = async (restaurantId, paymentMethod) => {
+  const checkoutSettings =
+    await settingsRepository.getCheckoutSettings(restaurantId);
+
+  if (!checkoutSettings?.settings) {
+    console.error("Checkout settings are missing for restaurant.", {
+      restaurantId,
+    });
+    throw new AppError("Checkout is temporarily unavailable.", 503);
+  }
+
+  if (checkoutSettings.isOpen !== true) {
+    throw new AppError(
+      "Online ordering is temporarily unavailable. Please try again later.",
+      409,
+    );
+  }
+
+  if (checkoutSettings.settings.orderAcceptanceEnabled !== true) {
+    throw new AppError(
+      "Online ordering is temporarily unavailable. Please try again later.",
+      409,
+    );
+  }
+
+  if (!paymentMethod) {
+    throw new AppError("Please select an available payment method.", 400);
+  }
+
+  if (getUsablePaymentMethods(checkoutSettings).length === 0) {
+    console.error("No usable payment methods are configured.", {
+      restaurantId,
+    });
+    throw new AppError("Payment methods are temporarily unavailable.", 409);
+  }
+
+  if (!validateSelectedPaymentMethod(paymentMethod, checkoutSettings)) {
+    throw new AppError(
+      "The selected payment method is no longer available.",
+      400,
+    );
+  }
+
+  return checkoutSettings;
 };
 
 const publishOrderCreatedSafely = (restaurantId, order, customer) => {
@@ -74,6 +172,11 @@ export const checkout = async (
     throw new AppError("Delivery address is required.", 400);
   }
 
+  const checkoutSettings = await loadAndValidateCheckoutSettings(
+    restaurantId,
+    paymentMethod,
+  );
+
   const cart = await cartRepository.getCart(customerId, restaurantId);
 
   if (!cart) {
@@ -84,34 +187,38 @@ export const checkout = async (
     throw new AppError("Cart is empty.", 400);
   }
 
-  // Automatically determine payment status
-  const resolvedPaymentMethod = paymentMethod || "COD";
   const paymentStatus =
-    resolvedPaymentMethod === "COD" ? "UNPAID" : "PENDING_VERIFICATION";
+    paymentMethod === "COD" ? "UNPAID" : "PENDING_VERIFICATION";
+  const totals = calculateCheckoutTotals(cart.items, checkoutSettings);
+
+  if (totals.isBelowMinimum) {
+    throw new AppError(
+      `The minimum order amount is ${formatCurrency(
+        totals.minimumOrderAmount,
+        checkoutSettings.settings.currencySymbol,
+      )}.`,
+      400,
+    );
+  }
 
   const transactionResult = await orderRepository.transaction(async (tx) => {
-    const subtotal = cart.items.reduce(
-      (sum, item) => sum + Number(item.totalPrice),
-      0,
-    );
-
-    const tax = 0;
-    const deliveryFee = 0;
-    const total = subtotal + tax + deliveryFee;
-
     const createdOrder = await orderRepository.createOrderWithCustomerSummary(
       {
         restaurantId,
-        orderNumber: generateOrderNumber(),
+        orderNumber: generateOrderNumber(
+          checkoutSettings.settings.orderPrefix,
+        ),
         customerId,
         deliveryAddress,
-        subtotal,
-        tax,
-        deliveryFee,
-        total,
-        paymentMethod: resolvedPaymentMethod,
+        subtotal: totals.subtotal,
+        tax: totals.tax,
+        deliveryFee: totals.deliveryFee,
+        total: totals.total,
+        paymentMethod,
         paymentStatus,
         status: ORDER_STATUS.PENDING,
+        estimatedReadyTime:
+          checkoutSettings.settings.estimatedPreparationTime,
       },
       tx,
     );
@@ -141,7 +248,7 @@ export const checkout = async (
       }
     }
 
-    await orderRepository.updateCustomerStats(customerId, total, tx);
+    await orderRepository.updateCustomerStats(customerId, totals.total, tx);
 
     await cartRepository.clearCartTx(tx, cart.id);
 

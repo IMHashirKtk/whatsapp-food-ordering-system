@@ -2,6 +2,11 @@ import { text } from "../../meta/message.factory.js";
 import { sendMessage } from "../../meta/meta.api.js";
 
 import * as orderService from "../../order/order.service.js";
+import * as settingsRepository from "../../settings/settings.repository.js";
+import {
+  formatCurrency,
+  getPaymentMethodLabel,
+} from "../payment.helper.js";
 
 const statusMap = {
   PENDING: "🟡 Pending Confirmation",
@@ -18,6 +23,20 @@ export const handle = async (conversation, message) => {
     conversation.customerId,
     conversation.restaurantId,
   );
+
+  let currencySymbol = "Rs";
+
+  try {
+    const checkoutSettings = await settingsRepository.getCheckoutSettings(
+      conversation.restaurantId,
+    );
+    currencySymbol = checkoutSettings?.settings?.currencySymbol || currencySymbol;
+  } catch (error) {
+    console.error("Failed to load currency settings for order history.", {
+      restaurantId: conversation.restaurantId,
+      error: error?.message,
+    });
+  }
 
   if (!orders.length) {
     return sendMessage(
@@ -52,7 +71,7 @@ export const handle = async (conversation, message) => {
           : "";
 
         const paymentMethod = order.paymentMethod
-          ? `💳 *Payment:* ${order.paymentMethod}\n`
+          ? `💳 *Payment:* ${getPaymentMethodLabel(order.paymentMethod)}\n`
           : "";
 
         const deliveryAddress = order.deliveryAddress
@@ -70,7 +89,7 @@ export const handle = async (conversation, message) => {
           `🧾 *Order #${order.orderNumber}*\n\n` +
           `📌 *Status:* ${statusMap[order.status] || order.status}\n\n` +
           `🍽️ *Items*\n${items}\n\n` +
-          `💰 *Total:* Rs. ${Number(order.total).toFixed(2)}\n` +
+          `💰 *Total:* ${formatCurrency(order.total, currencySymbol)}\n` +
           estimatedReady +
           paymentMethod +
           deliveryAddress +

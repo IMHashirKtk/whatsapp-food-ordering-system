@@ -52,6 +52,34 @@ const dashboardRestaurantSelect = {
   },
 };
 
+const checkoutRestaurantSelect = {
+  name: true,
+  currency: true,
+  taxRate: true,
+  deliveryFee: true,
+  isOpen: true,
+  settings: {
+    select: {
+      codEnabled: true,
+      easypaisaEnabled: true,
+      easypaisaNumber: true,
+      jazzcashEnabled: true,
+      jazzcashNumber: true,
+      bankTransferEnabled: true,
+      bankName: true,
+      bankAccountTitle: true,
+      bankAccountNumber: true,
+      paymentInstructions: true,
+      currencySymbol: true,
+      minimumOrderAmount: true,
+      freeDeliveryThreshold: true,
+      orderAcceptanceEnabled: true,
+      estimatedPreparationTime: true,
+      orderPrefix: true,
+    },
+  },
+};
+
 /* ==========================
    Settings
 ========================== */
@@ -96,6 +124,13 @@ export const getDashboardSettings = (restaurantId) => {
   return prisma.restaurant.findUnique({
     where: { id: restaurantId },
     select: dashboardRestaurantSelect,
+  });
+};
+
+export const getCheckoutSettings = (restaurantId) => {
+  return prisma.restaurant.findUnique({
+    where: { id: restaurantId },
+    select: checkoutRestaurantSelect,
   });
 };
 
