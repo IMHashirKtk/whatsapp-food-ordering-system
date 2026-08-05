@@ -4,6 +4,7 @@ const authorize = (...roles) => {
       return res.status(401).json({
         success: false,
         message: "Unauthorized",
+        errors: null,
       });
     }
 
@@ -11,6 +12,7 @@ const authorize = (...roles) => {
       return res.status(403).json({
         success: false,
         message: "Forbidden",
+        errors: null,
       });
     }
 

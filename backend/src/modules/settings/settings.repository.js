@@ -1,5 +1,57 @@
 import prisma from "../../database/prisma.js";
 
+const dashboardRestaurantSelect = {
+  name: true,
+  description: true,
+  imageUrl: true,
+  address: true,
+  phone: true,
+  whatsappNumber: true,
+  email: true,
+  currency: true,
+  taxRate: true,
+  deliveryFee: true,
+  openingTime: true,
+  closingTime: true,
+  isOpen: true,
+  settings: {
+    select: {
+      freeDeliveryThreshold: true,
+      minimumOrderAmount: true,
+      estimatedPreparationTime: true,
+      orderAcceptanceEnabled: true,
+      temporaryClosureMessage: true,
+      orderPrefix: true,
+      autoAcceptOrders: true,
+      codEnabled: true,
+      easypaisaEnabled: true,
+      easypaisaNumber: true,
+      jazzcashEnabled: true,
+      jazzcashNumber: true,
+      bankTransferEnabled: true,
+      bankName: true,
+      bankAccountTitle: true,
+      bankAccountNumber: true,
+      paymentInstructions: true,
+      receiptFooter: true,
+      statusNotificationsEnabled: true,
+      cancellationNotificationsEnabled: true,
+      language: true,
+      timezone: true,
+      currencySymbol: true,
+      aiEnabled: true,
+      welcomeMessage: true,
+      orderConfirmation: true,
+      metaPhoneNumberId: true,
+      metaDisplayPhone: true,
+      metaBusinessAccountId: true,
+      metaAccessToken: true,
+      metaVerifyToken: true,
+      webhookSecret: true,
+    },
+  },
+};
+
 /* ==========================
    Settings
 ========================== */
@@ -21,13 +73,85 @@ export const create = (restaurantId) => {
 };
 
 export const getOrCreate = async (restaurantId) => {
-  let settings = await getByRestaurantId(restaurantId);
+  return prisma.restaurantSettings.upsert({
+    where: { restaurantId },
+    update: {},
+    create: { restaurantId },
+  });
+};
 
-  if (!settings) {
-    settings = await create(restaurantId);
-  }
+export const getPaymentMethodFlags = (restaurantId) => {
+  return prisma.restaurantSettings.findUnique({
+    where: { restaurantId },
+    select: {
+      codEnabled: true,
+      easypaisaEnabled: true,
+      jazzcashEnabled: true,
+      bankTransferEnabled: true,
+    },
+  });
+};
 
-  return settings;
+export const getDashboardSettings = (restaurantId) => {
+  return prisma.restaurant.findUnique({
+    where: { id: restaurantId },
+    select: dashboardRestaurantSelect,
+  });
+};
+
+export const getMetaSettings = (restaurantId) => {
+  return prisma.restaurantSettings.findUnique({
+    where: { restaurantId },
+    select: {
+      metaPhoneNumberId: true,
+      metaDisplayPhone: true,
+      metaBusinessAccountId: true,
+      metaAccessToken: true,
+      metaVerifyToken: true,
+      webhookSecret: true,
+    },
+  });
+};
+
+export const updateProfile = (restaurantId, data) => {
+  return prisma.restaurant.update({
+    where: { id: restaurantId },
+    data,
+  });
+};
+
+export const updateOrderConfig = (restaurantId, data) => {
+  return prisma.restaurantSettings.update({
+    where: { restaurantId },
+    data,
+  });
+};
+
+export const updatePaymentMethods = (restaurantId, data) => {
+  return prisma.restaurantSettings.update({
+    where: { restaurantId },
+    data,
+  });
+};
+
+export const updateAvailability = async (restaurantId, restaurantData, settingsData) => {
+  return prisma.$transaction([
+    prisma.restaurant.update({
+      where: { id: restaurantId },
+      data: restaurantData,
+    }),
+    prisma.restaurantSettings.update({
+      where: { restaurantId },
+      data: settingsData,
+    }),
+  ]);
+};
+
+export const updateSettingsSection = (restaurantId, data) => {
+  return prisma.restaurantSettings.update({
+    where: { restaurantId },
+    data,
+  });
 };
 
 export const update = (restaurantId, data) => {
@@ -44,14 +168,7 @@ export const updateMetaSettings = (restaurantId, data) => {
     where: {
       restaurantId,
     },
-    data: {
-      metaPhoneNumberId: data.metaPhoneNumberId,
-      metaDisplayPhone: data.metaDisplayPhone,
-      metaBusinessAccountId: data.metaBusinessAccountId,
-      metaAccessToken: data.metaAccessToken,
-      metaVerifyToken: data.metaVerifyToken,
-      webhookSecret: data.webhookSecret,
-    },
+    data,
   });
 };
 
@@ -60,10 +177,6 @@ export const updateAISettings = (restaurantId, data) => {
     where: {
       restaurantId,
     },
-    data: {
-      aiEnabled: data.aiEnabled,
-      welcomeMessage: data.welcomeMessage,
-      orderConfirmation: data.orderConfirmation,
-    },
+    data,
   });
 };
