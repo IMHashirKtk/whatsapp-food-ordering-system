@@ -1,4 +1,4 @@
-import { randomUUID } from "node:crypto";
+import { randomBytes } from "node:crypto";
 
 import * as orderRepository from "./order.repository.js";
 import * as cartRepository from "../cart/cart.repository.js";
@@ -22,15 +22,119 @@ import {
   ORDER_STATUS,
 } from "../../constants/orderStatus.js";
 
-const generateOrderNumber = (orderPrefix) => {
+let orderNumberSuffixCounter = randomBytes(2).readUInt16BE(0);
+
+export const generateOrderNumber = (orderPrefix, now = new Date()) => {
   const prefix =
     orderPrefix
       ?.trim()
       .replace(/[^a-zA-Z0-9]/g, "")
       .slice(0, 20)
       .toUpperCase() || "ORD";
+  const year = String(now.getUTCFullYear()).slice(-2);
+  const month = String(now.getUTCMonth() + 1).padStart(2, "0");
+  const day = String(now.getUTCDate()).padStart(2, "0");
+  const suffix = orderNumberSuffixCounter
+    .toString(16)
+    .padStart(4, "0")
+    .toUpperCase();
+  orderNumberSuffixCounter = (orderNumberSuffixCounter + 1) % 0x10000;
 
-  return `${prefix}-${Date.now()}-${randomUUID().slice(0, 8).toUpperCase()}`;
+  return `${prefix}-${year}${month}${day}-${suffix}`;
+};
+
+const isOrderNumberConflict = (error) => {
+  if (error?.code !== "P2002") {
+    return false;
+  }
+
+  const target = error.meta?.target;
+
+  return Array.isArray(target)
+    ? target.includes("orderNumber")
+    : String(target || "").includes("orderNumber");
+};
+
+const createCheckoutTransaction = async ({
+  restaurantId,
+  customerId,
+  deliveryAddress,
+  paymentMethod,
+  paymentStatus,
+  checkoutSettings,
+  cart,
+  totals,
+}) => {
+  const maxOrderNumberAttempts = 0x10000;
+
+  for (let attempt = 0; attempt < maxOrderNumberAttempts; attempt += 1) {
+    try {
+      return await orderRepository.transaction(async (tx) => {
+        const createdOrder = await orderRepository.createOrderWithCustomerSummary(
+          {
+            restaurantId,
+            orderNumber: generateOrderNumber(
+              checkoutSettings.settings.orderPrefix,
+            ),
+            customerId,
+            deliveryAddress,
+            subtotal: totals.subtotal,
+            tax: totals.tax,
+            deliveryFee: totals.deliveryFee,
+            total: totals.total,
+            paymentMethod,
+            paymentStatus,
+            status: ORDER_STATUS.PENDING,
+            estimatedReadyTime:
+              checkoutSettings.settings.estimatedPreparationTime,
+          },
+          tx,
+        );
+
+        for (const cartItem of cart.items) {
+          const orderItem = await orderRepository.createOrderItem(
+            {
+              orderId: createdOrder.id,
+              menuItemId: cartItem.menuItemId,
+              quantity: cartItem.quantity,
+              basePrice: cartItem.basePrice,
+              totalPrice: cartItem.totalPrice,
+            },
+            tx,
+          );
+
+          for (const option of cartItem.options) {
+            await orderRepository.createOrderItemOption(
+              {
+                orderItemId: orderItem.id,
+                optionId: option.optionId,
+                name: option.name,
+                extraPrice: option.extraPrice,
+              },
+              tx,
+            );
+          }
+        }
+
+        await orderRepository.updateCustomerStats(customerId, totals.total, tx);
+
+        await cartRepository.clearCartTx(tx, cart.id);
+
+        const { customer, ...order } = createdOrder;
+
+        return {
+          order,
+          customer,
+        };
+      });
+    } catch (error) {
+      if (!isOrderNumberConflict(error) || attempt === maxOrderNumberAttempts - 1) {
+        throw error;
+      }
+    }
+  }
+
+  throw new AppError("Unable to generate a unique order number.", 503);
 };
 
 const toCents = (value) => Math.round(Number(value || 0) * 100);
@@ -201,63 +305,15 @@ export const checkout = async (
     );
   }
 
-  const transactionResult = await orderRepository.transaction(async (tx) => {
-    const createdOrder = await orderRepository.createOrderWithCustomerSummary(
-      {
-        restaurantId,
-        orderNumber: generateOrderNumber(
-          checkoutSettings.settings.orderPrefix,
-        ),
-        customerId,
-        deliveryAddress,
-        subtotal: totals.subtotal,
-        tax: totals.tax,
-        deliveryFee: totals.deliveryFee,
-        total: totals.total,
-        paymentMethod,
-        paymentStatus,
-        status: ORDER_STATUS.PENDING,
-        estimatedReadyTime:
-          checkoutSettings.settings.estimatedPreparationTime,
-      },
-      tx,
-    );
-
-    for (const cartItem of cart.items) {
-      const orderItem = await orderRepository.createOrderItem(
-        {
-          orderId: createdOrder.id,
-          menuItemId: cartItem.menuItemId,
-          quantity: cartItem.quantity,
-          basePrice: cartItem.basePrice,
-          totalPrice: cartItem.totalPrice,
-        },
-        tx,
-      );
-
-      for (const option of cartItem.options) {
-        await orderRepository.createOrderItemOption(
-          {
-            orderItemId: orderItem.id,
-            optionId: option.optionId,
-            name: option.name,
-            extraPrice: option.extraPrice,
-          },
-          tx,
-        );
-      }
-    }
-
-    await orderRepository.updateCustomerStats(customerId, totals.total, tx);
-
-    await cartRepository.clearCartTx(tx, cart.id);
-
-    const { customer, ...order } = createdOrder;
-
-    return {
-      order,
-      customer,
-    };
+  const transactionResult = await createCheckoutTransaction({
+    restaurantId,
+    customerId,
+    deliveryAddress,
+    paymentMethod,
+    paymentStatus,
+    checkoutSettings,
+    cart,
+    totals,
   });
 
   publishOrderCreatedSafely(
