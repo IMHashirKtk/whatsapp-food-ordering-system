@@ -1,6 +1,7 @@
 import { randomBytes } from "node:crypto";
 
 import * as orderRepository from "./order.repository.js";
+import * as customerRepository from "../customer/customer.repository.js";
 import * as cartRepository from "../cart/cart.repository.js";
 import * as metaService from "../meta/meta.service.js";
 import * as restaurantService from "../restaurant/restaurant.service.js";
@@ -116,7 +117,12 @@ const createCheckoutTransaction = async ({
           }
         }
 
-        await orderRepository.updateCustomerStats(customerId, totals.total, tx);
+        await orderRepository.updateCustomerStats(
+          customerId,
+          restaurantId,
+          totals.total,
+          tx,
+        );
 
         await cartRepository.clearCartTx(tx, cart.id);
 
@@ -339,8 +345,63 @@ export const getOrder = async (id, restaurantId) => {
   return order;
 };
 
-export const getCustomerOrders = (customerId, restaurantId) => {
-  return orderRepository.getCustomerOrders(customerId, restaurantId);
+const ensureCustomerBelongsToRestaurant = async (customerId, restaurantId) => {
+  const customer = await customerRepository.getById(customerId, restaurantId);
+
+  if (!customer) {
+    throw new AppError("Customer not found.", 404);
+  }
+
+  return customer;
+};
+
+export const getCustomerOrders = async (
+  customerId,
+  restaurantId,
+  filters = {},
+) => {
+  await ensureCustomerBelongsToRestaurant(customerId, restaurantId);
+
+  return orderRepository.getCustomerOrders(customerId, restaurantId, filters);
+};
+
+export const getPaginatedCustomerOrders = async (
+  customerId,
+  restaurantId,
+  query = {},
+) => {
+  await ensureCustomerBelongsToRestaurant(customerId, restaurantId);
+
+  const page = query.page || 1;
+  const limit = query.limit || 20;
+  const { status, paymentStatus } = query;
+
+  const [orders, total] = await Promise.all([
+    orderRepository.getCustomerOrdersPage({
+      customerId,
+      restaurantId,
+      page,
+      limit,
+      status,
+      paymentStatus,
+    }),
+    orderRepository.countCustomerOrders({
+      customerId,
+      restaurantId,
+      status,
+      paymentStatus,
+    }),
+  ]);
+
+  return {
+    orders,
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
+    },
+  };
 };
 
 export const getActiveCustomerOrders = (customerId, restaurantId) => {

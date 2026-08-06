@@ -16,10 +16,44 @@ export const orderIdSchema = z.object({
   }),
 });
 
+const orderStatusSchema = z.enum([
+  "PENDING",
+  "ACCEPTED",
+  "PREPARING",
+  "READY",
+  "OUT_FOR_DELIVERY",
+  "DELIVERED",
+  "CANCELLED",
+]);
+
+const paymentStatusSchema = z.enum([
+  "PENDING_VERIFICATION",
+  "UNPAID",
+  "PAID",
+]);
+
+const pageSchema = z.coerce.number().int().min(1);
+const limitSchema = z.coerce.number().int().min(1).max(100);
+
+export const customerOrderQuerySchema = z.object({
+  page: pageSchema.default(1),
+  limit: limitSchema.default(20),
+  status: orderStatusSchema.optional(),
+  paymentStatus: paymentStatusSchema.optional(),
+});
+
+export const legacyCustomerOrderQuerySchema = z.object({
+  page: pageSchema.optional(),
+  limit: limitSchema.optional(),
+  status: orderStatusSchema.optional(),
+  paymentStatus: paymentStatusSchema.optional(),
+});
+
 export const customerOrdersSchema = z.object({
   params: z.object({
     customerId: z.string().cuid(),
   }),
+  query: legacyCustomerOrderQuerySchema,
 });
 
 export const getOrdersSchema = z.object({
@@ -27,17 +61,7 @@ export const getOrdersSchema = z.object({
     page: z.coerce.number().int().min(1).optional(),
     limit: z.coerce.number().int().min(1).max(100).optional(),
     search: z.string().trim().max(100).optional(),
-    status: z
-      .enum([
-        "PENDING",
-        "ACCEPTED",
-        "PREPARING",
-        "READY",
-        "OUT_FOR_DELIVERY",
-        "DELIVERED",
-        "CANCELLED",
-      ])
-      .optional(),
+    status: orderStatusSchema.optional(),
   }),
 });
 

@@ -27,7 +27,10 @@ export const checkout = asyncHandler(async (req, res) => {
 ========================== */
 
 export const getOrders = asyncHandler(async (req, res) => {
-  const result = await orderService.getOrders(req.user.restaurantId, req.query);
+  const result = await orderService.getOrders(
+    req.user.restaurantId,
+    req.validated.query,
+  );
 
   res.json({
     success: true,
@@ -38,7 +41,7 @@ export const getOrders = asyncHandler(async (req, res) => {
 
 export const getOrder = asyncHandler(async (req, res) => {
   const order = await orderService.getOrder(
-    req.params.id,
+    req.validated.params.id,
     req.user.restaurantId,
   );
 
@@ -49,8 +52,25 @@ export const getOrder = asyncHandler(async (req, res) => {
 });
 
 export const getCustomerOrders = asyncHandler(async (req, res) => {
+  const { customerId } = req.validated.params;
+  const query = req.validated.query;
+
+  if (Object.keys(query).length > 0) {
+    const result = await orderService.getPaginatedCustomerOrders(
+      customerId,
+      req.user.restaurantId,
+      query,
+    );
+
+    return res.json({
+      success: true,
+      data: result.orders,
+      pagination: result.pagination,
+    });
+  }
+
   const orders = await orderService.getCustomerOrders(
-    req.params.customerId,
+    customerId,
     req.user.restaurantId,
   );
 
@@ -63,7 +83,7 @@ export const getCustomerOrders = asyncHandler(async (req, res) => {
 export const updateStatus = asyncHandler(async (req, res) => {
   const { status, cancellationReason } = req.validated.body;
   const order = await orderService.updateStatus(
-    req.params.id,
+    req.validated.params.id,
     req.user.restaurantId,
     status,
     cancellationReason,

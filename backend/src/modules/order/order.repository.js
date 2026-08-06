@@ -51,25 +51,79 @@ export const getOrderByNumber = (orderNumber, restaurantId) => {
   });
 };
 
-export const getCustomerOrders = (customerId, restaurantId) => {
+const buildCustomerOrdersWhere = ({
+  customerId,
+  restaurantId,
+  status,
+  paymentStatus,
+}) => ({
+  customerId,
+  restaurantId,
+  ...(status && { status }),
+  ...(paymentStatus && { paymentStatus }),
+});
+
+const customerOrderInclude = {
+  items: {
+    include: {
+      menuItem: true,
+      options: true,
+    },
+  },
+};
+
+export const getCustomerOrders = (
+  customerId,
+  restaurantId,
+  { status, paymentStatus } = {},
+) => {
   return prisma.order.findMany({
-    where: {
+    where: buildCustomerOrdersWhere({
       customerId,
       restaurantId,
-    },
-    include: {
-      items: {
-        include: {
-          menuItem: true,
-          options: true,
-        },
-      },
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
+      status,
+      paymentStatus,
+    }),
+    include: customerOrderInclude,
+    orderBy: [{ createdAt: "desc" }, { id: "desc" }],
   });
 };
+
+export const getCustomerOrdersPage = async ({
+  customerId,
+  restaurantId,
+  page,
+  limit,
+  status,
+  paymentStatus,
+}) =>
+  prisma.order.findMany({
+    where: buildCustomerOrdersWhere({
+      customerId,
+      restaurantId,
+      status,
+      paymentStatus,
+    }),
+    include: customerOrderInclude,
+    orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+    skip: (page - 1) * limit,
+    take: limit,
+  });
+
+export const countCustomerOrders = ({
+  customerId,
+  restaurantId,
+  status,
+  paymentStatus,
+}) =>
+  prisma.order.count({
+    where: buildCustomerOrdersWhere({
+      customerId,
+      restaurantId,
+      status,
+      paymentStatus,
+    }),
+  });
 
 export const getActiveCustomerOrders = (customerId, restaurantId) => {
   return prisma.order.findMany({
@@ -205,10 +259,16 @@ export const updateStatus = async (
   });
 };
 
-export const updateCustomerStats = (customerId, total, db = prisma) => {
-  return db.customer.update({
+export const updateCustomerStats = async (
+  customerId,
+  restaurantId,
+  total,
+  db = prisma,
+) => {
+  const result = await db.customer.updateMany({
     where: {
       id: customerId,
+      restaurantId,
     },
     data: {
       totalOrders: {
@@ -218,6 +278,17 @@ export const updateCustomerStats = (customerId, total, db = prisma) => {
         increment: total,
       },
       lastOrderAt: new Date(),
+    },
+  });
+
+  if (result.count === 0) {
+    return null;
+  }
+
+  return db.customer.findFirst({
+    where: {
+      id: customerId,
+      restaurantId,
     },
   });
 };

@@ -51,14 +51,58 @@ export const createCustomer = async (restaurantId, data) => {
     );
   }
 
-  return customerRepository.create({
-    ...data,
-    restaurantId,
-  });
+  try {
+    return await customerRepository.create({
+      ...data,
+      restaurantId,
+    });
+  } catch (error) {
+    if (isWhatsappConflict(error)) {
+      throw duplicateWhatsappError();
+    }
+
+    throw error;
+  }
 };
 
-export const getAllCustomers = (restaurantId) =>
-  customerRepository.getAll(restaurantId);
+const isWhatsappConflict = (error) => {
+  if (error?.code !== "P2002") {
+    return false;
+  }
+
+  const target = error.meta?.target;
+
+  return Array.isArray(target)
+    ? target.includes("whatsappId")
+    : String(target || "").includes("whatsappId");
+};
+
+const duplicateWhatsappError = () =>
+  new AppError(
+    "A customer with this WhatsApp number already exists.",
+    409,
+  );
+
+export const getAllCustomers = async (restaurantId, query = {}) => {
+  const page = query.page || 1;
+  const limit = query.limit || 20;
+  const search = query.search;
+
+  const [customers, total] = await Promise.all([
+    customerRepository.getPage({ restaurantId, page, limit, search }),
+    customerRepository.count({ restaurantId, search }),
+  ]);
+
+  return {
+    customers,
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
+    },
+  };
+};
 
 export const getCustomer = async (id, restaurantId) => {
   const customer = await customerRepository.getById(id, restaurantId);
@@ -72,6 +116,21 @@ export const getCustomer = async (id, restaurantId) => {
 
 export const getCustomerById = getCustomer;
 
+export const getCustomerDetails = async (id, restaurantId) => {
+  const customer = await customerRepository.getDetailById(id, restaurantId);
+
+  if (!customer) {
+    throw new AppError("Customer not found.", 404);
+  }
+
+  const summary = await customerRepository.getOrderSummary(id, restaurantId);
+
+  return {
+    customer,
+    summary,
+  };
+};
+
 export const updateCustomer = async (id, restaurantId, data) => {
   await getCustomer(id, restaurantId);
 
@@ -82,14 +141,19 @@ export const updateCustomer = async (id, restaurantId, data) => {
     );
 
     if (existingCustomer && existingCustomer.id !== id) {
-      throw new AppError(
-        "A customer with this WhatsApp number already exists.",
-        409,
-      );
+      throw duplicateWhatsappError();
     }
   }
 
-  return customerRepository.update(id, restaurantId, data);
+  try {
+    return await customerRepository.update(id, restaurantId, data);
+  } catch (error) {
+    if (isWhatsappConflict(error)) {
+      throw duplicateWhatsappError();
+    }
+
+    throw error;
+  }
 };
 
 export const deleteCustomer = async (id, restaurantId) => {

@@ -1,21 +1,11 @@
 import asyncHandler from "../../utils/async-handler.js";
-import AppError from "../../utils/AppError.js";
 import * as customerService from "./customer.service.js";
-import {
-  createCustomerSchema,
-  updateCustomerSchema,
-} from "./customer.validator.js";
+import * as orderService from "../order/order.service.js";
 
 export const createCustomer = asyncHandler(async (req, res) => {
-  const validation = createCustomerSchema.safeParse(req.body);
-
-  if (!validation.success) {
-    throw new AppError(validation.error.issues[0].message, 400);
-  }
-
   const customer = await customerService.createCustomer(
     req.user.restaurantId,
-    validation.data,
+    req.validated.body,
   );
 
   res.status(201).json({
@@ -25,40 +15,49 @@ export const createCustomer = asyncHandler(async (req, res) => {
 });
 
 export const getAllCustomers = asyncHandler(async (req, res) => {
-  const customers = await customerService.getAllCustomers(
+  const result = await customerService.getAllCustomers(
     req.user.restaurantId,
+    req.validated.query,
   );
 
   res.status(200).json({
     success: true,
-    count: customers.length,
-    data: customers,
+    data: result.customers,
+    pagination: result.pagination,
   });
 });
 
 export const getCustomerById = asyncHandler(async (req, res) => {
-  const customer = await customerService.getCustomerById(
-    req.params.id,
+  const result = await customerService.getCustomerDetails(
+    req.validated.params.id,
     req.user.restaurantId,
   );
 
   res.status(200).json({
     success: true,
-    data: customer,
+    data: result,
+  });
+});
+
+export const getCustomerOrders = asyncHandler(async (req, res) => {
+  const result = await orderService.getPaginatedCustomerOrders(
+    req.validated.params.id,
+    req.user.restaurantId,
+    req.validated.query,
+  );
+
+  res.status(200).json({
+    success: true,
+    data: result.orders,
+    pagination: result.pagination,
   });
 });
 
 export const updateCustomer = asyncHandler(async (req, res) => {
-  const validation = updateCustomerSchema.safeParse(req.body);
-
-  if (!validation.success) {
-    throw new AppError(validation.error.issues[0].message, 400);
-  }
-
   const customer = await customerService.updateCustomer(
-    req.params.id,
+    req.validated.params.id,
     req.user.restaurantId,
-    validation.data,
+    req.validated.body,
   );
 
   res.status(200).json({
@@ -69,12 +68,13 @@ export const updateCustomer = asyncHandler(async (req, res) => {
 
 export const deleteCustomer = asyncHandler(async (req, res) => {
   const result = await customerService.deleteCustomer(
-    req.params.id,
+    req.validated.params.id,
     req.user.restaurantId,
   );
 
   res.status(200).json({
     success: true,
-    ...result,
+    message: result.message,
+    data: null,
   });
 });
