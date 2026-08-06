@@ -3,9 +3,59 @@ import type {
   GetCustomerOrdersParams,
   GetCustomersParams,
 } from "@/features/customers/types";
+import type {
+  AnalyticsCustomersParams,
+  AnalyticsDateRangeParams,
+  AnalyticsGroupBy,
+  AnalyticsProductsParams,
+} from "@/features/analytics/types";
+
+const normalizeDateRange = (params?: AnalyticsDateRangeParams) => ({
+  from: params?.from ?? "",
+  to: params?.to ?? "",
+});
 
 export const queryKeys = {
   dashboard: ["dashboard"] as const,
+
+  analytics: {
+    all: ["analytics"] as const,
+    overview: (params?: AnalyticsDateRangeParams) => [
+      "analytics",
+      "overview",
+      normalizeDateRange(params),
+    ] as const,
+    trends: (params?: AnalyticsDateRangeParams & { groupBy?: AnalyticsGroupBy }) => [
+      "analytics",
+      "trends",
+      {
+        ...normalizeDateRange(params),
+        groupBy: params?.groupBy ?? "day",
+      },
+    ] as const,
+    products: (params?: AnalyticsProductsParams) => [
+      "analytics",
+      "products",
+      {
+        ...normalizeDateRange(params),
+        limit: params?.limit ?? 10,
+        categoryId: params?.categoryId ?? "",
+      },
+    ] as const,
+    operations: (params?: AnalyticsDateRangeParams) => [
+      "analytics",
+      "operations",
+      normalizeDateRange(params),
+    ] as const,
+    customers: (params?: AnalyticsCustomersParams) => [
+      "analytics",
+      "customers",
+      {
+        ...normalizeDateRange(params),
+        limit: params?.limit ?? 10,
+      },
+    ] as const,
+  },
 
   settings: {
     all: ["settings"] as const,
