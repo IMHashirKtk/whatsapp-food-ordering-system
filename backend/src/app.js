@@ -11,6 +11,7 @@ import orderRoutes from "./modules/order/order.routes.js";
 import metaRoutes from "./modules/meta/meta.routes.js";
 import authRoutes from "./modules/auth/auth.routes.js";
 import dashboardRoutes from "./modules/dashboard/dashboard.routes.js";
+import analyticsRoutes from "./modules/analytics/analytics.routes.js";
 import settingsRoutes from "./modules/settings/settings.routes.js";
 import notFound from "./middleware/not-found.js";
 import errorHandler from "./middleware/error-handler.js";
@@ -61,6 +62,8 @@ app.use("/api/v1/orders", orderRoutes);
 app.use("/api/v1/meta", metaRoutes);
 
 app.use("/api/v1/dashboard", dashboardRoutes);
+
+app.use("/api/v1/analytics", analyticsRoutes);
 
 app.use("/api/v1/settings", settingsRoutes);
 
