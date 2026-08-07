@@ -1,6 +1,6 @@
 import AppError from "../../utils/AppError.js";
 import * as analyticsRepository from "../analytics/analytics.repository.js";
-import { resolveDateRangeForTimezone } from "../analytics/analytics.service.js";
+import { resolveTodayRangeForTimezone } from "../analytics/analytics.service.js";
 import * as repository from "./dashboard.repository.js";
 
 const calculateAverageOrderValue = (grossOrderValue, orderCount) => {
@@ -18,7 +18,7 @@ export const getSummary = async (restaurantId) => {
     throw new AppError("Restaurant settings not found.", 404);
   }
 
-  const range = resolveDateRangeForTimezone(restaurant.timezone, {});
+  const range = resolveTodayRangeForTimezone(restaurant.timezone);
   const [summary, customerSummary] = await Promise.all([
     repository.getTodaySummary({
       restaurantId,

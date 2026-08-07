@@ -31,8 +31,6 @@ export default function AuthProvider({ children }: Props) {
 
         setUser(user);
       } catch (error) {
-        localStorage.removeItem(TOKEN_KEY);
-
         logout();
 
         console.error(error);

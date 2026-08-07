@@ -1,6 +1,7 @@
 import { create } from "zustand";
 
 import { AuthUser } from "@/features/auth/types";
+import { TOKEN_KEY } from "@/lib/constants";
 
 type AuthState = {
   accessToken: string | null;
@@ -42,10 +43,15 @@ export const useAuthStore = create<AuthState>((set) => ({
       isAuthenticated: true,
     }),
 
-  logout: () =>
+  logout: () => {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem(TOKEN_KEY);
+    }
+
     set({
       accessToken: null,
       user: null,
       isAuthenticated: false,
-    }),
+    });
+  },
 }));

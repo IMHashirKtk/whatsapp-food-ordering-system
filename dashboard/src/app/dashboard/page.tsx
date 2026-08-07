@@ -9,6 +9,7 @@ import DashboardStats from "@/features/dashboard/components/DashboardStats";
 import OrderStatusCard from "@/features/dashboard/components/OrderStatusCard";
 import QuickActionsCard from "@/features/dashboard/components/QuickActionsCard";
 import RecentOrdersCard from "@/features/dashboard/components/RecentOrdersCard";
+import TodaySummaryCard from "@/features/dashboard/components/TodaySummaryCard";
 import { useDashboard } from "@/features/dashboard/hooks/useDashboard";
 
 export default function DashboardPage() {
@@ -34,14 +35,13 @@ export default function DashboardPage() {
         description="Keep today’s orders moving and your restaurant ready to receive them."
       />
 
-      <DashboardOperationalHeader restaurant={data.restaurant} />
-
       <DashboardStats today={data.today} />
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.35fr)_minmax(0,0.9fr)]">
-        <OrderStatusCard liveOrders={data.liveOrders} today={data.today} />
-        <DashboardSignalsCard signals={data.signals} />
-      </div>
+      <OrderStatusCard liveOrders={data.liveOrders} />
+
+      <DashboardSignalsCard signals={data.signals} />
+
+      <TodaySummaryCard today={data.today} />
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1.35fr)_minmax(0,0.9fr)]">
         <RecentOrdersCard
@@ -50,6 +50,8 @@ export default function DashboardPage() {
         />
         <QuickActionsCard />
       </div>
+
+      <DashboardOperationalHeader restaurant={data.restaurant} />
     </div>
   );
 }

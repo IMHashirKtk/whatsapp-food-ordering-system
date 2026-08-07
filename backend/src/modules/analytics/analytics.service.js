@@ -139,6 +139,20 @@ export const resolveDateRangeForTimezone = (timezone, query) => {
   };
 };
 
+export const resolveTodayRangeForTimezone = (timezone) => {
+  assertValidTimezone(timezone);
+
+  const today = getTodayInTimezone(timezone);
+
+  return {
+    from: today,
+    to: today,
+    timezone,
+    startUtc: localDateStartToUtc(today, timezone),
+    endUtc: localDateStartToUtc(addCalendarDays(today, 1), timezone),
+  };
+};
+
 export const resolveDateRange = async (restaurantId, query) => {
   const timezone = await repository.getRestaurantTimezone(restaurantId);
 

@@ -1,7 +1,8 @@
 "use client";
 
-import { Bell, BellOff, Menu } from "lucide-react";
-import { usePathname } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
+import { Bell, BellOff, LogOut, Menu } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
 import type { RefObject } from "react";
 
 import { useSocket } from "@/hooks/useSocket";
@@ -42,7 +43,10 @@ export default function Topbar({
   mobileNavTriggerRef,
 }: TopbarProps) {
   const pathname = usePathname();
+  const router = useRouter();
+  const queryClient = useQueryClient();
   const user = useAuthStore((state) => state.user);
+  const logout = useAuthStore((state) => state.logout);
   const { isSoundMuted, toggleSoundMuted } = useSocket();
   const currentNavItem = NAV_ITEMS.find(
     (item) =>
@@ -52,6 +56,12 @@ export default function Topbar({
   const pageTitle = currentNavItem?.title ?? "Dashboard";
   const userName = user?.name?.trim() || "Restaurant user";
   const userRole = formatRole(user?.role);
+
+  const handleLogout = () => {
+    queryClient.clear();
+    logout();
+    router.replace("/login");
+  };
 
   return (
     <header className="sticky top-0 z-40 flex h-[4.5rem] items-center justify-between border-b border-border bg-card px-4 sm:px-6 lg:px-8">
@@ -107,6 +117,17 @@ export default function Topbar({
             <p className="text-xs text-muted-foreground">{userRole}</p>
           </div>
         </div>
+
+        <button
+          type="button"
+          aria-label="Log out"
+          title="Log out"
+          onClick={handleLogout}
+          className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-border px-3 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          <LogOut className="size-4" aria-hidden="true" />
+          <span className="hidden sm:inline">Log out</span>
+        </button>
       </div>
     </header>
   );

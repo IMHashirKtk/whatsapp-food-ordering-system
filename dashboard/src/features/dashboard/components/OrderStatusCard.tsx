@@ -1,5 +1,4 @@
 import {
-  Ban,
   CheckCircle2,
   ChefHat,
   ClipboardCheck,
@@ -7,11 +6,10 @@ import {
   Truck,
 } from "lucide-react";
 
-import type { DashboardLiveOrders, DashboardToday } from "../types";
+import type { DashboardLiveOrders } from "../types";
 
 type Props = {
   liveOrders: DashboardLiveOrders;
-  today: DashboardToday;
 };
 
 type StatusItemProps = {
@@ -46,7 +44,7 @@ function StatusItem({
   );
 }
 
-export default function OrderStatusCard({ liveOrders, today }: Props) {
+export default function OrderStatusCard({ liveOrders }: Props) {
   return (
     <section className="rounded-lg border border-border bg-card p-4 shadow-sm sm:p-6">
       <div className="mb-5">
@@ -71,11 +69,6 @@ export default function OrderStatusCard({ liveOrders, today }: Props) {
           icon={<PackageCheck className="h-5 w-5 text-info" />}
         />
         <StatusItem
-          label="Accepted"
-          value={liveOrders.accepted}
-          icon={<CheckCircle2 className="h-5 w-5 text-info" />}
-        />
-        <StatusItem
           label="Preparing"
           value={liveOrders.preparing}
           icon={<ChefHat className="h-5 w-5 text-warning" />}
@@ -89,16 +82,6 @@ export default function OrderStatusCard({ liveOrders, today }: Props) {
           label="Out for Delivery"
           value={liveOrders.outForDelivery}
           icon={<Truck className="h-5 w-5 text-info" />}
-        />
-        <StatusItem
-          label="Delivered Today"
-          value={today.deliveredOrders}
-          icon={<PackageCheck className="h-5 w-5 text-success" />}
-        />
-        <StatusItem
-          label="Cancelled Today"
-          value={today.cancelledOrders}
-          icon={<Ban className="h-5 w-5 text-destructive" />}
         />
       </div>
     </section>
