@@ -7,6 +7,7 @@ import { useForm } from "react-hook-form";
 
 import { loginSchema, LoginSchema } from "../schemas/login.schema";
 import { useLogin } from "../hooks/useLogin";
+import { getLoginErrorMessage } from "../services/auth.service";
 
 import { useAuthStore } from "@/store/auth.store";
 import { TOKEN_KEY } from "@/lib/constants";
@@ -19,6 +20,10 @@ export default function LoginForm() {
   const loginMutation = useLogin();
 
   const { login } = useAuthStore();
+
+  const loginErrorMessage = loginMutation.isError
+    ? getLoginErrorMessage(loginMutation.error)
+    : null;
 
   const {
     register,
@@ -106,9 +111,9 @@ export default function LoginForm() {
           {loginMutation.isPending ? "Signing In..." : "Sign In"}
         </Button>
 
-        {loginMutation.isError && (
+        {loginErrorMessage && (
           <p className="text-center text-sm text-destructive" role="alert">
-            Invalid email or password.
+            {loginErrorMessage}
           </p>
         )}
       </form>
