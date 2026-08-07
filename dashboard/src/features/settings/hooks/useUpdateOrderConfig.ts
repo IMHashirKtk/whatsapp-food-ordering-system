@@ -16,6 +16,10 @@ export function useUpdateOrderConfig() {
       await queryClient.invalidateQueries({
         queryKey: queryKeys.settings.detail,
       });
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.dashboard,
+        refetchType: "active",
+      });
     },
   });
 }

@@ -78,12 +78,12 @@ export function NotificationSettingsForm({
       onSubmit={handleSubmit(onSubmit)}
     >
       <div className="grid gap-3 md:grid-cols-2">
-        <label className="flex min-h-11 items-center gap-3 rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-medium text-slate-700">
-          <input type="checkbox" {...register("statusNotificationsEnabled")} className="h-4 w-4 accent-emerald-600" />
+        <label className="flex min-h-11 items-center gap-3 rounded-md border border-border bg-muted/50 px-3 py-2 text-sm font-medium text-foreground">
+          <input type="checkbox" {...register("statusNotificationsEnabled")} className="h-4 w-4 accent-primary" />
           Order status notifications
         </label>
-        <label className="flex min-h-11 items-center gap-3 rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-medium text-slate-700">
-          <input type="checkbox" {...register("cancellationNotificationsEnabled")} className="h-4 w-4 accent-emerald-600" />
+        <label className="flex min-h-11 items-center gap-3 rounded-md border border-border bg-muted/50 px-3 py-2 text-sm font-medium text-foreground">
+          <input type="checkbox" {...register("cancellationNotificationsEnabled")} className="h-4 w-4 accent-primary" />
           Cancellation notifications
         </label>
       </div>

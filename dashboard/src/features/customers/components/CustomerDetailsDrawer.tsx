@@ -35,9 +35,9 @@ const displayValue = (value: string | null) => value?.trim() || "Not provided";
 
 function DetailRow({ label, value }: DetailRowProps) {
   return (
-    <div className="grid gap-1 border-b border-slate-100 py-3 last:border-b-0 sm:grid-cols-[140px_1fr] sm:gap-4">
-      <dt className="text-sm font-medium text-slate-500">{label}</dt>
-      <dd className="break-words text-sm text-slate-900">{value}</dd>
+    <div className="grid gap-1 border-b border-border py-3 last:border-b-0 sm:grid-cols-[140px_1fr] sm:gap-4">
+      <dt className="text-sm font-medium text-muted-foreground">{label}</dt>
+      <dd className="break-words text-sm text-foreground">{value}</dd>
     </div>
   );
 }
@@ -93,21 +93,21 @@ export function CustomerDetailsDrawer({
       <button
         type="button"
         aria-label="Close customer details"
-        className="absolute inset-0 bg-slate-950/30"
+        className="absolute inset-0 bg-black/60"
         onClick={() => onOpenChange(false)}
       />
       <aside
         aria-labelledby="customer-details-title"
         aria-modal="true"
         role="dialog"
-        className="absolute right-0 top-0 flex h-full w-full max-w-3xl flex-col bg-white shadow-xl"
+        className="absolute right-0 top-0 flex h-full w-full max-w-3xl flex-col border-l border-border bg-card shadow-xl"
       >
-        <header className="flex items-start justify-between gap-4 border-b border-slate-200 px-4 py-4 sm:px-6">
+        <header className="flex items-start justify-between gap-4 border-b border-border px-4 py-4 sm:px-6">
           <div className="min-w-0">
-            <p className="text-sm font-medium text-slate-500">Customer details</p>
+            <p className="text-sm font-medium text-muted-foreground">Customer details</p>
             <h2
               id="customer-details-title"
-              className="mt-1 break-words text-xl font-semibold text-slate-900"
+              className="mt-1 break-words text-xl font-semibold text-foreground"
             >
               {customer?.name?.trim() || "Selected customer"}
             </h2>
@@ -132,7 +132,7 @@ export function CustomerDetailsDrawer({
                     size="icon-sm"
                     aria-label="Delete customer"
                     title="Delete customer"
-                    className="text-rose-600 hover:text-rose-700"
+                    className="text-destructive hover:text-destructive/80"
                     onClick={() => onDeleteCustomer(customer)}
                   >
                     <Trash2 />
@@ -167,17 +167,17 @@ export function CustomerDetailsDrawer({
               <section aria-labelledby="customer-contact-title">
                 <h3
                   id="customer-contact-title"
-                  className="text-sm font-semibold uppercase tracking-wide text-slate-500"
+                  className="text-sm font-semibold uppercase tracking-wide text-muted-foreground"
                 >
                   Contact and account
                 </h3>
-                <dl className="mt-3 rounded-lg border border-slate-200 p-4">
+                <dl className="mt-3 rounded-lg border border-border p-4">
                   <DetailRow label="Name" value={displayValue(customer.name)} />
                   <DetailRow
                     label="WhatsApp number"
                     value={
                       <span className="inline-flex items-center gap-2 break-all">
-                        <Phone className="size-4 shrink-0 text-slate-400" />
+                        <Phone className="size-4 shrink-0 text-muted-foreground" />
                         {customer.whatsappId}
                       </span>
                     }
@@ -187,7 +187,7 @@ export function CustomerDetailsDrawer({
                     label="Saved address"
                     value={
                       <span className="inline-flex items-start gap-2">
-                        <MapPin className="mt-0.5 size-4 shrink-0 text-slate-400" />
+                        <MapPin className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
                         <span>{displayValue(customer.address)}</span>
                       </span>
                     }

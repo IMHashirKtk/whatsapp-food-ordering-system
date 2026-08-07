@@ -6,6 +6,7 @@ import { Plus } from "lucide-react";
 import { toast } from "sonner";
 
 import ConfirmDialog from "@/components/shared/ConfirmDialog";
+import { StatusBadge } from "@/components/shared/StatusBadge";
 import { Button } from "@/components/ui/button";
 
 import { useCreateCategory } from "../hooks/useCreateCategory";
@@ -620,11 +621,11 @@ export function MenuWorkspace() {
 
   return (
     <>
-      <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
-        <div className="flex flex-col gap-4 border-b border-slate-200 p-5 sm:flex-row sm:items-center sm:justify-between">
+      <section className="overflow-hidden rounded-lg border border-border bg-card shadow-sm">
+        <div className="flex flex-col gap-4 border-b border-border p-5 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="text-lg font-semibold text-slate-900">Categories</h2>
-            <p className="mt-1 text-sm text-slate-500">
+            <h2 className="text-lg font-semibold text-foreground">Categories</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
               Organize the menu into clear sections for your customers.
             </p>
           </div>
@@ -635,7 +636,7 @@ export function MenuWorkspace() {
         </div>
 
         <div className="grid gap-0 lg:grid-cols-[minmax(280px,340px)_minmax(0,1fr)]">
-          <div className="border-b border-slate-200 p-4 lg:border-b-0 lg:border-r">
+          <div className="border-b border-border p-4 lg:border-b-0 lg:border-r">
             <CategoryList
               categories={categories}
               selectedCategoryId={selectedCategoryId}
@@ -655,30 +656,27 @@ export function MenuWorkspace() {
             />
           </div>
 
-          <div className="min-h-[420px] bg-slate-50/70 p-5 sm:p-7">
+          <div className="min-h-[420px] bg-muted/30 p-5 sm:p-7">
             {selectedCategory ? (
               <div>
-                <div className="flex flex-col gap-4 border-b border-slate-200 pb-5 sm:flex-row sm:items-start sm:justify-between">
+                  <div className="flex flex-col gap-4 border-b border-border pb-5 sm:flex-row sm:items-start sm:justify-between">
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
-                      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-emerald-700">
+                      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-primary">
                         Selected category
                       </p>
-                      <span
-                        className={
-                          selectedCategory.isActive
-                            ? "rounded-full bg-emerald-100 px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-emerald-700"
-                            : "rounded-full bg-slate-200 px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-slate-600"
-                        }
+                      <StatusBadge
+                        tone={selectedCategory.isActive ? "success" : "neutral"}
+                        className="px-2 py-1 text-[11px] uppercase tracking-wide"
                       >
                         {selectedCategory.isActive ? "Active" : "Inactive"}
-                      </span>
+                      </StatusBadge>
                     </div>
-                    <h2 className="mt-2 break-words text-2xl font-semibold text-slate-900">
+                    <h2 className="mt-2 break-words text-2xl font-semibold text-foreground">
                       {selectedCategory.name}
                     </h2>
                     {selectedCategory.description ? (
-                      <p className="mt-2 max-w-2xl whitespace-pre-wrap break-words text-sm leading-6 text-slate-600">
+                      <p className="mt-2 max-w-2xl whitespace-pre-wrap break-words text-sm leading-6 text-muted-foreground">
                         {selectedCategory.description}
                       </p>
                     ) : null}
@@ -715,15 +713,15 @@ export function MenuWorkspace() {
                     />
                   </div>
 
-                  <aside className="min-w-0 rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+                  <aside className="min-w-0 rounded-lg border border-border bg-card p-4 shadow-sm">
                     {selectedMenuItem ? (
                       <>
-                        <div className="flex items-start justify-between gap-3 border-b border-slate-100 pb-4">
+                        <div className="flex items-start justify-between gap-3 border-b border-border pb-4">
                           <div className="min-w-0">
-                            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-emerald-700">
+                            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-primary">
                               Option groups
                             </p>
-                            <h3 className="mt-1 break-words text-base font-semibold text-slate-900">
+                            <h3 className="mt-1 break-words text-base font-semibold text-foreground">
                               {selectedMenuItem.name}
                             </h3>
                           </div>
@@ -757,13 +755,13 @@ export function MenuWorkspace() {
                         </div>
 
                         {selectedOptionGroup ? (
-                          <div className="mt-6 border-t border-slate-200 pt-5">
+                          <div className="mt-6 border-t border-border pt-5">
                             <div className="flex items-start justify-between gap-3">
                               <div className="min-w-0">
-                                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-emerald-700">
+                                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-primary">
                                   Options
                                 </p>
-                                <h4 className="mt-1 break-words text-base font-semibold text-slate-900">
+                                <h4 className="mt-1 break-words text-base font-semibold text-foreground">
                                   {selectedOptionGroup.name}
                                 </h4>
                               </div>
@@ -800,10 +798,10 @@ export function MenuWorkspace() {
                     ) : (
                       <div className="flex min-h-[260px] items-center justify-center text-center">
                         <div className="max-w-xs">
-                          <h3 className="text-base font-semibold text-slate-900">
+                          <h3 className="text-base font-semibold text-foreground">
                             Select a menu item
                           </h3>
-                          <p className="mt-2 text-sm leading-6 text-slate-500">
+                          <p className="mt-2 text-sm leading-6 text-muted-foreground">
                             Choose a menu item to manage its option groups.
                           </p>
                         </div>
@@ -815,10 +813,10 @@ export function MenuWorkspace() {
             ) : (
               <div className="flex min-h-[360px] items-center justify-center text-center">
                 <div className="max-w-sm">
-                  <h2 className="text-lg font-semibold text-slate-900">
+                  <h2 className="text-lg font-semibold text-foreground">
                     Select a category
                   </h2>
-                  <p className="mt-2 text-sm leading-6 text-slate-500">
+                  <p className="mt-2 text-sm leading-6 text-muted-foreground">
                     Choose a category from the list to view and manage its
                     menu items.
                   </p>

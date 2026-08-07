@@ -7,6 +7,7 @@ import { toast } from "sonner";
 
 import ErrorState from "@/components/shared/ErrorState";
 import Loading from "@/components/shared/Loading";
+import { PaymentStatusBadge } from "@/components/shared/PaymentStatusBadge";
 import { Button } from "@/components/ui/button";
 
 import { useOrder } from "../hooks/useOrder";
@@ -71,9 +72,9 @@ const formatLabel = (value?: string | null): string => {
 
 function DetailRow({ label, value }: DetailRowProps) {
   return (
-    <div className="grid gap-1 border-b border-gray-100 py-3 last:border-b-0 sm:grid-cols-[140px_1fr] sm:gap-4">
-      <dt className="text-sm font-medium text-gray-500">{label}</dt>
-      <dd className="text-sm text-gray-900">{value}</dd>
+    <div className="grid gap-1 border-b border-border py-3 last:border-b-0 sm:grid-cols-[140px_1fr] sm:gap-4">
+      <dt className="text-sm font-medium text-muted-foreground">{label}</dt>
+      <dd className="text-sm text-foreground">{value}</dd>
     </div>
   );
 }
@@ -82,10 +83,10 @@ function EmptyDrawerState() {
   return (
     <div className="flex min-h-[300px] items-center justify-center px-6 text-center">
       <div>
-        <h3 className="text-base font-semibold text-gray-900">
+        <h3 className="text-base font-semibold text-foreground">
           No order selected
         </h3>
-        <p className="mt-2 text-sm text-gray-500">
+        <p className="mt-2 text-sm text-muted-foreground">
           Select an order from the table to view its details.
         </p>
       </div>
@@ -96,7 +97,7 @@ function EmptyDrawerState() {
 function OrderItemsList({ items }: { items: OrderItem[] }) {
   if (!items.length) {
     return (
-      <div className="rounded-lg border border-dashed border-gray-200 p-4 text-sm text-gray-500">
+      <div className="rounded-lg border border-dashed border-border p-4 text-sm text-muted-foreground">
         No items were found for this order.
       </div>
     );
@@ -105,29 +106,29 @@ function OrderItemsList({ items }: { items: OrderItem[] }) {
   return (
     <div className="space-y-3">
       {items.map((item) => (
-        <div key={item.id} className="rounded-lg border border-gray-200 p-4">
+        <div key={item.id} className="rounded-lg border border-border p-4">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h4 className="text-sm font-semibold text-gray-900">
+              <h4 className="text-sm font-semibold text-foreground">
                 {item.menuItem?.name ?? item.menuItemId}
               </h4>
-              <p className="mt-1 text-sm text-gray-500">
+              <p className="mt-1 text-sm text-muted-foreground">
                 Quantity: {item.quantity}
               </p>
             </div>
 
             <div className="text-right">
-              <p className="text-sm font-semibold text-gray-900">
+              <p className="text-sm font-semibold text-foreground">
                 {formatCurrency(item.totalPrice)}
               </p>
-              <p className="mt-1 text-xs text-gray-500">
+              <p className="mt-1 text-xs text-muted-foreground">
                 Base {formatCurrency(item.basePrice)}
               </p>
             </div>
           </div>
 
-          <div className="mt-4 border-t border-gray-100 pt-3">
-            <p className="text-xs font-semibold uppercase text-gray-500">
+          <div className="mt-4 border-t border-border pt-3">
+            <p className="text-xs font-semibold uppercase text-muted-foreground">
               Item options
             </p>
 
@@ -138,15 +139,15 @@ function OrderItemsList({ items }: { items: OrderItem[] }) {
                     key={option.id}
                     className="flex items-center justify-between gap-4 text-sm"
                   >
-                    <span className="text-gray-700">{option.name}</span>
-                    <span className="font-medium text-gray-900">
+                    <span className="text-foreground">{option.name}</span>
+                    <span className="font-medium text-foreground">
                       {formatCurrency(option.extraPrice)}
                     </span>
                   </li>
                 ))}
               </ul>
             ) : (
-              <p className="mt-2 text-sm text-gray-500">No options selected.</p>
+              <p className="mt-2 text-sm text-muted-foreground">No options selected.</p>
             )}
           </div>
         </div>
@@ -157,7 +158,7 @@ function OrderItemsList({ items }: { items: OrderItem[] }) {
 
 function OrderTotals({ order }: { order: Order }) {
   return (
-    <dl className="rounded-lg border border-gray-200 p-4">
+    <dl className="rounded-lg border border-border p-4">
       <DetailRow label="Subtotal" value={formatCurrency(order.subtotal)} />
       <DetailRow label="Tax" value={formatCurrency(order.tax)} />
       <DetailRow
@@ -234,7 +235,7 @@ export function OrderDetailsDrawer({
       <button
         type="button"
         aria-label="Close order details"
-        className="absolute inset-0 bg-black/30"
+        className="absolute inset-0 bg-black/60"
         onClick={() => onOpenChange(false)}
       />
 
@@ -242,14 +243,14 @@ export function OrderDetailsDrawer({
         aria-labelledby="order-details-title"
         aria-modal="true"
         role="dialog"
-        className="absolute right-0 top-0 flex h-full w-full max-w-xl flex-col bg-white shadow-xl"
+        className="absolute right-0 top-0 flex h-full w-full max-w-xl flex-col border-l border-border bg-card shadow-xl"
       >
-        <header className="flex items-start justify-between gap-4 border-b border-gray-200 px-6 py-5">
+        <header className="flex items-start justify-between gap-4 border-b border-border px-6 py-5">
           <div>
-            <p className="text-sm font-medium text-gray-500">Order details</p>
+            <p className="text-sm font-medium text-muted-foreground">Order details</p>
             <h2
               id="order-details-title"
-              className="mt-1 text-xl font-semibold text-gray-900"
+              className="mt-1 text-xl font-semibold text-foreground"
             >
               {order?.orderNumber ?? "Selected order"}
             </h2>
@@ -273,6 +274,7 @@ export function OrderDetailsDrawer({
               variant="ghost"
               size="icon"
               aria-label="Close order details"
+              autoFocus
               onClick={() => onOpenChange(false)}
             >
               <X />
@@ -295,10 +297,10 @@ export function OrderDetailsDrawer({
           {!isLoading && !isError && order ? (
             <div className="space-y-6">
               <section>
-                <h3 className="text-sm font-semibold uppercase text-gray-500">
+                <h3 className="text-sm font-semibold uppercase text-muted-foreground">
                   Customer
                 </h3>
-                <dl className="mt-3 rounded-lg border border-gray-200 p-4">
+                <dl className="mt-3 rounded-lg border border-border p-4">
                   <DetailRow
                     label="Order number"
                     value={order.orderNumber}
@@ -313,7 +315,7 @@ export function OrderDetailsDrawer({
               </section>
 
               <section>
-                <h3 className="text-sm font-semibold uppercase text-gray-500">
+                <h3 className="text-sm font-semibold uppercase text-muted-foreground">
                   Items
                 </h3>
                 <div className="mt-3">
@@ -322,7 +324,7 @@ export function OrderDetailsDrawer({
               </section>
 
               <section>
-                <h3 className="text-sm font-semibold uppercase text-gray-500">
+                <h3 className="text-sm font-semibold uppercase text-muted-foreground">
                   Prices
                 </h3>
                 <div className="mt-3">
@@ -331,17 +333,17 @@ export function OrderDetailsDrawer({
               </section>
 
               <section>
-                <h3 className="text-sm font-semibold uppercase text-gray-500">
+                <h3 className="text-sm font-semibold uppercase text-muted-foreground">
                   Payment and status
                 </h3>
-                <dl className="mt-3 rounded-lg border border-gray-200 p-4">
+                <dl className="mt-3 rounded-lg border border-border p-4">
                   <DetailRow
                     label="Payment method"
                     value={formatLabel(order.paymentMethod)}
                   />
                   <DetailRow
                     label="Payment status"
-                    value={formatLabel(order.paymentStatus)}
+                    value={<PaymentStatusBadge status={order.paymentStatus} />}
                   />
                   <DetailRow
                     label="Order status"

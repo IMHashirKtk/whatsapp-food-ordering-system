@@ -34,13 +34,13 @@ export function OrderFilters({
   return (
     <div
       className={cn(
-        "flex flex-col gap-4 rounded-lg border border-gray-200 bg-white p-4 md:flex-row md:items-end md:justify-between",
+        "flex flex-col gap-4 rounded-lg border border-border bg-card p-4 md:flex-row md:items-end md:justify-between",
         className,
       )}
     >
       <div className="flex flex-1 flex-col gap-2">
         <label
-          className="text-sm font-medium text-gray-700"
+          className="text-sm font-medium text-foreground"
           htmlFor="order-search"
         >
           Search
@@ -51,13 +51,13 @@ export function OrderFilters({
           value={searchValue}
           onChange={(event) => onSearchChange(event.target.value)}
           placeholder={searchPlaceholder}
-          className="w-full rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-900 outline-none transition focus:border-gray-400 focus:bg-white"
+          className="w-full rounded-md border border-input bg-muted/50 px-3 py-2 text-sm text-foreground outline-none transition focus:border-ring focus:bg-card focus:ring-2 focus:ring-ring/20"
         />
       </div>
 
       <div className="flex flex-col gap-2">
         <label
-          className="text-sm font-medium text-gray-700"
+          className="text-sm font-medium text-foreground"
           htmlFor="order-status"
         >
           Status
@@ -68,7 +68,7 @@ export function OrderFilters({
           onChange={(event) =>
             onStatusChange(event.target.value as OrderStatusFilter)
           }
-          className="min-w-45 rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-900 outline-none transition focus:border-gray-400 focus:bg-white"
+          className="min-w-45 rounded-md border border-input bg-muted/50 px-3 py-2 text-sm text-foreground outline-none transition focus:border-ring focus:bg-card focus:ring-2 focus:ring-ring/20"
         >
           {statusOptions.map((option) => (
             <option key={option.value} value={option.value}>
@@ -79,8 +79,8 @@ export function OrderFilters({
       </div>
 
       <div className="flex flex-col gap-2 md:min-w-55">
-        <span className="text-sm font-medium text-gray-700">Date filters</span>
-        <div className="rounded-md border border-dashed border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-500">
+        <span className="text-sm font-medium text-foreground">Date filters</span>
+        <div className="rounded-md border border-dashed border-border bg-muted/50 px-3 py-2 text-sm text-muted-foreground">
           Coming soon
         </div>
       </div>

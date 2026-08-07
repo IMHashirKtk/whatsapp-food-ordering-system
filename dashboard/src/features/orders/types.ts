@@ -7,6 +7,17 @@ export type OrderStatus =
   | "DELIVERED"
   | "CANCELLED";
 
+export type PaymentMethod =
+  | "EASYPAISA"
+  | "JAZZCASH"
+  | "BANK_TRANSFER"
+  | "COD";
+
+export type PaymentStatus =
+  | "PENDING_VERIFICATION"
+  | "UNPAID"
+  | "PAID";
+
 export type MonetaryAmount = number | string;
 
 export interface OrderCustomer {
@@ -52,8 +63,8 @@ export interface Order {
   deliveryFee: MonetaryAmount;
   total: MonetaryAmount;
 
-  paymentMethod: string;
-  paymentStatus: string;
+  paymentMethod: PaymentMethod;
+  paymentStatus: PaymentStatus;
 
   status: OrderStatus;
   notes?: string | null;

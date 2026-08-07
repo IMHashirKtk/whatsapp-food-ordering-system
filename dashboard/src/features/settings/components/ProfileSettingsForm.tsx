@@ -106,7 +106,7 @@ export function ProfileSettingsForm({ settings }: ProfileSettingsFormProps) {
     >
       <div className="grid gap-5 md:grid-cols-2">
         <div className="md:col-span-2">
-          <label htmlFor="settings-profile-name" className="text-sm font-medium text-slate-700">
+          <label htmlFor="settings-profile-name" className="text-sm font-medium text-foreground">
             Restaurant name
           </label>
           <input id="settings-profile-name" {...register("name")} className={inputClassName} />
@@ -114,7 +114,7 @@ export function ProfileSettingsForm({ settings }: ProfileSettingsFormProps) {
         </div>
 
         <div className="md:col-span-2">
-          <label htmlFor="settings-profile-description" className="text-sm font-medium text-slate-700">
+          <label htmlFor="settings-profile-description" className="text-sm font-medium text-foreground">
             Description
           </label>
           <textarea id="settings-profile-description" rows={3} {...register("description")} className={textareaClassName} />
@@ -122,7 +122,7 @@ export function ProfileSettingsForm({ settings }: ProfileSettingsFormProps) {
         </div>
 
         <div className="md:col-span-2">
-          <label htmlFor="settings-profile-image" className="text-sm font-medium text-slate-700">
+          <label htmlFor="settings-profile-image" className="text-sm font-medium text-foreground">
             Logo URL
           </label>
           <input id="settings-profile-image" type="text" placeholder="https://example.com/logo.png" {...register("imageUrl")} className={inputClassName} />
@@ -130,7 +130,7 @@ export function ProfileSettingsForm({ settings }: ProfileSettingsFormProps) {
         </div>
 
         <div className="md:col-span-2">
-          <label htmlFor="settings-profile-address" className="text-sm font-medium text-slate-700">
+          <label htmlFor="settings-profile-address" className="text-sm font-medium text-foreground">
             Address
           </label>
           <textarea id="settings-profile-address" rows={2} {...register("address")} className={textareaClassName} />
@@ -138,7 +138,7 @@ export function ProfileSettingsForm({ settings }: ProfileSettingsFormProps) {
         </div>
 
         <div>
-          <label htmlFor="settings-profile-phone" className="text-sm font-medium text-slate-700">
+          <label htmlFor="settings-profile-phone" className="text-sm font-medium text-foreground">
             Phone
           </label>
           <input id="settings-profile-phone" type="tel" placeholder="+923001234567" {...register("phone")} className={inputClassName} />
@@ -146,7 +146,7 @@ export function ProfileSettingsForm({ settings }: ProfileSettingsFormProps) {
         </div>
 
         <div>
-          <label htmlFor="settings-profile-whatsapp" className="text-sm font-medium text-slate-700">
+          <label htmlFor="settings-profile-whatsapp" className="text-sm font-medium text-foreground">
             WhatsApp number
           </label>
           <input id="settings-profile-whatsapp" type="tel" placeholder="+923001234567" {...register("whatsappNumber")} className={inputClassName} />
@@ -154,7 +154,7 @@ export function ProfileSettingsForm({ settings }: ProfileSettingsFormProps) {
         </div>
 
         <div>
-          <label htmlFor="settings-profile-email" className="text-sm font-medium text-slate-700">
+          <label htmlFor="settings-profile-email" className="text-sm font-medium text-foreground">
             Email
           </label>
           <input id="settings-profile-email" type="email" {...register("email")} className={inputClassName} />
@@ -162,7 +162,7 @@ export function ProfileSettingsForm({ settings }: ProfileSettingsFormProps) {
         </div>
 
         <div>
-          <label htmlFor="settings-profile-currency" className="text-sm font-medium text-slate-700">
+          <label htmlFor="settings-profile-currency" className="text-sm font-medium text-foreground">
             Currency code
           </label>
           <input id="settings-profile-currency" maxLength={10} {...register("currency")} className={inputClassName} />
@@ -170,7 +170,7 @@ export function ProfileSettingsForm({ settings }: ProfileSettingsFormProps) {
         </div>
 
         <div>
-          <label htmlFor="settings-profile-tax" className="text-sm font-medium text-slate-700">
+          <label htmlFor="settings-profile-tax" className="text-sm font-medium text-foreground">
             Tax percentage
           </label>
           <input id="settings-profile-tax" type="number" min={0} max={100} step="0.01" {...register("taxRate", { valueAsNumber: true })} className={inputClassName} />
@@ -178,7 +178,7 @@ export function ProfileSettingsForm({ settings }: ProfileSettingsFormProps) {
         </div>
 
         <div>
-          <label htmlFor="settings-profile-delivery" className="text-sm font-medium text-slate-700">
+          <label htmlFor="settings-profile-delivery" className="text-sm font-medium text-foreground">
             Delivery fee
           </label>
           <input id="settings-profile-delivery" type="number" min={0} step="0.01" {...register("deliveryFee", { valueAsNumber: true })} className={inputClassName} />
@@ -186,7 +186,7 @@ export function ProfileSettingsForm({ settings }: ProfileSettingsFormProps) {
         </div>
 
         <div>
-          <label htmlFor="settings-profile-opening" className="text-sm font-medium text-slate-700">
+          <label htmlFor="settings-profile-opening" className="text-sm font-medium text-foreground">
             Opening time
           </label>
           <input id="settings-profile-opening" type="time" {...register("openingTime")} className={inputClassName} />
@@ -194,15 +194,15 @@ export function ProfileSettingsForm({ settings }: ProfileSettingsFormProps) {
         </div>
 
         <div>
-          <label htmlFor="settings-profile-closing" className="text-sm font-medium text-slate-700">
+          <label htmlFor="settings-profile-closing" className="text-sm font-medium text-foreground">
             Closing time
           </label>
           <input id="settings-profile-closing" type="time" {...register("closingTime")} className={inputClassName} />
           <FieldError message={errors.closingTime?.message} />
         </div>
 
-        <label className="flex min-h-10 items-center gap-3 rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-medium text-slate-700 md:col-span-2">
-          <input type="checkbox" {...register("isOpen")} className="h-4 w-4 accent-emerald-600" />
+        <label className="flex min-h-10 items-center gap-3 rounded-md border border-border bg-muted/50 px-3 py-2 text-sm font-medium text-foreground md:col-span-2">
+          <input type="checkbox" {...register("isOpen")} className="h-4 w-4 accent-primary" />
           Restaurant is open
         </label>
       </div>

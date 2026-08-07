@@ -16,6 +16,10 @@ export function useUpdateLocalization() {
       await queryClient.invalidateQueries({
         queryKey: queryKeys.settings.detail,
       });
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.dashboard,
+        refetchType: "active",
+      });
     },
   });
 }

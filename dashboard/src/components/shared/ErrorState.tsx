@@ -8,11 +8,11 @@ export default function ErrorState({
   description = "Please try again later.",
 }: Props) {
   return (
-    <div className="flex min-h-[300px] items-center justify-center">
+    <div className="flex min-h-[300px] items-center justify-center rounded-lg border border-border bg-card p-8">
       <div className="max-w-md text-center">
-        <h2 className="text-xl font-semibold">{title}</h2>
+        <h2 className="text-xl font-semibold text-card-foreground">{title}</h2>
 
-        <p className="mt-2 text-gray-500">{description}</p>
+        <p className="mt-2 text-sm leading-6 text-muted-foreground">{description}</p>
       </div>
     </div>
   );

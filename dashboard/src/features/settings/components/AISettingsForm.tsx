@@ -77,18 +77,18 @@ export function AISettingsForm({ settings }: AISettingsFormProps) {
       onSubmit={handleSubmit(onSubmit)}
     >
       <div className="space-y-5">
-        <label className="flex min-h-10 items-center gap-3 rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-medium text-slate-700">
-          <input type="checkbox" {...register("aiEnabled")} className="h-4 w-4 accent-emerald-600" />
+        <label className="flex min-h-10 items-center gap-3 rounded-md border border-border bg-muted/50 px-3 py-2 text-sm font-medium text-foreground">
+          <input type="checkbox" {...register("aiEnabled")} className="h-4 w-4 accent-primary" />
           Enable AI-assisted conversations
         </label>
         <div>
-          <label htmlFor="settings-ai-welcome" className="text-sm font-medium text-slate-700">
+          <label htmlFor="settings-ai-welcome" className="text-sm font-medium text-foreground">
             Welcome message
           </label>
           <textarea id="settings-ai-welcome" rows={4} {...register("welcomeMessage")} className={textareaClassName} />
         </div>
         <div>
-          <label htmlFor="settings-ai-confirmation" className="text-sm font-medium text-slate-700">
+          <label htmlFor="settings-ai-confirmation" className="text-sm font-medium text-foreground">
             Order confirmation message
           </label>
           <textarea id="settings-ai-confirmation" rows={4} {...register("orderConfirmation")} className={textareaClassName} />

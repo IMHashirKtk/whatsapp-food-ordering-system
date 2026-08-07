@@ -98,34 +98,98 @@ Response
   "success": true,
   "message": "Dashboard summary fetched successfully.",
   "data": {
-    "stats": {
-      "todayOrders": 0,
-      "todayRevenue": 0,
-      "monthOrders": 0,
-      "monthRevenue": 0,
-      "customers": 0,
-      "menuItems": 0,
-      "categories": 0
+    "restaurant": {
+      "name": "Demo Restaurant",
+      "timezone": "Asia/Karachi",
+      "isOpen": true,
+      "openingTime": "10:00",
+      "closingTime": "23:00",
+      "orderAcceptanceEnabled": true
     },
-    "orderStatus": {
+    "today": {
+      "orders": 0,
+      "grossOrderValue": 0,
+      "recognizedRevenue": 0,
+      "averageOrderValue": 0,
+      "deliveredOrders": 0,
+      "cancelledOrders": 0,
+      "newCustomers": 0
+    },
+    "liveOrders": {
       "pending": 0,
       "accepted": 0,
       "preparing": 0,
       "ready": 0,
-      "outForDelivery": 0
+      "outForDelivery": 0,
+      "active": 0
     },
-    "recentOrders": []
+    "signals": {
+      "pendingPaymentVerification": 0,
+      "unavailableMenuItems": 0
+    },
+    "recentOrders": [
+      {
+        "id": "",
+        "orderNumber": "ORD-260807-A1B2",
+        "total": 0,
+        "status": "PENDING",
+        "paymentStatus": "UNPAID",
+        "paymentMethod": "COD",
+        "createdAt": "",
+        "customer": {
+          "id": "",
+          "name": null,
+          "whatsappId": ""
+        }
+      }
+    ]
   }
 }
 ```
 
-Dashboard summary currently preserves its existing behavior for compatibility:
-`todayRevenue` and `monthRevenue` sum all order totals, including cancelled and
-unpaid orders; `todayOrders` and `monthOrders` count all orders; date boundaries
-use the server-local timezone; and the dashboard UI labels menu items as active
-even though the backend count includes all menu items. The Analytics endpoints
-below are the canonical reporting contracts for corrected revenue definitions,
-restaurant-local date ranges, and restaurant-scoped report data.
+Dashboard summary is the operational home-screen contract. It derives the
+restaurant from the authenticated user's `restaurantId` and never accepts a
+client-supplied restaurant ID.
+
+Today's date range is interpreted in `restaurant.timezone` and converted to
+UTC. Queries use an inclusive start boundary and an exclusive next-day boundary:
+`createdAt >= startUtc` and `createdAt < endUtc`.
+
+Definitions:
+
+- `today.orders`: all orders created today, including cancelled orders.
+- `today.grossOrderValue`: sum of totals for non-cancelled orders created today,
+  regardless of payment status.
+- `today.recognizedRevenue`: sum of totals for non-cancelled orders created
+  today where `paymentStatus` is `PAID` or `PENDING_VERIFICATION`.
+- `today.averageOrderValue`: `grossOrderValue` divided by the number of
+  non-cancelled orders created today; zero when there are no non-cancelled
+  orders.
+- `today.deliveredOrders`: orders created today whose current status is
+  `DELIVERED`.
+- `today.cancelledOrders`: orders created today whose current status is
+  `CANCELLED`.
+- `today.newCustomers`: customers whose first-ever order for this restaurant
+  was created today. The first order is determined regardless of its status,
+  matching the canonical Analytics definition.
+- `liveOrders.pending`: all current orders with status `PENDING`, regardless of
+  creation date.
+- `liveOrders.active`: all current orders with status `ACCEPTED`, `PREPARING`,
+  `READY`, or `OUT_FOR_DELIVERY`; pending orders are excluded.
+- The other `liveOrders` status counts represent current state regardless of
+  creation date.
+- `signals.pendingPaymentVerification`: current non-cancelled orders whose
+  payment status is `PENDING_VERIFICATION` and therefore require manual
+  payment verification.
+- `signals.unavailableMenuItems`: restaurant menu items with
+  `isAvailable = false`.
+
+Dashboard monetary fields are serialized as JSON numbers rounded to two
+decimal places. Recent order monetary values are also normalized to JSON
+numbers. Customer names may be `null`.
+
+The Analytics endpoints below remain the canonical contracts for historical
+reporting and selectable date ranges.
 
 ---
 

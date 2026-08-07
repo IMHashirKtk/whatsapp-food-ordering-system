@@ -84,7 +84,7 @@ function DistributionChart({
 
   return (
     <div className="min-w-0">
-      <h3 className="mb-3 text-sm font-semibold text-slate-900">{title}</h3>
+      <h3 className="mb-3 text-sm font-semibold text-foreground">{title}</h3>
       {total === 0 ? (
         <ChartEmptyState title="No orders in this range" />
       ) : (
@@ -112,8 +112,8 @@ function DistributionChart({
           <div className="mt-2 grid gap-2 sm:grid-cols-2">
             {entries.map((entry) => (
               <div key={entry.label} className="flex items-center justify-between gap-3 text-sm">
-                <span className="min-w-0 truncate text-slate-600">{entry.label}</span>
-                <span className="shrink-0 font-medium text-slate-900">{formatNumber(entry.orders)}</span>
+                <span className="min-w-0 truncate text-muted-foreground">{entry.label}</span>
+                <span className="shrink-0 font-medium text-foreground">{formatNumber(entry.orders)}</span>
               </div>
             ))}
           </div>
@@ -173,12 +173,12 @@ export default function OperationsAnalytics({
   }));
 
   return (
-    <section className="mt-6 rounded-lg border border-slate-200 bg-white p-4 shadow-sm sm:p-5" aria-labelledby="analytics-operations-heading">
+    <section className="mt-6 rounded-lg border border-border bg-card p-4 shadow-sm sm:p-5" aria-labelledby="analytics-operations-heading">
       <div className="mb-4">
-        <h2 id="analytics-operations-heading" className="text-lg font-semibold text-slate-900">
+        <h2 id="analytics-operations-heading" className="text-lg font-semibold text-foreground">
           Operations analytics
         </h2>
-        <p className="mt-1 text-sm text-slate-500">
+        <p className="mt-1 text-sm text-muted-foreground">
           Order, payment, and restaurant-local ordering patterns.
         </p>
       </div>
@@ -195,9 +195,9 @@ export default function OperationsAnalytics({
             <DistributionChart title="Payment status" entries={paymentStatusData} />
           </div>
 
-          <div className="mt-8 border-t border-slate-100 pt-6">
-            <h3 className="mb-1 text-sm font-semibold text-slate-900">Peak ordering hours</h3>
-            <p className="mb-3 text-sm text-slate-500">Hours are shown in restaurant local time.</p>
+          <div className="mt-8 border-t border-border pt-6">
+            <h3 className="mb-1 text-sm font-semibold text-foreground">Peak ordering hours</h3>
+            <p className="mb-3 text-sm text-muted-foreground">Hours are shown in restaurant local time.</p>
             <ResponsiveChartContainer ariaLabel="Peak ordering hours chart" className="h-[260px] sm:h-[300px]">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={peakHours} margin={{ top: 8, right: 4, left: 4, bottom: 24 }}>

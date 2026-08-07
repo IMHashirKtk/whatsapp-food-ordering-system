@@ -94,7 +94,7 @@ export function MenuItemFormDialog({
       <button
         type="button"
         aria-label="Close menu item form"
-        className="absolute inset-0 bg-slate-950/40"
+        className="absolute inset-0 bg-black/60"
         onClick={() => onOpenChange(false)}
         disabled={isSubmitting}
       />
@@ -102,18 +102,18 @@ export function MenuItemFormDialog({
       <section
         aria-labelledby="menu-item-form-title"
         aria-modal="true"
-        className="relative z-10 my-8 w-full max-w-2xl rounded-lg border border-slate-200 bg-white p-6 shadow-xl"
+        className="relative z-10 my-8 w-full max-w-2xl rounded-xl border border-border bg-card p-6 shadow-xl"
         role="dialog"
       >
         <div className="flex items-start justify-between gap-4">
           <div>
             <h2
               id="menu-item-form-title"
-              className="text-lg font-semibold text-slate-900"
+              className="text-lg font-semibold text-foreground"
             >
               {isEditing ? "Edit menu item" : "Add menu item"}
             </h2>
-            <p className="mt-1 text-sm text-slate-500">
+            <p className="mt-1 text-sm text-muted-foreground">
               Add the details customers need before ordering.
             </p>
           </div>
@@ -136,7 +136,7 @@ export function MenuItemFormDialog({
             <div>
               <label
                 htmlFor="menu-item-category"
-                className="text-sm font-medium text-slate-700"
+                className="text-sm font-medium text-foreground"
               >
                 Category
               </label>
@@ -144,7 +144,7 @@ export function MenuItemFormDialog({
                 id="menu-item-category"
                 {...register("categoryId")}
                 aria-invalid={Boolean(errors.categoryId)}
-                className="mt-2 w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/10"
+                className="mt-2 w-full rounded-md border border-input bg-muted/50 px-3 py-2 text-sm text-foreground outline-none transition focus:border-ring focus:bg-card focus:ring-2 focus:ring-ring/20"
               >
                 {categories.map((category) => (
                   <option key={category.id} value={category.id}>
@@ -153,7 +153,7 @@ export function MenuItemFormDialog({
                 ))}
               </select>
               {errors.categoryId ? (
-                <p className="mt-1 text-sm text-red-600">
+                <p className="mt-1 text-sm text-destructive">
                   {errors.categoryId.message}
                 </p>
               ) : null}
@@ -162,7 +162,7 @@ export function MenuItemFormDialog({
             <div>
               <label
                 htmlFor="menu-item-price"
-                className="text-sm font-medium text-slate-700"
+                className="text-sm font-medium text-foreground"
               >
                 Base price (PKR)
               </label>
@@ -173,10 +173,10 @@ export function MenuItemFormDialog({
                 step="0.01"
                 {...register("basePrice", { valueAsNumber: true })}
                 aria-invalid={Boolean(errors.basePrice)}
-                className="mt-2 w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/10"
+                className="mt-2 w-full rounded-md border border-input bg-muted/50 px-3 py-2 text-sm text-foreground outline-none transition focus:border-ring focus:bg-card focus:ring-2 focus:ring-ring/20"
               />
               {errors.basePrice ? (
-                <p className="mt-1 text-sm text-red-600">
+                <p className="mt-1 text-sm text-destructive">
                   {errors.basePrice.message}
                 </p>
               ) : null}
@@ -186,7 +186,7 @@ export function MenuItemFormDialog({
           <div>
             <label
               htmlFor="menu-item-name"
-              className="text-sm font-medium text-slate-700"
+              className="text-sm font-medium text-foreground"
             >
               Name
             </label>
@@ -197,18 +197,18 @@ export function MenuItemFormDialog({
               maxLength={100}
               {...register("name")}
               aria-invalid={Boolean(errors.name)}
-              className="mt-2 w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/10"
+              className="mt-2 w-full rounded-md border border-input bg-muted/50 px-3 py-2 text-sm text-foreground outline-none transition focus:border-ring focus:bg-card focus:ring-2 focus:ring-ring/20"
               placeholder="e.g. Classic Burger"
             />
             {errors.name ? (
-              <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>
+              <p className="mt-1 text-sm text-destructive">{errors.name.message}</p>
             ) : null}
           </div>
 
           <div>
             <label
               htmlFor="menu-item-description"
-              className="text-sm font-medium text-slate-700"
+              className="text-sm font-medium text-foreground"
             >
               Description
             </label>
@@ -216,11 +216,11 @@ export function MenuItemFormDialog({
               id="menu-item-description"
               rows={3}
               {...register("description")}
-              className="mt-2 w-full resize-y rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/10"
+              className="mt-2 w-full resize-y rounded-md border border-input bg-muted/50 px-3 py-2 text-sm text-foreground outline-none transition focus:border-ring focus:bg-card focus:ring-2 focus:ring-ring/20"
               placeholder="Optional ingredients or serving details"
             />
             {errors.description ? (
-              <p className="mt-1 text-sm text-red-600">
+              <p className="mt-1 text-sm text-destructive">
                 {errors.description.message}
               </p>
             ) : null}
@@ -230,7 +230,7 @@ export function MenuItemFormDialog({
             <div>
               <label
                 htmlFor="menu-item-preparation-time"
-                className="text-sm font-medium text-slate-700"
+                className="text-sm font-medium text-foreground"
               >
                 Preparation time (minutes)
               </label>
@@ -241,10 +241,10 @@ export function MenuItemFormDialog({
                 step={1}
                 {...register("preparationTime", { valueAsNumber: true })}
                 aria-invalid={Boolean(errors.preparationTime)}
-                className="mt-2 w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/10"
+                className="mt-2 w-full rounded-md border border-input bg-muted/50 px-3 py-2 text-sm text-foreground outline-none transition focus:border-ring focus:bg-card focus:ring-2 focus:ring-ring/20"
               />
               {errors.preparationTime ? (
-                <p className="mt-1 text-sm text-red-600">
+                <p className="mt-1 text-sm text-destructive">
                   {errors.preparationTime.message}
                 </p>
               ) : null}
@@ -253,7 +253,7 @@ export function MenuItemFormDialog({
             <div>
               <label
                 htmlFor="menu-item-sort-order"
-                className="text-sm font-medium text-slate-700"
+                className="text-sm font-medium text-foreground"
               >
                 Sort order
               </label>
@@ -264,10 +264,10 @@ export function MenuItemFormDialog({
                 step={1}
                 {...register("sortOrder", { valueAsNumber: true })}
                 aria-invalid={Boolean(errors.sortOrder)}
-                className="mt-2 w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/10"
+                className="mt-2 w-full rounded-md border border-input bg-muted/50 px-3 py-2 text-sm text-foreground outline-none transition focus:border-ring focus:bg-card focus:ring-2 focus:ring-ring/20"
               />
               {errors.sortOrder ? (
-                <p className="mt-1 text-sm text-red-600">
+                <p className="mt-1 text-sm text-destructive">
                   {errors.sortOrder.message}
                 </p>
               ) : null}
@@ -275,25 +275,25 @@ export function MenuItemFormDialog({
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2">
-            <label className="flex min-h-10 items-center gap-3 rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-medium text-slate-700">
+            <label className="flex min-h-10 items-center gap-3 rounded-md border border-input bg-muted/50 px-3 py-2 text-sm font-medium text-foreground">
               <input
                 type="checkbox"
                 {...register("isAvailable")}
-                className="h-4 w-4 accent-emerald-600"
+                className="h-4 w-4 accent-primary"
               />
               Available to customers
             </label>
-            <label className="flex min-h-10 items-center gap-3 rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-medium text-slate-700">
+            <label className="flex min-h-10 items-center gap-3 rounded-md border border-input bg-muted/50 px-3 py-2 text-sm font-medium text-foreground">
               <input
                 type="checkbox"
                 {...register("isFeatured")}
-                className="h-4 w-4 accent-emerald-600"
+                className="h-4 w-4 accent-primary"
               />
               Featured item
             </label>
           </div>
 
-          <div className="flex flex-col-reverse gap-2 border-t border-slate-100 pt-5 sm:flex-row sm:justify-end">
+          <div className="flex flex-col-reverse gap-2 border-t border-border pt-5 sm:flex-row sm:justify-end">
             <Button
               type="button"
               variant="outline"

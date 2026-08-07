@@ -1,71 +1,106 @@
-import { CheckCircle2, ChefHat, ClipboardCheck, Truck } from "lucide-react";
+import {
+  Ban,
+  CheckCircle2,
+  ChefHat,
+  ClipboardCheck,
+  PackageCheck,
+  Truck,
+} from "lucide-react";
 
-import { DashboardOrderStatus } from "../types";
+import type { DashboardLiveOrders, DashboardToday } from "../types";
 
 type Props = {
-  orderStatus: DashboardOrderStatus;
+  liveOrders: DashboardLiveOrders;
+  today: DashboardToday;
 };
 
 type StatusItemProps = {
   label: string;
   value: number;
   icon: React.ReactNode;
+  emphasis?: "attention" | "default";
 };
 
-function StatusItem({ label, value, icon }: StatusItemProps) {
+function StatusItem({
+  label,
+  value,
+  icon,
+  emphasis = "default",
+}: StatusItemProps) {
   return (
-    <div className="flex items-center justify-between rounded-xl border border-slate-100 p-3">
-      <div className="flex items-center gap-3">
-        <div className="rounded-lg bg-slate-100 p-2">{icon}</div>
-
-        <span className="text-sm font-medium text-slate-700">{label}</span>
+    <div
+      className={`flex min-w-0 items-center justify-between gap-3 rounded-xl border p-3 ${
+        emphasis === "attention"
+        ? "border-warning/30 bg-warning/10"
+          : "border-border bg-card"
+      }`}
+    >
+      <div className="flex min-w-0 items-center gap-3">
+        <div className="shrink-0 rounded-md bg-muted p-2">{icon}</div>
+        <span className="truncate text-sm font-medium text-foreground">
+          {label}
+        </span>
       </div>
-
-      <span className="text-lg font-bold">{value}</span>
+      <span className="shrink-0 text-lg font-bold text-foreground">{value}</span>
     </div>
   );
 }
 
-export default function OrderStatusCard({ orderStatus }: Props) {
+export default function OrderStatusCard({ liveOrders, today }: Props) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-      <div className="mb-6">
-        <h2 className="text-lg font-semibold">Active Orders</h2>
-
-        <p className="text-sm text-slate-500">Current order status overview</p>
+    <section className="rounded-lg border border-border bg-card p-4 shadow-sm sm:p-6">
+      <div className="mb-5">
+        <h2 className="text-lg font-semibold text-foreground">
+          Operational queue
+        </h2>
+        <p className="text-sm text-muted-foreground">
+          Current orders that need attention or are in progress.
+        </p>
       </div>
 
-      <div className="space-y-3">
+      <div className="grid gap-3 sm:grid-cols-2">
         <StatusItem
           label="Pending"
-          value={orderStatus.pending}
-          icon={<ClipboardCheck className="h-5 w-5 text-yellow-600" />}
+          value={liveOrders.pending}
+          emphasis="attention"
+          icon={<ClipboardCheck className="h-5 w-5 text-warning" />}
         />
-
+        <StatusItem
+          label="Active"
+          value={liveOrders.active}
+          icon={<PackageCheck className="h-5 w-5 text-info" />}
+        />
         <StatusItem
           label="Accepted"
-          value={orderStatus.accepted}
-          icon={<CheckCircle2 className="h-5 w-5 text-blue-600" />}
+          value={liveOrders.accepted}
+          icon={<CheckCircle2 className="h-5 w-5 text-info" />}
         />
-
         <StatusItem
           label="Preparing"
-          value={orderStatus.preparing}
-          icon={<ChefHat className="h-5 w-5 text-orange-600" />}
+          value={liveOrders.preparing}
+          icon={<ChefHat className="h-5 w-5 text-warning" />}
         />
-
         <StatusItem
           label="Ready"
-          value={orderStatus.ready}
-          icon={<CheckCircle2 className="h-5 w-5 text-green-600" />}
+          value={liveOrders.ready}
+          icon={<CheckCircle2 className="h-5 w-5 text-success" />}
         />
-
         <StatusItem
           label="Out for Delivery"
-          value={orderStatus.outForDelivery}
-          icon={<Truck className="h-5 w-5 text-purple-600" />}
+          value={liveOrders.outForDelivery}
+          icon={<Truck className="h-5 w-5 text-info" />}
+        />
+        <StatusItem
+          label="Delivered Today"
+          value={today.deliveredOrders}
+          icon={<PackageCheck className="h-5 w-5 text-success" />}
+        />
+        <StatusItem
+          label="Cancelled Today"
+          value={today.cancelledOrders}
+          icon={<Ban className="h-5 w-5 text-destructive" />}
         />
       </div>
-    </div>
+    </section>
   );
 }

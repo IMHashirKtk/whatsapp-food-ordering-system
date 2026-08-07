@@ -14,17 +14,17 @@ export function CustomerFilters({
   onSearchChange,
 }: CustomerFiltersProps) {
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+    <div className="rounded-lg border border-border bg-card p-4 shadow-sm">
       <label
         htmlFor="customer-search"
-        className="text-sm font-medium text-slate-700"
+        className="text-sm font-medium text-foreground"
       >
         Search customers
       </label>
       <div className="relative mt-2 max-w-xl">
         <Search
           aria-hidden="true"
-          className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400"
+          className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
         />
         <input
           id="customer-search"
@@ -32,7 +32,7 @@ export function CustomerFilters({
           value={searchValue}
           onChange={(event) => onSearchChange(event.target.value)}
           placeholder="Name, WhatsApp number, or email"
-          className="w-full rounded-md border border-slate-200 bg-slate-50 py-2 pl-9 pr-10 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/10"
+          className="w-full rounded-md border border-input bg-muted/50 py-2 pl-9 pr-10 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-ring focus:bg-card focus:ring-2 focus:ring-ring/20"
         />
         {searchValue ? (
           <Button

@@ -57,7 +57,7 @@ export default function ConfirmDialog({
       <button
         type="button"
         aria-label="Close confirmation dialog"
-        className="absolute inset-0 bg-slate-950/40"
+        className="absolute inset-0 bg-black/60"
         onClick={onCancel}
         disabled={isConfirming}
       />
@@ -65,18 +65,18 @@ export default function ConfirmDialog({
       <section
         aria-labelledby="confirm-dialog-title"
         aria-modal="true"
-        className="relative z-10 w-full max-w-md rounded-lg border border-slate-200 bg-white p-6 shadow-xl"
+        className="relative z-10 w-full max-w-md rounded-xl border border-border bg-card p-6 shadow-xl"
         role="dialog"
       >
         <div className="flex items-start justify-between gap-4">
           <div>
             <h2
               id="confirm-dialog-title"
-              className="text-lg font-semibold text-slate-900"
+              className="text-lg font-semibold text-card-foreground"
             >
               {title}
             </h2>
-            <p className="mt-2 text-sm leading-6 text-slate-600">
+            <p className="mt-2 text-sm leading-6 text-muted-foreground">
               {description}
             </p>
           </div>

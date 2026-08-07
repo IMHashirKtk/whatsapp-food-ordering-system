@@ -1,57 +1,110 @@
 "use client";
 
-import { Bell, BellOff, Search } from "lucide-react";
+import { Bell, BellOff, Menu } from "lucide-react";
+import { usePathname } from "next/navigation";
+import type { RefObject } from "react";
 
 import { useSocket } from "@/hooks/useSocket";
+import { NAV_ITEMS } from "@/lib/constants";
+import { useAuthStore } from "@/store/auth.store";
 
-export default function Topbar() {
+interface TopbarProps {
+  mobileNavOpen: boolean;
+  onMobileNavOpen: () => void;
+  mobileNavTriggerRef: RefObject<HTMLButtonElement | null>;
+}
+
+function formatRole(role?: string) {
+  if (!role) {
+    return "Team member";
+  }
+
+  return role
+    .replace(/_/g, " ")
+    .toLowerCase()
+    .replace(/(^|\s)\S/g, (letter) => letter.toUpperCase());
+}
+
+function getInitials(name: string) {
+  const initials = name
+    .split(" ")
+    .map((part) => part.trim()[0])
+    .filter(Boolean)
+    .slice(0, 2)
+    .join("");
+
+  return initials || "R";
+}
+
+export default function Topbar({
+  mobileNavOpen,
+  onMobileNavOpen,
+  mobileNavTriggerRef,
+}: TopbarProps) {
+  const pathname = usePathname();
+  const user = useAuthStore((state) => state.user);
   const { isSoundMuted, toggleSoundMuted } = useSocket();
+  const currentNavItem = NAV_ITEMS.find(
+    (item) =>
+      pathname === item.href ||
+      (item.href !== "/dashboard" && pathname.startsWith(`${item.href}/`)),
+  );
+  const pageTitle = currentNavItem?.title ?? "Dashboard";
+  const userName = user?.name?.trim() || "Restaurant user";
+  const userRole = formatRole(user?.role);
 
   return (
-    <header className="sticky top-0 z-40 flex h-20 items-center justify-between border-b border-slate-200 bg-white px-8">
-      <div>
-        <h1 className="text-2xl font-bold text-slate-900">Dashboard</h1>
+    <header className="sticky top-0 z-40 flex h-[4.5rem] items-center justify-between border-b border-border bg-card px-4 sm:px-6 lg:px-8">
+      <div className="flex min-w-0 items-center gap-3">
+        <button
+          ref={mobileNavTriggerRef}
+          type="button"
+          aria-label="Open navigation"
+          aria-controls="mobile-navigation"
+          aria-expanded={mobileNavOpen}
+          title="Open navigation"
+          className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg border border-border text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring lg:hidden"
+          onClick={onMobileNavOpen}
+        >
+          <Menu className="size-5" aria-hidden="true" />
+        </button>
 
-        <p className="text-sm text-slate-500">
-          Welcome back! Manage your restaurant.
-        </p>
+        <div className="min-w-0">
+          <h1 className="truncate text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
+            {pageTitle}
+          </h1>
+          <p className="hidden truncate text-sm text-muted-foreground sm:block">
+            Restaurant operations
+          </p>
+        </div>
       </div>
 
-      <div className="flex items-center gap-4">
-        <div className="hidden items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-4 py-2 lg:flex">
-          <Search className="h-4 w-4 text-slate-400" />
-
-          <input
-            type="text"
-            placeholder="Search..."
-            className="w-64 bg-transparent text-sm outline-none placeholder:text-slate-400"
-          />
-        </div>
-
+      <div className="flex items-center gap-2 sm:gap-3">
         <button
           type="button"
           aria-label={isSoundMuted ? "Unmute order alerts" : "Mute order alerts"}
           aria-pressed={isSoundMuted}
           title={isSoundMuted ? "Unmute order alerts" : "Mute order alerts"}
           onClick={toggleSoundMuted}
-          className="rounded-xl border border-slate-200 p-3 transition hover:bg-slate-100"
+          className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg border border-border text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           {isSoundMuted ? (
-            <BellOff className="h-5 w-5 text-slate-600" />
+            <BellOff className="size-5" aria-hidden="true" />
           ) : (
-            <Bell className="h-5 w-5 text-slate-600" />
+            <Bell className="size-5" aria-hidden="true" />
           )}
         </button>
 
-        <div className="flex items-center gap-3 rounded-xl border border-slate-200 px-4 py-2">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-600 font-semibold text-white">
-            F
+        <div className="flex items-center gap-2 rounded-lg border border-border px-2 py-1.5 sm:gap-3 sm:px-3">
+          <div className="flex size-9 items-center justify-center rounded-full bg-primary font-semibold text-primary-foreground">
+            {getInitials(userName)}
           </div>
 
-          <div className="hidden lg:block">
-            <p className="text-sm font-semibold text-slate-900">Foodaji Demo</p>
-
-            <p className="text-xs text-slate-500">Restaurant Owner</p>
+          <div className="hidden min-w-0 sm:block">
+            <p className="max-w-40 truncate text-sm font-semibold text-foreground">
+              {userName}
+            </p>
+            <p className="text-xs text-muted-foreground">{userRole}</p>
           </div>
         </div>
       </div>

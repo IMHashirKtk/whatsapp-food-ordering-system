@@ -8,10 +8,10 @@ export default function ChartEmptyState({
   description = "Try selecting a different date range.",
 }: ChartEmptyStateProps) {
   return (
-    <div className="flex min-h-[220px] items-center justify-center rounded-lg border border-dashed border-slate-300 bg-white p-6 text-center">
+    <div className="flex min-h-[220px] items-center justify-center rounded-lg border border-dashed border-border bg-card p-6 text-center">
       <div className="max-w-sm">
-        <h3 className="text-sm font-semibold text-slate-900">{title}</h3>
-        <p className="mt-2 text-sm text-slate-500">{description}</p>
+        <h3 className="text-sm font-semibold text-card-foreground">{title}</h3>
+        <p className="mt-2 text-sm text-muted-foreground">{description}</p>
       </div>
     </div>
   );

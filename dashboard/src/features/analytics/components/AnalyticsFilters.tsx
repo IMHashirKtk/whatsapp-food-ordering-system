@@ -96,10 +96,10 @@ export default function AnalyticsFilters({
   };
 
   return (
-    <section className="mb-6 rounded-lg border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
+    <section className="mb-6 rounded-lg border border-border bg-card p-4 shadow-sm sm:p-5">
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
         <div>
-          <p className="text-sm font-semibold text-slate-900">Date range</p>
+          <p className="text-sm font-semibold text-foreground">Date range</p>
           <div className="mt-3 flex flex-wrap gap-2">
             {presets.map((option) => (
               <Button
@@ -116,7 +116,7 @@ export default function AnalyticsFilters({
         </div>
 
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-[minmax(0,150px)_minmax(0,150px)_auto]">
-          <label className="grid gap-1.5 text-sm font-medium text-slate-700">
+          <label className="grid gap-1.5 text-sm font-medium text-foreground">
             From
             <input
               type="date"
@@ -128,10 +128,10 @@ export default function AnalyticsFilters({
                 setGroupBy(getSuggestedGroupBy("custom", nextFrom, to));
                 setError(null);
               }}
-              className="h-9 min-w-0 rounded-lg border border-slate-300 bg-white px-3 text-sm font-normal text-slate-900 outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
+              className="h-9 min-w-0 rounded-md border border-input bg-muted/50 px-3 text-sm font-normal text-foreground outline-none focus:border-ring focus:bg-card focus:ring-2 focus:ring-ring/20"
             />
           </label>
-          <label className="grid gap-1.5 text-sm font-medium text-slate-700">
+          <label className="grid gap-1.5 text-sm font-medium text-foreground">
             To
             <input
               type="date"
@@ -143,7 +143,7 @@ export default function AnalyticsFilters({
                 setGroupBy(getSuggestedGroupBy("custom", from, nextTo));
                 setError(null);
               }}
-              className="h-9 min-w-0 rounded-lg border border-slate-300 bg-white px-3 text-sm font-normal text-slate-900 outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
+              className="h-9 min-w-0 rounded-md border border-input bg-muted/50 px-3 text-sm font-normal text-foreground outline-none focus:border-ring focus:bg-card focus:ring-2 focus:ring-ring/20"
             />
           </label>
           <Button type="button" className="self-end" onClick={handleApply}>
@@ -152,13 +152,13 @@ export default function AnalyticsFilters({
         </div>
       </div>
 
-      <div className="mt-4 flex flex-col gap-2 border-t border-slate-100 pt-4 sm:flex-row sm:items-center sm:justify-between">
-        <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
+      <div className="mt-4 flex flex-col gap-2 border-t border-border pt-4 sm:flex-row sm:items-center sm:justify-between">
+        <label className="flex items-center gap-2 text-sm font-medium text-foreground">
           Group by
           <select
             value={groupBy}
             onChange={(event) => setGroupBy(event.target.value as AnalyticsGroupBy)}
-            className="h-9 rounded-lg border border-slate-300 bg-white px-3 text-sm font-normal text-slate-900 outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
+            className="h-9 rounded-md border border-input bg-muted/50 px-3 text-sm font-normal text-foreground outline-none focus:border-ring focus:bg-card focus:ring-2 focus:ring-ring/20"
           >
             {groupingOptions.map((option) => (
               <option key={option.value} value={option.value}>
@@ -167,11 +167,11 @@ export default function AnalyticsFilters({
             ))}
           </select>
         </label>
-        <p className="text-xs text-slate-500">Dates use {timezone} restaurant time.</p>
+        <p className="text-xs text-muted-foreground">Dates use {timezone} restaurant time.</p>
       </div>
 
       {error ? (
-        <p className="mt-3 text-sm text-red-600" role="alert" aria-live="polite">
+        <p className="mt-3 text-sm text-destructive" role="alert" aria-live="polite">
           {error}
         </p>
       ) : null}

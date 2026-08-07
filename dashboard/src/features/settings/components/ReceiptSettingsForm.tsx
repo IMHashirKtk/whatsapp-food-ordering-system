@@ -77,7 +77,7 @@ export function ReceiptSettingsForm({ settings }: ReceiptSettingsFormProps) {
       onSubmit={handleSubmit(onSubmit)}
     >
       <div>
-        <label htmlFor="settings-receipt-footer" className="text-sm font-medium text-slate-700">
+        <label htmlFor="settings-receipt-footer" className="text-sm font-medium text-foreground">
           Receipt footer
         </label>
         <textarea id="settings-receipt-footer" rows={4} {...register("receiptFooter")} className={textareaClassName} placeholder="Thank you for ordering with us." />

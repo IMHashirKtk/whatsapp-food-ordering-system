@@ -14,20 +14,22 @@ export default function StatCard({
   description,
 }: StatCardProps) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:shadow-md">
+    <div className="rounded-lg border border-border bg-card p-5 shadow-sm sm:p-6">
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-sm font-medium text-slate-500">{title}</p>
+          <p className="text-sm font-medium text-muted-foreground">{title}</p>
 
-          <h3 className="mt-3 text-3xl font-bold text-slate-900">{value}</h3>
+          <h3 className="mt-3 text-3xl font-bold text-card-foreground">{value}</h3>
 
           {description && (
-            <p className="mt-2 text-sm text-slate-500">{description}</p>
+            <p className="mt-2 text-sm leading-5 text-muted-foreground">
+              {description}
+            </p>
           )}
         </div>
 
-        <div className="rounded-xl bg-emerald-50 p-3">
-          <Icon className="h-6 w-6 text-emerald-600" />
+        <div className="rounded-lg bg-primary-soft p-3">
+          <Icon className="h-6 w-6 text-primary" aria-hidden="true" />
         </div>
       </div>
     </div>

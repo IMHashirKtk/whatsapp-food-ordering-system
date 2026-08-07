@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -23,6 +24,21 @@ export function OrderCancellationDialog({
   onCancel,
   onConfirm,
 }: OrderCancellationDialogProps) {
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && !isSubmitting) {
+        onCancel();
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [isSubmitting, onCancel, open]);
+
   if (!open) {
     return null;
   }
@@ -38,7 +54,7 @@ export function OrderCancellationDialog({
       <button
         type="button"
         aria-label="Close cancellation dialog"
-        className="absolute inset-0 bg-black/40"
+        className="absolute inset-0 bg-black/60"
         onClick={onCancel}
         disabled={isSubmitting}
       />
@@ -46,18 +62,18 @@ export function OrderCancellationDialog({
       <section
         aria-labelledby={`cancel-order-title-${orderId}`}
         aria-modal="true"
-        className="relative z-10 w-full max-w-md rounded-lg border border-gray-200 bg-white p-6 shadow-xl"
+        className="relative z-10 w-full max-w-md rounded-xl border border-border bg-card p-6 shadow-xl"
         role="dialog"
       >
         <div className="flex items-start justify-between gap-4">
           <div>
             <h2
               id={`cancel-order-title-${orderId}`}
-              className="text-lg font-semibold text-gray-900"
+              className="text-lg font-semibold text-foreground"
             >
               Cancel order
             </h2>
-            <p className="mt-2 text-sm text-gray-600">
+            <p className="mt-2 text-sm text-muted-foreground">
               Cancellation cannot be undone. Enter a reason for the customer
               and order record.
             </p>
@@ -78,7 +94,7 @@ export function OrderCancellationDialog({
         <div className="mt-5">
           <label
             htmlFor={`cancellation-reason-${orderId}`}
-            className="text-sm font-medium text-gray-700"
+            className="text-sm font-medium text-foreground"
           >
             Cancellation reason
           </label>
@@ -91,10 +107,11 @@ export function OrderCancellationDialog({
             rows={4}
             required
             disabled={isSubmitting}
-            className="mt-2 w-full resize-y rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-900 outline-none transition focus:border-gray-400 focus:bg-white disabled:cursor-not-allowed disabled:opacity-60"
+            autoFocus
+            className="mt-2 w-full resize-y rounded-md border border-input bg-muted/50 px-3 py-2 text-sm text-foreground outline-none transition focus:border-ring focus:bg-card focus:ring-2 focus:ring-ring/20 disabled:cursor-not-allowed disabled:opacity-60"
             placeholder="For example: Customer requested cancellation"
           />
-          <p className="mt-1 text-xs text-gray-500">
+          <p className="mt-1 text-xs text-muted-foreground">
             Minimum 3 characters. {reason.length}/500
           </p>
         </div>

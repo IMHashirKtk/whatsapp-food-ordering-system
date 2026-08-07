@@ -6,6 +6,7 @@ import { ArrowUpRight } from "lucide-react";
 import EmptyState from "@/components/shared/EmptyState";
 import ErrorState from "@/components/shared/ErrorState";
 import Loading from "@/components/shared/Loading";
+import { PaymentStatusBadge } from "@/components/shared/PaymentStatusBadge";
 import { Button } from "@/components/ui/button";
 import { OrderStatusBadge } from "@/features/orders/components/OrderStatusBadge";
 
@@ -19,7 +20,6 @@ import {
   formatCustomerCurrency,
   formatCustomerDateTime,
   formatPaymentMethod,
-  formatPaymentStatus,
 } from "../utils/customerFormatters";
 
 interface CustomerOrderHistoryProps {
@@ -82,11 +82,11 @@ export function CustomerOrderHistory({
         <div>
           <h3
             id="customer-order-history-title"
-            className="text-sm font-semibold uppercase tracking-wide text-slate-500"
+            className="text-sm font-semibold uppercase tracking-wide text-muted-foreground"
           >
             Order history
           </h3>
-          <p className="mt-1 text-sm text-slate-500">
+          <p className="mt-1 text-sm text-muted-foreground">
             Review this customer&apos;s orders and payment status.
           </p>
         </div>
@@ -101,7 +101,7 @@ export function CustomerOrderHistory({
               setStatus(event.target.value as StatusFilter);
               setPage(1);
             }}
-            className="rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 outline-none focus:border-emerald-500 focus:bg-white"
+            className="rounded-md border border-input bg-muted/50 px-3 py-2 text-sm text-foreground outline-none focus:border-ring focus:bg-card focus:ring-2 focus:ring-ring/20"
           >
             {statusOptions.map((option) => (
               <option key={option.value} value={option.value}>
@@ -119,7 +119,7 @@ export function CustomerOrderHistory({
               setPaymentStatus(event.target.value as PaymentStatusFilter);
               setPage(1);
             }}
-            className="rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 outline-none focus:border-emerald-500 focus:bg-white"
+            className="rounded-md border border-input bg-muted/50 px-3 py-2 text-sm text-foreground outline-none focus:border-ring focus:bg-card focus:ring-2 focus:ring-ring/20"
           >
             {paymentStatusOptions.map((option) => (
               <option key={option.value} value={option.value}>
@@ -145,37 +145,35 @@ export function CustomerOrderHistory({
           />
         ) : null}
         {!isLoading && !isError && data?.orders.length ? (
-          <div className="overflow-hidden rounded-lg border border-slate-200">
-            <div className="divide-y divide-slate-200 md:hidden">
+          <div className="overflow-hidden rounded-lg border border-border">
+            <div className="divide-y divide-border md:hidden">
               {data.orders.map((order) => (
                 <button
                   key={order.id}
                   type="button"
-                  className="block w-full p-4 text-left transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-emerald-500"
+                  className="block w-full p-4 text-left transition hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
                   onClick={() => onOrderClick(order.id)}
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <p className="font-semibold text-slate-900">
+                      <p className="font-semibold text-foreground">
                         {order.orderNumber}
                       </p>
-                      <p className="mt-1 text-xs text-slate-500">
+                      <p className="mt-1 text-xs text-muted-foreground">
                         {formatCustomerDateTime(order.createdAt)}
                       </p>
                     </div>
-                    <ArrowUpRight className="size-4 text-slate-400" />
+                    <ArrowUpRight className="size-4 text-muted-foreground" />
                   </div>
                   <div className="mt-3 flex flex-wrap items-center gap-2">
                     <OrderStatusBadge status={order.status} />
-                    <span className="text-xs capitalize text-slate-500">
-                      {formatPaymentStatus(order.paymentStatus)}
-                    </span>
+                    <PaymentStatusBadge status={order.paymentStatus} />
                   </div>
                   <div className="mt-3 flex items-center justify-between gap-3 text-sm">
-                    <span className="text-slate-500">
+                    <span className="text-muted-foreground">
                       {formatPaymentMethod(order.paymentMethod)}
                     </span>
-                    <span className="font-semibold text-slate-900">
+                    <span className="font-semibold text-foreground">
                       {formatCustomerCurrency(order.total)}
                     </span>
                   </div>
@@ -184,8 +182,8 @@ export function CustomerOrderHistory({
             </div>
 
             <div className="hidden overflow-x-auto md:block">
-              <table className="min-w-[640px] w-full divide-y divide-slate-200">
-                <thead className="bg-slate-50">
+              <table className="min-w-[640px] w-full divide-y divide-border">
+                <thead className="bg-muted/50">
                   <tr>
                     {[
                       "Order",
@@ -197,34 +195,32 @@ export function CustomerOrderHistory({
                     ].map((heading) => (
                       <th
                         key={heading}
-                        className="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-600"
+                        className="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground"
                       >
                         {heading}
                       </th>
                     ))}
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-border">
                   {data.orders.map((order) => (
-                    <tr key={order.id} className="hover:bg-slate-50">
-                      <td className="px-3 py-3 text-sm font-medium text-slate-900">
+                    <tr key={order.id} className="hover:bg-muted/50">
+                      <td className="px-3 py-3 text-sm font-medium text-foreground">
                         {order.orderNumber}
                       </td>
                       <td className="px-3 py-3">
                         <OrderStatusBadge status={order.status} />
                       </td>
-                      <td className="px-3 py-3 text-sm text-slate-700">
-                        <span className="block capitalize">
-                          {formatPaymentStatus(order.paymentStatus)}
-                        </span>
-                        <span className="mt-1 block text-xs capitalize text-slate-500">
+                      <td className="px-3 py-3 text-sm text-foreground">
+                        <PaymentStatusBadge status={order.paymentStatus} />
+                        <span className="mt-1 block text-xs capitalize text-muted-foreground">
                           {formatPaymentMethod(order.paymentMethod)}
                         </span>
                       </td>
-                      <td className="whitespace-nowrap px-3 py-3 text-sm font-medium text-slate-900">
+                      <td className="whitespace-nowrap px-3 py-3 text-sm font-medium text-foreground">
                         {formatCustomerCurrency(order.total)}
                       </td>
-                      <td className="whitespace-nowrap px-3 py-3 text-sm text-slate-700">
+                      <td className="whitespace-nowrap px-3 py-3 text-sm text-foreground">
                         {formatCustomerDateTime(order.createdAt)}
                       </td>
                       <td className="px-3 py-3">
@@ -245,7 +241,7 @@ export function CustomerOrderHistory({
               </table>
             </div>
 
-            <div className="flex flex-col gap-3 border-t border-slate-200 px-3 py-3 text-sm text-slate-600 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-col gap-3 border-t border-border px-3 py-3 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
               <span>
                 Page {data.pagination.page} of {Math.max(data.pagination.totalPages, 1)} · {data.pagination.total} orders
               </span>

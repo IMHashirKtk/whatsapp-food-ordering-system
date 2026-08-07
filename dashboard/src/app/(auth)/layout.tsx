@@ -3,5 +3,5 @@ type Props = {
 };
 
 export default function AuthLayout({ children }: Props) {
-  return <div className="min-h-screen bg-slate-100">{children}</div>;
+  return <div className="min-h-screen bg-background">{children}</div>;
 }

@@ -5,12 +5,16 @@ type PageHeaderProps = {
 
 export default function PageHeader({ title, description }: PageHeaderProps) {
   return (
-    <div className="mb-8">
-      <h1 className="text-3xl font-bold tracking-tight text-slate-900">
+    <div className="mb-6 sm:mb-8">
+      <h1 className="text-3xl font-semibold tracking-tight text-foreground">
         {title}
       </h1>
 
-      {description && <p className="mt-2 text-slate-500">{description}</p>}
+      {description ? (
+        <p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">
+          {description}
+        </p>
+      ) : null}
     </div>
   );
 }

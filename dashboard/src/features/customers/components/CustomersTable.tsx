@@ -62,7 +62,7 @@ function CustomerActions({
           size="icon-sm"
           aria-label={`Delete ${customer.name ?? "customer"}`}
           title="Delete customer"
-          className="text-rose-600 hover:text-rose-700"
+          className="text-destructive hover:text-destructive/80"
           onClick={() => onDeleteCustomer(customer)}
         >
           <Trash2 />
@@ -80,7 +80,7 @@ function Pagination({
   const totalPages = Math.max(pagination.totalPages, 1);
 
   return (
-    <div className="flex flex-col gap-3 border-t border-slate-200 px-4 py-3 text-sm text-slate-600 sm:flex-row sm:items-center sm:justify-between">
+    <div className="flex flex-col gap-3 border-t border-border px-4 py-3 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
       <span>
         Showing page {currentPage} of {totalPages} · {pagination.total} customers
       </span>
@@ -132,10 +132,10 @@ export function CustomersTable({
   }
 
   return (
-    <div className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+    <div className="overflow-hidden rounded-lg border border-border bg-card shadow-sm">
       <div className="hidden overflow-x-auto md:block">
-        <table className="min-w-[920px] w-full divide-y divide-slate-200">
-          <thead className="bg-slate-50">
+        <table className="min-w-[920px] w-full divide-y divide-border">
+          <thead className="bg-muted/50">
             <tr>
               {[
                 "Customer",
@@ -149,23 +149,23 @@ export function CustomersTable({
               ].map((heading) => (
                 <th
                   key={heading}
-                  className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-600"
+                  className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground"
                 >
                   {heading}
                 </th>
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100">
+          <tbody className="divide-y divide-border">
             {customers.map((customer) => (
               <tr
                 key={customer.id}
-                className="align-top transition hover:bg-slate-50"
+                className="align-top transition hover:bg-muted/50"
               >
-                <td className="max-w-[13rem] px-4 py-4 text-sm font-medium text-slate-900">
+                <td className="max-w-[13rem] px-4 py-4 text-sm font-medium text-foreground">
                   <button
                     type="button"
-                    className="text-left hover:text-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+                    className="text-left hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                     onClick={() => onCustomerClick(customer.id)}
                   >
                     <span className="block break-words">
@@ -173,24 +173,24 @@ export function CustomersTable({
                     </span>
                   </button>
                 </td>
-                <td className="whitespace-nowrap px-4 py-4 text-sm text-slate-700">
+                <td className="whitespace-nowrap px-4 py-4 text-sm text-foreground">
                   {customer.whatsappId}
                 </td>
-                <td className="max-w-[15rem] px-4 py-4 text-sm text-slate-700">
+                <td className="max-w-[15rem] px-4 py-4 text-sm text-foreground">
                   <span className="block break-words">
                     {displayValue(customer.email)}
                   </span>
                 </td>
-                <td className="px-4 py-4 text-sm text-slate-700">
+                <td className="px-4 py-4 text-sm text-foreground">
                   {customer.totalOrders}
                 </td>
-                <td className="whitespace-nowrap px-4 py-4 text-sm font-medium text-slate-900">
+                <td className="whitespace-nowrap px-4 py-4 text-sm font-medium text-foreground">
                   {formatCustomerCurrency(customer.lifetimeSpend)}
                 </td>
-                <td className="whitespace-nowrap px-4 py-4 text-sm text-slate-700">
+                <td className="whitespace-nowrap px-4 py-4 text-sm text-foreground">
                   {formatCustomerDate(customer.lastOrderAt)}
                 </td>
-                <td className="whitespace-nowrap px-4 py-4 text-sm text-slate-700">
+                <td className="whitespace-nowrap px-4 py-4 text-sm text-foreground">
                   {formatCustomerDate(customer.createdAt)}
                 </td>
                 <td className="px-4 py-3">
@@ -208,19 +208,19 @@ export function CustomersTable({
         </table>
       </div>
 
-      <div className="divide-y divide-slate-200 md:hidden">
+      <div className="divide-y divide-border md:hidden">
         {customers.map((customer) => (
           <article key={customer.id} className="space-y-4 p-4">
             <div className="flex items-start justify-between gap-3">
               <button
                 type="button"
-                className="min-w-0 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+                className="min-w-0 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 onClick={() => onCustomerClick(customer.id)}
               >
-                <h2 className="break-words text-sm font-semibold text-slate-900">
+                <h2 className="break-words text-sm font-semibold text-foreground">
                   {displayValue(customer.name)}
                 </h2>
-                <p className="mt-1 break-all text-sm text-slate-500">
+                <p className="mt-1 break-all text-sm text-muted-foreground">
                   {customer.whatsappId}
                 </p>
               </button>
@@ -234,24 +234,24 @@ export function CustomersTable({
             </div>
             <dl className="grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
               <div className="min-w-0">
-                <dt className="text-slate-500">Email</dt>
-                <dd className="mt-1 break-words text-slate-800">
+                <dt className="text-muted-foreground">Email</dt>
+                <dd className="mt-1 break-words text-foreground">
                   {displayValue(customer.email)}
                 </dd>
               </div>
               <div>
-                <dt className="text-slate-500">Orders</dt>
-                <dd className="mt-1 text-slate-800">{customer.totalOrders}</dd>
+                <dt className="text-muted-foreground">Orders</dt>
+                <dd className="mt-1 text-foreground">{customer.totalOrders}</dd>
               </div>
               <div>
-                <dt className="text-slate-500">Lifetime spend</dt>
-                <dd className="mt-1 font-medium text-slate-900">
+                <dt className="text-muted-foreground">Lifetime spend</dt>
+                <dd className="mt-1 font-medium text-foreground">
                   {formatCustomerCurrency(customer.lifetimeSpend)}
                 </dd>
               </div>
               <div>
-                <dt className="text-slate-500">Last order</dt>
-                <dd className="mt-1 break-words text-slate-800">
+                <dt className="text-muted-foreground">Last order</dt>
+                <dd className="mt-1 break-words text-foreground">
                   {formatCustomerDate(customer.lastOrderAt)}
                 </dd>
               </div>

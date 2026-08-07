@@ -44,33 +44,33 @@ export function MenuItemCard({
   return (
     <article
       className={cn(
-        "rounded-lg border bg-white p-4 transition-colors",
+        "rounded-lg border bg-card p-4 transition-colors",
         isSelected
-          ? "border-emerald-500 bg-emerald-50/40 shadow-sm"
-          : "border-slate-200 hover:border-slate-300",
+          ? "border-primary bg-primary-soft shadow-sm"
+          : "border-border hover:border-primary/40",
       )}
     >
       <div className="flex items-start gap-3">
         <button
           type="button"
-          className="min-w-0 flex-1 text-left outline-none focus-visible:rounded-md focus-visible:ring-2 focus-visible:ring-emerald-500"
+          className="min-w-0 flex-1 text-left outline-none focus-visible:rounded-md focus-visible:ring-2 focus-visible:ring-ring"
           onClick={() => onSelect(item.id)}
           aria-pressed={isSelected}
         >
           <div className="flex flex-wrap items-start justify-between gap-2">
-            <h3 className="min-w-0 break-words font-semibold text-slate-900">
+            <h3 className="min-w-0 break-words font-semibold text-foreground">
               {item.name}
             </h3>
-            <p className="shrink-0 font-semibold text-emerald-700">
+            <p className="shrink-0 font-semibold text-primary">
               {formatCurrency(item.basePrice)}
             </p>
           </div>
 
-          <p className="mt-2 min-h-5 whitespace-pre-wrap break-words text-sm leading-5 text-slate-500">
+          <p className="mt-2 min-h-5 whitespace-pre-wrap break-words text-sm leading-5 text-muted-foreground">
             {item.description || "No description added."}
           </p>
 
-          <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-xs text-slate-500">
+          <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-xs text-muted-foreground">
             <span className="inline-flex items-center gap-1.5">
               <Clock3 className="h-3.5 w-3.5" />
               {item.preparationTime} min prep
@@ -106,12 +106,12 @@ export function MenuItemCard({
             onClick={() => onDelete(item)}
             disabled={isUpdating}
           >
-            <Trash2 className="text-red-600" />
+            <Trash2 className="text-destructive" />
           </Button>
         </div>
       </div>
 
-      <div className="mt-4 flex flex-wrap gap-2 border-t border-slate-100 pt-3">
+      <div className="mt-4 flex flex-wrap gap-2 border-t border-border pt-3">
         <button
           type="button"
           role="switch"
@@ -119,10 +119,10 @@ export function MenuItemCard({
           aria-label={`${item.isAvailable ? "Make" : "Keep"} ${item.name} available`}
           title={item.isAvailable ? "Mark unavailable" : "Mark available"}
           className={cn(
-            "inline-flex min-h-8 items-center gap-1.5 rounded-md border px-2.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+            "inline-flex min-h-8 items-center gap-1.5 rounded-md border px-2.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
             item.isAvailable
-              ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-              : "border-slate-200 bg-slate-50 text-slate-500",
+              ? "border-success/25 bg-success/10 text-success"
+              : "border-border bg-muted text-muted-foreground",
           )}
           onClick={() => onToggleAvailability(item)}
           disabled={isUpdating}
@@ -138,10 +138,10 @@ export function MenuItemCard({
           aria-label={`${item.isFeatured ? "Remove" : "Mark"} ${item.name} as featured`}
           title={item.isFeatured ? "Remove featured status" : "Mark as featured"}
           className={cn(
-            "inline-flex min-h-8 items-center gap-1.5 rounded-md border px-2.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+            "inline-flex min-h-8 items-center gap-1.5 rounded-md border px-2.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
             item.isFeatured
-              ? "border-amber-200 bg-amber-50 text-amber-700"
-              : "border-slate-200 bg-slate-50 text-slate-500",
+              ? "border-warning/25 bg-warning/10 text-warning"
+              : "border-border bg-muted text-muted-foreground",
           )}
           onClick={() => onToggleFeatured(item)}
           disabled={isUpdating}

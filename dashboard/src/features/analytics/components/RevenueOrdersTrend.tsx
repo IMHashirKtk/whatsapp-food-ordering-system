@@ -45,12 +45,12 @@ export default function RevenueOrdersTrend({
   );
 
   return (
-    <section className="mt-6 rounded-lg border border-slate-200 bg-white p-4 shadow-sm sm:p-5" aria-labelledby="analytics-trends-heading">
+    <section className="mt-6 rounded-lg border border-border bg-card p-4 shadow-sm sm:p-5" aria-labelledby="analytics-trends-heading">
       <div className="mb-4">
-        <h2 id="analytics-trends-heading" className="text-lg font-semibold text-slate-900">
+        <h2 id="analytics-trends-heading" className="text-lg font-semibold text-foreground">
           Revenue and order trends
         </h2>
-        <p className="mt-1 text-sm text-slate-500">
+        <p className="mt-1 text-sm text-muted-foreground">
           Revenue uses PKR; order series use the right axis.
         </p>
       </div>

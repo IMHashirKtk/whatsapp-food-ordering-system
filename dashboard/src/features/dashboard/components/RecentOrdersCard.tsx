@@ -1,108 +1,103 @@
+import Link from "next/link";
 import { Clock3, PackageCheck } from "lucide-react";
 
-import { RecentOrder } from "../types";
+import { PaymentStatusBadge } from "@/components/shared/PaymentStatusBadge";
+import { OrderStatusBadge } from "@/features/orders/components/OrderStatusBadge";
+
+import type { DashboardRecentOrder } from "../types";
 
 type Props = {
-  orders: RecentOrder[];
+  orders: DashboardRecentOrder[];
+  timezone: string;
 };
 
-function getStatusBadge(status: string) {
-  switch (status) {
-    case "PENDING":
-      return (
-        <span className="rounded-full bg-yellow-100 px-2 py-1 text-xs font-medium text-yellow-700">
-          Pending
-        </span>
-      );
+const formatCurrency = (value: number) =>
+  new Intl.NumberFormat("en-PK", {
+    style: "currency",
+    currency: "PKR",
+    maximumFractionDigits: 2,
+  }).format(value);
 
-    case "ACCEPTED":
-      return (
-        <span className="rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-700">
-          Accepted
-        </span>
-      );
+const formatDate = (value: string, timezone: string) =>
+  new Intl.DateTimeFormat("en-PK", {
+    dateStyle: "medium",
+    timeStyle: "short",
+    timeZone: timezone,
+  }).format(new Date(value));
 
-    case "PREPARING":
-      return (
-        <span className="rounded-full bg-orange-100 px-2 py-1 text-xs font-medium text-orange-700">
-          Preparing
-        </span>
-      );
-
-    case "READY":
-      return (
-        <span className="rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-700">
-          Ready
-        </span>
-      );
-
-    case "OUT_FOR_DELIVERY":
-      return (
-        <span className="rounded-full bg-purple-100 px-2 py-1 text-xs font-medium text-purple-700">
-          Out for Delivery
-        </span>
-      );
-
-    default:
-      return (
-        <span className="rounded-full bg-slate-100 px-2 py-1 text-xs">
-          {status}
-        </span>
-      );
+function PaymentBadge({
+  paymentStatus,
+}: {
+  paymentStatus: DashboardRecentOrder["paymentStatus"];
+}) {
+  if (paymentStatus === "PAID") {
+    return null;
   }
+
+  return <PaymentStatusBadge status={paymentStatus} />;
 }
 
-export default function RecentOrdersCard({ orders }: Props) {
+export default function RecentOrdersCard({ orders, timezone }: Props) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-      <div className="mb-6 flex items-center justify-between">
+    <section className="rounded-lg border border-border bg-card p-4 shadow-sm sm:p-6">
+      <div className="mb-5 flex items-start justify-between gap-4">
         <div>
-          <h2 className="text-lg font-semibold">Recent Orders</h2>
-
-          <p className="text-sm text-slate-500">Latest customer orders</p>
+          <h2 className="text-lg font-semibold text-foreground">Recent orders</h2>
+          <p className="text-sm text-muted-foreground">The latest orders received.</p>
         </div>
 
-        <PackageCheck className="h-5 w-5 text-slate-400" />
+        <PackageCheck className="h-5 w-5 shrink-0 text-muted-foreground" />
       </div>
 
       {orders.length === 0 ? (
-        <div className="py-10 text-center text-sm text-slate-500">
-          No recent orders found.
+        <div className="py-10 text-center text-sm text-muted-foreground">
+          No orders have been received yet.
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-3">
           {orders.map((order) => (
-            <div
+            <Link
               key={order.id}
-              className="flex items-center justify-between rounded-xl border border-slate-100 p-4 transition hover:bg-slate-50"
+              href={`/dashboard/orders?orderId=${encodeURIComponent(order.id)}`}
+              className="block rounded-md border border-border p-3 transition hover:border-primary/40 hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:p-4"
             >
-              <div>
-                <p className="font-semibold">#{order.orderNumber}</p>
+              <div className="flex min-w-0 items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="truncate font-semibold text-foreground">
+                    #{order.orderNumber}
+                  </p>
+                  <p className="mt-1 truncate text-sm text-muted-foreground">
+                    {order.customer.name?.trim() || order.customer.whatsappId}
+                  </p>
+                  <div className="mt-2 flex min-w-0 items-center gap-2 text-xs text-muted-foreground">
+                    <Clock3 className="h-3 w-3 shrink-0" />
+                    <span className="truncate">
+                      {formatDate(order.createdAt, timezone)}
+                    </span>
+                  </div>
+                </div>
 
-                <p className="text-sm text-slate-500">{order.customer.name}</p>
-
-                <div className="mt-2 flex items-center gap-2 text-xs text-slate-400">
-                  <Clock3 className="h-3 w-3" />
-
-                  {new Date(order.createdAt).toLocaleString("en-PK", {
-                    dateStyle: "medium",
-                    timeStyle: "short",
-                    timeZone: "Asia/Karachi",
-                  })}
+                <div className="flex shrink-0 flex-col items-end gap-2 text-right">
+                  <p className="font-semibold text-foreground">
+                    {formatCurrency(order.total)}
+                  </p>
+                  <div className="flex max-w-[11rem] flex-wrap justify-end gap-1.5">
+                    <OrderStatusBadge status={order.status} />
+                    <PaymentBadge paymentStatus={order.paymentStatus} />
+                  </div>
                 </div>
               </div>
-
-              <div className="text-right">
-                <p className="mb-2 font-semibold">
-                  PKR {Number(order.total).toLocaleString()}
-                </p>
-
-                {getStatusBadge(order.status)}
-              </div>
-            </div>
+            </Link>
           ))}
         </div>
       )}
-    </div>
+
+      <Link
+        href="/dashboard/orders"
+        className="mt-5 inline-flex text-sm font-semibold text-primary hover:text-primary-hover"
+      >
+        View all orders
+      </Link>
+    </section>
   );
 }

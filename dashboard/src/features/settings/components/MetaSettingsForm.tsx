@@ -136,28 +136,28 @@ export function MetaSettingsForm({ settings }: MetaSettingsFormProps) {
     >
       <div className="grid gap-5 md:grid-cols-2">
         <div>
-          <label htmlFor="settings-meta-phone-id" className="text-sm font-medium text-slate-700">
+          <label htmlFor="settings-meta-phone-id" className="text-sm font-medium text-foreground">
             Meta phone number ID
           </label>
           <input id="settings-meta-phone-id" {...register("metaPhoneNumberId")} className={inputClassName} />
           <FieldError message={errors.metaPhoneNumberId?.message} />
         </div>
         <div>
-          <label htmlFor="settings-meta-display-phone" className="text-sm font-medium text-slate-700">
+          <label htmlFor="settings-meta-display-phone" className="text-sm font-medium text-foreground">
             Display phone
           </label>
           <input id="settings-meta-display-phone" type="tel" {...register("metaDisplayPhone")} className={inputClassName} />
           <FieldError message={errors.metaDisplayPhone?.message} />
         </div>
         <div>
-          <label htmlFor="settings-meta-business-id" className="text-sm font-medium text-slate-700">
+          <label htmlFor="settings-meta-business-id" className="text-sm font-medium text-foreground">
             Business account ID
           </label>
           <input id="settings-meta-business-id" {...register("metaBusinessAccountId")} className={inputClassName} />
           <FieldError message={errors.metaBusinessAccountId?.message} />
         </div>
 
-        <div className="rounded-md border border-amber-200 bg-amber-50 p-3 text-sm leading-6 text-amber-900 md:col-span-2">
+        <div className="rounded-md border border-warning/25 bg-warning/10 p-3 text-sm leading-6 text-warning md:col-span-2">
           Secret fields are masked by the server. Leave a masked field unchanged to preserve it, enter a new value to replace it, or clear it to remove it.
         </div>
 
@@ -199,10 +199,10 @@ function SecretField({ id, label, value, register, error }: SecretFieldProps) {
   return (
     <div>
       <div className="flex items-center justify-between gap-3">
-        <label htmlFor={id} className="text-sm font-medium text-slate-700">
+          <label htmlFor={id} className="text-sm font-medium text-foreground">
           {label}
         </label>
-        <span className="text-xs text-slate-500">
+          <span className="text-xs text-muted-foreground">
           {value.hasValue ? `Configured${value.masked ? ` (${value.masked})` : ""}` : "Not configured"}
         </span>
       </div>

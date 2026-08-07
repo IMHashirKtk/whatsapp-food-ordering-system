@@ -1,42 +1,54 @@
-import { DollarSign, Package, ShoppingCart, Users } from "lucide-react";
+import {
+  BadgePoundSterling,
+  CircleDollarSign,
+  ClipboardList,
+  ReceiptText,
+} from "lucide-react";
 
 import StatCard from "@/components/shared/StatCard";
 
-import { DashboardStats as DashboardStatsType } from "../types";
+import type { DashboardToday } from "../types";
 
 type Props = {
-  stats: DashboardStatsType;
+  today: DashboardToday;
 };
 
-export default function DashboardStats({ stats }: Props) {
+const formatCurrency = (value: number) =>
+  new Intl.NumberFormat("en-PK", {
+    style: "currency",
+    currency: "PKR",
+    maximumFractionDigits: 2,
+  }).format(value);
+
+export default function DashboardStats({ today }: Props) {
   return (
-    <section className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+    <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
       <StatCard
-        title="Today's Orders"
-        value={stats.todayOrders}
-        description="Orders received today"
-        icon={ShoppingCart}
+        title="Recognized Revenue Today"
+        value={formatCurrency(today.recognizedRevenue)}
+        description="Non-cancelled paid or pending-verification orders"
+        icon={BadgePoundSterling}
       />
 
       <StatCard
-        title="Today's Revenue"
-        value={`PKR ${stats.todayRevenue.toLocaleString()}`}
-        description="Revenue earned today"
-        icon={DollarSign}
+        title="Gross Order Value Today"
+        value={formatCurrency(today.grossOrderValue)}
+        description="Non-cancelled order totals"
+        icon={CircleDollarSign}
       />
 
       <StatCard
-        title="Customers"
-        value={stats.customers}
-        description="Registered customers"
-        icon={Users}
+        title="Orders Today"
+        value={today.orders}
+        description="All orders created today"
+        icon={ClipboardList}
       />
 
       <StatCard
-        title="Menu Items"
-        value={stats.menuItems}
-        description="Active menu items"
-        icon={Package}
+        title="Average Order Value"
+        value={formatCurrency(today.averageOrderValue)}
+        description="Gross value per non-cancelled order"
+        icon={ReceiptText}
       />
     </section>
   );

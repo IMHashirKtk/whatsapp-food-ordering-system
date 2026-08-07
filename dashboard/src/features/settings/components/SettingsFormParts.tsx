@@ -5,7 +5,7 @@ import { Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export const inputClassName =
-  "mt-2 w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/10 disabled:cursor-not-allowed disabled:opacity-60";
+  "mt-2 w-full rounded-md border border-input bg-muted/50 px-3 py-2 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-ring focus:bg-card focus:ring-2 focus:ring-ring/20 disabled:cursor-not-allowed disabled:opacity-60";
 
 export const textareaClassName = `${inputClassName} resize-y`;
 
@@ -13,7 +13,7 @@ export const selectClassName = inputClassName;
 
 export function FieldError({ message }: { message?: string }) {
   return message ? (
-    <p className="mt-1 text-sm text-red-600" role="alert">
+    <p className="mt-1 text-sm text-destructive" role="alert">
       {message}
     </p>
   ) : null;
@@ -42,18 +42,18 @@ export function FormSection({
 }: FormSectionProps) {
   return (
     <form onSubmit={onSubmit} className="space-y-6">
-      <div className="flex flex-col gap-3 border-b border-slate-200 pb-5 sm:flex-row sm:items-start sm:justify-between">
+      <div className="flex flex-col gap-3 border-b border-border pb-5 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h2 className="text-xl font-semibold text-slate-900">{title}</h2>
-          <p className="mt-1 max-w-2xl text-sm leading-6 text-slate-500">
+          <h2 className="text-xl font-semibold text-foreground">{title}</h2>
+          <p className="mt-1 max-w-2xl text-sm leading-6 text-muted-foreground">
             {description}
           </p>
         </div>
         <span
           className={
             isDirty
-              ? "inline-flex w-fit items-center rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-800"
-              : "inline-flex w-fit items-center rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-800"
+              ? "inline-flex w-fit items-center rounded-full border border-warning/25 bg-warning/10 px-2.5 py-1 text-xs font-semibold text-warning"
+              : "inline-flex w-fit items-center rounded-full border border-success/25 bg-success/10 px-2.5 py-1 text-xs font-semibold text-success"
           }
           role="status"
         >
@@ -63,14 +63,14 @@ export function FormSection({
 
       {children}
 
-      <div className="flex flex-col gap-3 border-t border-slate-200 pt-5 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-3 border-t border-border pt-5 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-h-5 text-sm">
           {errorMessage ? (
-            <p className="text-red-600" role="alert">
+            <p className="text-destructive" role="alert">
               {errorMessage}
             </p>
           ) : isSuccess && !isDirty ? (
-            <p className="text-emerald-700" role="status">
+            <p className="text-success" role="status">
               Changes saved successfully.
             </p>
           ) : null}

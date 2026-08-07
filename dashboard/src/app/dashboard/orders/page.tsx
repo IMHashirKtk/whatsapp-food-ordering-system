@@ -38,9 +38,7 @@ function OrdersPageContent() {
   const requestedOrderId = searchParams.get("orderId");
 
   useEffect(() => {
-    if (requestedOrderId) {
-      setSelectedOrderId(requestedOrderId);
-    }
+    setSelectedOrderId(requestedOrderId);
   }, [requestedOrderId]);
 
   useEffect(() => {

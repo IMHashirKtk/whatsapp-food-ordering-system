@@ -86,13 +86,13 @@ function createColumns(
       const customer = info.getValue<Order["customer"] | null | undefined>();
 
       if (!customer) {
-        return <span className="text-gray-500">—</span>;
+        return <span className="text-muted-foreground">—</span>;
       }
 
       return (
         <div className="flex flex-col">
           <span className="font-medium">{customer.name ?? "—"}</span>
-          <span className="text-sm text-gray-500">
+          <span className="text-sm text-muted-foreground">
             {customer.phone ?? customer.whatsappId ?? "—"}
           </span>
         </div>
@@ -229,7 +229,7 @@ export function OrdersTable({
 
   if (!orders.length) {
     return (
-      <div className="rounded-lg border border-dashed border-gray-200 bg-white p-8 text-center text-sm text-gray-500">
+      <div className="rounded-lg border border-dashed border-border bg-card p-8 text-center text-sm text-muted-foreground">
         {emptyMessage}
       </div>
     );
@@ -242,16 +242,16 @@ export function OrdersTable({
 
   return (
     <>
-      <div className="rounded-lg border border-gray-200 bg-white">
+      <div className="rounded-lg border border-border bg-card">
       <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+        <table className="min-w-full divide-y divide-border">
+          <thead className="bg-muted/50">
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
                   <th
                     key={header.id}
-                    className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-600"
+                    className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground"
                   >
                     {header.isPlaceholder
                       ? null
@@ -264,11 +264,11 @@ export function OrdersTable({
               </tr>
             ))}
           </thead>
-          <tbody className="divide-y divide-gray-200 bg-white">
+          <tbody className="divide-y divide-border bg-card">
             {table.getRowModel().rows.map((row) => (
               <tr
                 key={row.id}
-                className="hover:bg-gray-50 data-[clickable=true]:cursor-pointer"
+                className="hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring data-[clickable=true]:cursor-pointer"
                 data-clickable={Boolean(onOrderClick)}
                 tabIndex={onOrderClick ? 0 : undefined}
                 aria-label={`View details for order ${row.original.orderNumber}`}
@@ -287,7 +287,7 @@ export function OrdersTable({
                 {row.getVisibleCells().map((cell) => (
                   <td
                     key={cell.id}
-                    className="px-4 py-3 align-middle text-sm text-gray-700"
+                    className="px-4 py-3 align-middle text-sm text-foreground"
                   >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </td>
@@ -299,7 +299,7 @@ export function OrdersTable({
       </div>
 
       {pagination ? (
-        <div className="flex flex-col gap-3 border-t border-gray-200 px-4 py-3 text-sm text-gray-600 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-3 border-t border-border px-4 py-3 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
           <span>
             Showing page {currentPage} of {Math.max(totalPages, 1)} ·{" "}
             {pagination.total} orders

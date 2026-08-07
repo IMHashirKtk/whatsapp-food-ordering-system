@@ -79,21 +79,21 @@ export function LocalizationForm({ settings }: LocalizationFormProps) {
     >
       <div className="grid gap-5 md:grid-cols-2">
         <div>
-          <label htmlFor="settings-localization-language" className="text-sm font-medium text-slate-700">
+          <label htmlFor="settings-localization-language" className="text-sm font-medium text-foreground">
             Language code
           </label>
           <input id="settings-localization-language" maxLength={10} {...register("language")} className={inputClassName} />
           <FieldError message={errors.language?.message} />
         </div>
         <div>
-          <label htmlFor="settings-localization-timezone" className="text-sm font-medium text-slate-700">
+          <label htmlFor="settings-localization-timezone" className="text-sm font-medium text-foreground">
             Timezone
           </label>
           <input id="settings-localization-timezone" maxLength={100} {...register("timezone")} className={inputClassName} />
           <FieldError message={errors.timezone?.message} />
         </div>
         <div>
-          <label htmlFor="settings-localization-symbol" className="text-sm font-medium text-slate-700">
+          <label htmlFor="settings-localization-symbol" className="text-sm font-medium text-foreground">
             Currency symbol
           </label>
           <input id="settings-localization-symbol" maxLength={10} {...register("currencySymbol")} className={inputClassName} />

@@ -102,12 +102,12 @@ export function OrderStatusActions({
     return (
       <div
         className={cn(
-          "flex flex-col rounded-lg border border-gray-200 p-4",
+          "flex flex-col rounded-lg border border-border bg-card p-4",
           className,
         )}
       >
         <div className="flex items-center justify-between gap-2">
-          <span className="text-sm font-medium text-gray-500">
+          <span className="text-sm font-medium text-muted-foreground">
             Current status
           </span>
           <OrderStatusBadge status={currentStatus} />
@@ -121,7 +121,7 @@ export function OrderStatusActions({
       className={cn(
         "flex gap-2",
         variant === "drawer"
-          ? "flex-col rounded-lg border border-gray-200 p-4"
+          ? "flex-col rounded-lg border border-border bg-card p-4"
           : "items-center",
         className,
       )}
@@ -130,7 +130,7 @@ export function OrderStatusActions({
     >
       {variant === "drawer" ? (
         <div className="flex items-center justify-between gap-2">
-          <span className="text-sm font-medium text-gray-500">
+          <span className="text-sm font-medium text-muted-foreground">
             Current status
           </span>
           <OrderStatusBadge status={currentStatus} />

@@ -1,8 +1,10 @@
 "use client";
-import PageHeader from "@/components/shared/PageHeader";
+
 import ErrorState from "@/components/shared/ErrorState";
 import Loading from "@/components/shared/Loading";
-
+import PageHeader from "@/components/shared/PageHeader";
+import DashboardOperationalHeader from "@/features/dashboard/components/DashboardOperationalHeader";
+import DashboardSignalsCard from "@/features/dashboard/components/DashboardSignalsCard";
 import DashboardStats from "@/features/dashboard/components/DashboardStats";
 import OrderStatusCard from "@/features/dashboard/components/OrderStatusCard";
 import QuickActionsCard from "@/features/dashboard/components/QuickActionsCard";
@@ -17,29 +19,37 @@ export default function DashboardPage() {
   }
 
   if (isError || !data) {
-    return <ErrorState />;
+    return (
+      <ErrorState
+        title="Unable to load dashboard"
+        description="The restaurant summary could not be loaded. Please try again shortly."
+      />
+    );
   }
 
   return (
-    <>
+    <div className="space-y-6">
       <PageHeader
         title="Dashboard"
-        description="Welcome back! Here's what's happening today."
+        description="Keep today’s orders moving and your restaurant ready to receive them."
       />
 
-      <DashboardStats stats={data.stats} />
+      <DashboardOperationalHeader restaurant={data.restaurant} />
 
-      <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2">
-          <RecentOrdersCard orders={data.recentOrders} />
-        </div>
+      <DashboardStats today={data.today} />
 
-        <div className="space-y-6">
-          <OrderStatusCard orderStatus={data.orderStatus} />
-
-          <QuickActionsCard />
-        </div>
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.35fr)_minmax(0,0.9fr)]">
+        <OrderStatusCard liveOrders={data.liveOrders} today={data.today} />
+        <DashboardSignalsCard signals={data.signals} />
       </div>
-    </>
+
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.35fr)_minmax(0,0.9fr)]">
+        <RecentOrdersCard
+          orders={data.recentOrders}
+          timezone={data.restaurant.timezone}
+        />
+        <QuickActionsCard />
+      </div>
+    </div>
   );
 }

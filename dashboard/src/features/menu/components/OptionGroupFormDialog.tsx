@@ -92,7 +92,7 @@ export function OptionGroupFormDialog({
       <button
         type="button"
         aria-label="Close option group form"
-        className="absolute inset-0 bg-slate-950/40"
+        className="absolute inset-0 bg-black/60"
         onClick={() => onOpenChange(false)}
         disabled={isSubmitting}
       />
@@ -100,18 +100,18 @@ export function OptionGroupFormDialog({
       <section
         aria-labelledby="option-group-form-title"
         aria-modal="true"
-        className="relative z-10 my-8 w-full max-w-lg rounded-lg border border-slate-200 bg-white p-6 shadow-xl"
+        className="relative z-10 my-8 w-full max-w-lg rounded-xl border border-border bg-card p-6 shadow-xl"
         role="dialog"
       >
         <div className="flex items-start justify-between gap-4">
           <div>
             <h2
               id="option-group-form-title"
-              className="text-lg font-semibold text-slate-900"
+              className="text-lg font-semibold text-foreground"
             >
               {isEditing ? "Edit option group" : "Add option group"}
             </h2>
-            <p className="mt-1 text-sm text-slate-500">
+            <p className="mt-1 text-sm text-muted-foreground">
               Define how customers choose from this group.
             </p>
           </div>
@@ -133,7 +133,7 @@ export function OptionGroupFormDialog({
           <div>
             <label
               htmlFor="option-group-menu-item"
-              className="text-sm font-medium text-slate-700"
+              className="text-sm font-medium text-foreground"
             >
               Menu item
             </label>
@@ -141,7 +141,7 @@ export function OptionGroupFormDialog({
               id="option-group-menu-item"
               {...register("menuItemId")}
               aria-invalid={Boolean(errors.menuItemId)}
-              className="mt-2 w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/10"
+              className="mt-2 w-full rounded-md border border-input bg-muted/50 px-3 py-2 text-sm text-foreground outline-none transition focus:border-ring focus:bg-card focus:ring-2 focus:ring-ring/20"
             >
               {menuItems.map((menuItem) => (
                 <option key={menuItem.id} value={menuItem.id}>
@@ -150,7 +150,7 @@ export function OptionGroupFormDialog({
               ))}
             </select>
             {errors.menuItemId ? (
-              <p className="mt-1 text-sm text-red-600">
+              <p className="mt-1 text-sm text-destructive">
                 {errors.menuItemId.message}
               </p>
             ) : null}
@@ -159,7 +159,7 @@ export function OptionGroupFormDialog({
           <div>
             <label
               htmlFor="option-group-name"
-              className="text-sm font-medium text-slate-700"
+              className="text-sm font-medium text-foreground"
             >
               Name
             </label>
@@ -170,19 +170,19 @@ export function OptionGroupFormDialog({
               maxLength={100}
               {...register("name")}
               aria-invalid={Boolean(errors.name)}
-              className="mt-2 w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/10"
+              className="mt-2 w-full rounded-md border border-input bg-muted/50 px-3 py-2 text-sm text-foreground outline-none transition focus:border-ring focus:bg-card focus:ring-2 focus:ring-ring/20"
               placeholder="e.g. Choose a sauce"
             />
             {errors.name ? (
-              <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>
+              <p className="mt-1 text-sm text-destructive">{errors.name.message}</p>
             ) : null}
           </div>
 
-          <label className="flex min-h-10 items-center gap-3 rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-medium text-slate-700">
+          <label className="flex min-h-10 items-center gap-3 rounded-md border border-input bg-muted/50 px-3 py-2 text-sm font-medium text-foreground">
             <input
               type="checkbox"
               {...register("isRequired")}
-              className="h-4 w-4 accent-emerald-600"
+              className="h-4 w-4 accent-primary"
             />
             Customer must choose from this group
           </label>
@@ -191,7 +191,7 @@ export function OptionGroupFormDialog({
             <div>
               <label
                 htmlFor="option-group-min-select"
-                className="text-sm font-medium text-slate-700"
+                className="text-sm font-medium text-foreground"
               >
                 Minimum selections
               </label>
@@ -202,10 +202,10 @@ export function OptionGroupFormDialog({
                 step={1}
                 {...register("minSelect", { valueAsNumber: true })}
                 aria-invalid={Boolean(errors.minSelect)}
-                className="mt-2 w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/10"
+                className="mt-2 w-full rounded-md border border-input bg-muted/50 px-3 py-2 text-sm text-foreground outline-none transition focus:border-ring focus:bg-card focus:ring-2 focus:ring-ring/20"
               />
               {errors.minSelect ? (
-                <p className="mt-1 text-sm text-red-600">
+                <p className="mt-1 text-sm text-destructive">
                   {errors.minSelect.message}
                 </p>
               ) : null}
@@ -214,7 +214,7 @@ export function OptionGroupFormDialog({
             <div>
               <label
                 htmlFor="option-group-max-select"
-                className="text-sm font-medium text-slate-700"
+                className="text-sm font-medium text-foreground"
               >
                 Maximum selections
               </label>
@@ -225,10 +225,10 @@ export function OptionGroupFormDialog({
                 step={1}
                 {...register("maxSelect", { valueAsNumber: true })}
                 aria-invalid={Boolean(errors.maxSelect)}
-                className="mt-2 w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/10"
+                className="mt-2 w-full rounded-md border border-input bg-muted/50 px-3 py-2 text-sm text-foreground outline-none transition focus:border-ring focus:bg-card focus:ring-2 focus:ring-ring/20"
               />
               {errors.maxSelect ? (
-                <p className="mt-1 text-sm text-red-600">
+                <p className="mt-1 text-sm text-destructive">
                   {errors.maxSelect.message}
                 </p>
               ) : null}
@@ -238,7 +238,7 @@ export function OptionGroupFormDialog({
           <div>
             <label
               htmlFor="option-group-sort-order"
-              className="text-sm font-medium text-slate-700"
+              className="text-sm font-medium text-foreground"
             >
               Sort order
             </label>
@@ -249,16 +249,16 @@ export function OptionGroupFormDialog({
               step={1}
               {...register("sortOrder", { valueAsNumber: true })}
               aria-invalid={Boolean(errors.sortOrder)}
-              className="mt-2 w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/10"
+              className="mt-2 w-full rounded-md border border-input bg-muted/50 px-3 py-2 text-sm text-foreground outline-none transition focus:border-ring focus:bg-card focus:ring-2 focus:ring-ring/20"
             />
             {errors.sortOrder ? (
-              <p className="mt-1 text-sm text-red-600">
+              <p className="mt-1 text-sm text-destructive">
                 {errors.sortOrder.message}
               </p>
             ) : null}
           </div>
 
-          <div className="flex flex-col-reverse gap-2 border-t border-slate-100 pt-5 sm:flex-row sm:justify-end">
+          <div className="flex flex-col-reverse gap-2 border-t border-border pt-5 sm:flex-row sm:justify-end">
             <Button
               type="button"
               variant="outline"

@@ -84,19 +84,19 @@ export function SettingsWorkspace() {
   const visibleTabs = isOwner ? tabs : tabs.filter((tab) => tab.id !== "meta");
 
   return (
-    <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
-      <div className="border-b border-slate-200 bg-slate-50/70 px-4 py-4 sm:px-6">
+    <section className="overflow-hidden rounded-lg border border-border bg-card shadow-sm">
+      <div className="border-b border-border bg-muted/50 px-4 py-4 sm:px-6">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-emerald-700">
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-primary">
               Restaurant controls
             </p>
-            <h2 className="mt-1 text-lg font-semibold text-slate-900">
+            <h2 className="mt-1 text-lg font-semibold text-foreground">
               Settings workspace
             </h2>
           </div>
-          <span className="hidden items-center gap-2 text-xs font-medium text-slate-500 sm:flex">
-            <span className="h-2 w-2 rounded-full bg-emerald-500" />
+          <span className="hidden items-center gap-2 text-xs font-medium text-muted-foreground sm:flex">
+            <span className="h-2 w-2 rounded-full bg-success" />
             {isOwner ? "Owner access" : "Manager access"}
           </span>
         </div>
@@ -119,8 +119,8 @@ export function SettingsWorkspace() {
                 onClick={() => setActiveTab(id)}
                 className={
                   isActive
-                    ? "inline-flex min-h-9 shrink-0 items-center gap-2 rounded-md bg-slate-900 px-3 py-2 text-sm font-medium text-white"
-                    : "inline-flex min-h-9 shrink-0 items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-slate-600 hover:bg-white hover:text-slate-900"
+                    ? "inline-flex min-h-9 shrink-0 items-center gap-2 rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground"
+                    : "inline-flex min-h-9 shrink-0 items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-card hover:text-foreground"
                 }
               >
                 <Icon aria-hidden="true" className="size-4" />

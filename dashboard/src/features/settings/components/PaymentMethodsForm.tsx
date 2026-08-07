@@ -138,33 +138,33 @@ export function PaymentMethodsForm({
     >
       <div className="space-y-5">
         <div className="grid gap-3 md:grid-cols-2">
-          <label className="flex min-h-11 items-center gap-3 rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-medium text-slate-700">
-            <input type="checkbox" {...register("codEnabled")} className="h-4 w-4 accent-emerald-600" />
+          <label className="flex min-h-11 items-center gap-3 rounded-md border border-border bg-muted/50 px-3 py-2 text-sm font-medium text-foreground">
+            <input type="checkbox" {...register("codEnabled")} className="h-4 w-4 accent-primary" />
             Cash on Delivery
           </label>
-          <label className="flex min-h-11 items-center gap-3 rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-medium text-slate-700">
-            <input type="checkbox" {...register("easypaisaEnabled")} className="h-4 w-4 accent-emerald-600" />
+          <label className="flex min-h-11 items-center gap-3 rounded-md border border-border bg-muted/50 px-3 py-2 text-sm font-medium text-foreground">
+            <input type="checkbox" {...register("easypaisaEnabled")} className="h-4 w-4 accent-primary" />
             Easypaisa
           </label>
-          <label className="flex min-h-11 items-center gap-3 rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-medium text-slate-700">
-            <input type="checkbox" {...register("jazzcashEnabled")} className="h-4 w-4 accent-emerald-600" />
+          <label className="flex min-h-11 items-center gap-3 rounded-md border border-border bg-muted/50 px-3 py-2 text-sm font-medium text-foreground">
+            <input type="checkbox" {...register("jazzcashEnabled")} className="h-4 w-4 accent-primary" />
             JazzCash
           </label>
-          <label className="flex min-h-11 items-center gap-3 rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-medium text-slate-700">
-            <input type="checkbox" {...register("bankTransferEnabled")} className="h-4 w-4 accent-emerald-600" />
+          <label className="flex min-h-11 items-center gap-3 rounded-md border border-border bg-muted/50 px-3 py-2 text-sm font-medium text-foreground">
+            <input type="checkbox" {...register("bankTransferEnabled")} className="h-4 w-4 accent-primary" />
             Bank transfer
           </label>
         </div>
         <FieldError message={errors.codEnabled?.message} />
 
         {canEditRestrictedFields ? (
-          <div className="grid gap-5 border-t border-slate-200 pt-5 md:grid-cols-2">
+          <div className="grid gap-5 border-t border-border pt-5 md:grid-cols-2">
             <div>
               <div className="flex items-center justify-between gap-3">
-                <label htmlFor="settings-payment-easypaisa" className="text-sm font-medium text-slate-700">
+                <label htmlFor="settings-payment-easypaisa" className="text-sm font-medium text-foreground">
                   Easypaisa number
                 </label>
-                <span className="text-xs text-slate-500">
+                <span className="text-xs text-muted-foreground">
                   {maskedValueLabel(settings.easypaisaNumber)}
                 </span>
               </div>
@@ -174,10 +174,10 @@ export function PaymentMethodsForm({
 
             <div>
               <div className="flex items-center justify-between gap-3">
-                <label htmlFor="settings-payment-jazzcash" className="text-sm font-medium text-slate-700">
+                <label htmlFor="settings-payment-jazzcash" className="text-sm font-medium text-foreground">
                   JazzCash number
                 </label>
-                <span className="text-xs text-slate-500">
+                <span className="text-xs text-muted-foreground">
                   {maskedValueLabel(settings.jazzcashNumber)}
                 </span>
               </div>
@@ -186,7 +186,7 @@ export function PaymentMethodsForm({
             </div>
 
             <div>
-              <label htmlFor="settings-payment-bank-name" className="text-sm font-medium text-slate-700">
+              <label htmlFor="settings-payment-bank-name" className="text-sm font-medium text-foreground">
                 Bank name
               </label>
               <input id="settings-payment-bank-name" {...register("bankName")} className={inputClassName} />
@@ -194,7 +194,7 @@ export function PaymentMethodsForm({
             </div>
 
             <div>
-              <label htmlFor="settings-payment-account-title" className="text-sm font-medium text-slate-700">
+              <label htmlFor="settings-payment-account-title" className="text-sm font-medium text-foreground">
                 Bank account title
               </label>
               <input id="settings-payment-account-title" {...register("bankAccountTitle")} className={inputClassName} />
@@ -203,10 +203,10 @@ export function PaymentMethodsForm({
 
             <div className="md:col-span-2">
               <div className="flex items-center justify-between gap-3">
-                <label htmlFor="settings-payment-account-number" className="text-sm font-medium text-slate-700">
+                <label htmlFor="settings-payment-account-number" className="text-sm font-medium text-foreground">
                   Bank account number
                 </label>
-                <span className="text-xs text-slate-500">
+                <span className="text-xs text-muted-foreground">
                   {maskedValueLabel(settings.bankAccountNumber)}
                 </span>
               </div>
@@ -215,13 +215,13 @@ export function PaymentMethodsForm({
             </div>
           </div>
         ) : (
-          <p className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm leading-6 text-amber-900">
+          <p className="rounded-md border border-warning/25 bg-warning/10 px-3 py-2 text-sm leading-6 text-warning">
             Bank and wallet account details can only be changed by an owner.
           </p>
         )}
 
         <div>
-          <label htmlFor="settings-payment-instructions" className="text-sm font-medium text-slate-700">
+          <label htmlFor="settings-payment-instructions" className="text-sm font-medium text-foreground">
             Payment instructions
           </label>
           <textarea id="settings-payment-instructions" rows={4} {...register("paymentInstructions")} className={textareaClassName} placeholder="Tell customers how to complete a prepaid payment" />

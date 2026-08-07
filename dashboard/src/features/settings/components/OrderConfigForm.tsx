@@ -92,7 +92,7 @@ export function OrderConfigForm({ settings }: OrderConfigFormProps) {
     >
       <div className="grid gap-5 md:grid-cols-2">
         <div>
-          <label htmlFor="settings-order-free-delivery" className="text-sm font-medium text-slate-700">
+          <label htmlFor="settings-order-free-delivery" className="text-sm font-medium text-foreground">
             Free-delivery threshold
           </label>
           <input id="settings-order-free-delivery" type="number" min={0} step="0.01" {...register("freeDeliveryThreshold", { valueAsNumber: true })} className={inputClassName} />
@@ -100,7 +100,7 @@ export function OrderConfigForm({ settings }: OrderConfigFormProps) {
         </div>
 
         <div>
-          <label htmlFor="settings-order-minimum" className="text-sm font-medium text-slate-700">
+          <label htmlFor="settings-order-minimum" className="text-sm font-medium text-foreground">
             Minimum order amount
           </label>
           <input id="settings-order-minimum" type="number" min={0} step="0.01" {...register("minimumOrderAmount", { valueAsNumber: true })} className={inputClassName} />
@@ -108,7 +108,7 @@ export function OrderConfigForm({ settings }: OrderConfigFormProps) {
         </div>
 
         <div>
-          <label htmlFor="settings-order-prep" className="text-sm font-medium text-slate-700">
+          <label htmlFor="settings-order-prep" className="text-sm font-medium text-foreground">
             Estimated preparation time (minutes)
           </label>
           <input id="settings-order-prep" type="number" min={1} max={1440} step={1} {...register("estimatedPreparationTime", { valueAsNumber: true })} className={inputClassName} />
@@ -116,7 +116,7 @@ export function OrderConfigForm({ settings }: OrderConfigFormProps) {
         </div>
 
         <div>
-          <label htmlFor="settings-order-prefix" className="text-sm font-medium text-slate-700">
+          <label htmlFor="settings-order-prefix" className="text-sm font-medium text-foreground">
             Order prefix
           </label>
           <input id="settings-order-prefix" maxLength={20} {...register("orderPrefix")} className={inputClassName} />
@@ -124,20 +124,20 @@ export function OrderConfigForm({ settings }: OrderConfigFormProps) {
         </div>
 
         <div className="md:col-span-2">
-          <label htmlFor="settings-order-closure" className="text-sm font-medium text-slate-700">
+          <label htmlFor="settings-order-closure" className="text-sm font-medium text-foreground">
             Temporary closure message
           </label>
           <textarea id="settings-order-closure" rows={3} {...register("temporaryClosureMessage")} className={textareaClassName} placeholder="Shown when ordering is temporarily unavailable" />
           <FieldError message={errors.temporaryClosureMessage?.message} />
         </div>
 
-        <label className="flex min-h-10 items-center gap-3 rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-medium text-slate-700">
-          <input type="checkbox" {...register("orderAcceptanceEnabled")} className="h-4 w-4 accent-emerald-600" />
+        <label className="flex min-h-10 items-center gap-3 rounded-md border border-border bg-muted/50 px-3 py-2 text-sm font-medium text-foreground">
+          <input type="checkbox" {...register("orderAcceptanceEnabled")} className="h-4 w-4 accent-primary" />
           Accept new orders
         </label>
 
-        <label className="flex min-h-10 items-center gap-3 rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-medium text-slate-700">
-          <input type="checkbox" {...register("autoAcceptOrders")} className="h-4 w-4 accent-emerald-600" />
+        <label className="flex min-h-10 items-center gap-3 rounded-md border border-border bg-muted/50 px-3 py-2 text-sm font-medium text-foreground">
+          <input type="checkbox" {...register("autoAcceptOrders")} className="h-4 w-4 accent-primary" />
           Automatically accept orders
         </label>
       </div>

@@ -36,12 +36,6 @@ const ACTIVE_QUERY_REFETCH = {
   refetchType: "active" as const,
 };
 
-const logRealtimeEvent = (...args: unknown[]) => {
-  if (process.env.NODE_ENV === "development") {
-    console.debug("[Realtime]", ...args);
-  }
-};
-
 const formatOrderTotal = (total: number | string | null | undefined) => {
   if (total === null || total === undefined) {
     return null;
@@ -111,7 +105,6 @@ export default function SocketProvider({
     }
 
     const invalidateOrderQueries = () => {
-      logRealtimeEvent("invalidating orders queries");
       return queryClient.invalidateQueries({
         queryKey: queryKeys.orders.all,
         ...ACTIVE_QUERY_REFETCH,
@@ -119,7 +112,6 @@ export default function SocketProvider({
     };
 
     const invalidateDashboardQuery = () => {
-      logRealtimeEvent("invalidating dashboard query");
       return queryClient.invalidateQueries({
         queryKey: queryKeys.dashboard,
         ...ACTIVE_QUERY_REFETCH,
@@ -136,28 +128,23 @@ export default function SocketProvider({
     const handleConnect = () => {
       setIsConnected(true);
       setConnectionError(null);
-      logRealtimeEvent("connected");
     };
 
-    const handleDisconnect = (reason: string) => {
+    const handleDisconnect = () => {
       setIsConnected(false);
-      logRealtimeEvent("disconnected", reason);
     };
 
     const handleConnectError = (error: Error) => {
       setIsConnected(false);
       setConnectionError(error);
-      console.error("[Realtime] Socket connection error.", error);
     };
 
     const handleReconnect = () => {
-      logRealtimeEvent("reconnected");
       void invalidateOrderAndDashboardQueries();
     };
 
     const handleOrderCreated = (event: OrderRealtimeEvent) => {
       if (processedEventIdsRef.current.has(event.eventId)) {
-        logRealtimeEvent("ignored duplicate order:created", event.eventId);
         return;
       }
 
@@ -175,7 +162,6 @@ export default function SocketProvider({
         }
       }
 
-      logRealtimeEvent("order:created", event);
       void invalidateOrderAndDashboardQueries();
 
       const description = [
@@ -208,8 +194,6 @@ export default function SocketProvider({
     };
 
     const handleOrderUpdated = (event: OrderRealtimeEvent) => {
-      logRealtimeEvent("order:updated", event);
-      logRealtimeEvent("invalidating order detail query", event.orderId);
       void Promise.all([
         invalidateOrderQueries(),
         queryClient.invalidateQueries({

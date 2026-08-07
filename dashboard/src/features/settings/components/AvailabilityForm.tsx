@@ -88,7 +88,7 @@ export function AvailabilityForm({ settings }: AvailabilityFormProps) {
     >
       <div className="grid gap-5 md:grid-cols-2">
         <div>
-          <label htmlFor="settings-availability-opening" className="text-sm font-medium text-slate-700">
+          <label htmlFor="settings-availability-opening" className="text-sm font-medium text-foreground">
             Opening time
           </label>
           <input id="settings-availability-opening" type="time" {...register("openingTime")} className={inputClassName} />
@@ -96,25 +96,25 @@ export function AvailabilityForm({ settings }: AvailabilityFormProps) {
         </div>
 
         <div>
-          <label htmlFor="settings-availability-closing" className="text-sm font-medium text-slate-700">
+          <label htmlFor="settings-availability-closing" className="text-sm font-medium text-foreground">
             Closing time
           </label>
           <input id="settings-availability-closing" type="time" {...register("closingTime")} className={inputClassName} />
           <FieldError message={errors.closingTime?.message} />
         </div>
 
-        <label className="flex min-h-10 items-center gap-3 rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-medium text-slate-700">
-          <input type="checkbox" {...register("isOpen")} className="h-4 w-4 accent-emerald-600" />
+        <label className="flex min-h-10 items-center gap-3 rounded-md border border-border bg-muted/50 px-3 py-2 text-sm font-medium text-foreground">
+          <input type="checkbox" {...register("isOpen")} className="h-4 w-4 accent-primary" />
           Restaurant is open
         </label>
 
-        <label className="flex min-h-10 items-center gap-3 rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-medium text-slate-700">
-          <input type="checkbox" {...register("orderAcceptanceEnabled")} className="h-4 w-4 accent-emerald-600" />
+        <label className="flex min-h-10 items-center gap-3 rounded-md border border-border bg-muted/50 px-3 py-2 text-sm font-medium text-foreground">
+          <input type="checkbox" {...register("orderAcceptanceEnabled")} className="h-4 w-4 accent-primary" />
           Accept new orders
         </label>
 
         <div className="md:col-span-2">
-          <label htmlFor="settings-availability-closure" className="text-sm font-medium text-slate-700">
+          <label htmlFor="settings-availability-closure" className="text-sm font-medium text-foreground">
             Temporary closure message
           </label>
           <textarea id="settings-availability-closure" rows={3} {...register("temporaryClosureMessage")} className={textareaClassName} placeholder="Optional message for a temporary closure" />

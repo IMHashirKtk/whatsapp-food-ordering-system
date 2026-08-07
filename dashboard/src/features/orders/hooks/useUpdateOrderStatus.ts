@@ -103,6 +103,10 @@ export function useUpdateOrderStatus() {
       }
 
       updateCachedOrderLists(queryClient, updatedOrder);
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.dashboard,
+        refetchType: "active",
+      });
     },
   });
 }

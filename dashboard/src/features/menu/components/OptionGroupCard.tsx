@@ -27,36 +27,36 @@ export function OptionGroupCard({
   return (
     <article
       className={cn(
-        "rounded-lg border bg-white p-4 transition-colors",
+        "rounded-lg border bg-card p-4 transition-colors",
         isSelected
-          ? "border-emerald-500 bg-emerald-50/40 shadow-sm"
-          : "border-slate-200 hover:border-slate-300",
+          ? "border-primary bg-primary-soft shadow-sm"
+          : "border-border hover:border-primary/40",
       )}
     >
       <div className="flex items-start gap-3">
         <button
           type="button"
-          className="min-w-0 flex-1 text-left outline-none focus-visible:rounded-md focus-visible:ring-2 focus-visible:ring-emerald-500"
+          className="min-w-0 flex-1 text-left outline-none focus-visible:rounded-md focus-visible:ring-2 focus-visible:ring-ring"
           onClick={() => onSelect(group.id)}
           aria-pressed={isSelected}
         >
           <div className="flex flex-wrap items-start gap-2">
-            <h3 className="min-w-0 flex-1 break-words font-semibold text-slate-900">
+            <h3 className="min-w-0 flex-1 break-words font-semibold text-foreground">
               {group.name}
             </h3>
             <span
               className={cn(
                 "shrink-0 rounded-full px-2 py-1 text-[11px] font-semibold uppercase tracking-wide",
                 group.isRequired
-                  ? "bg-amber-100 text-amber-700"
-                  : "bg-slate-100 text-slate-600",
+                  ? "border border-warning/25 bg-warning/10 text-warning"
+                  : "border border-border bg-muted text-muted-foreground",
               )}
             >
               {group.isRequired ? "Required" : "Optional"}
             </span>
           </div>
 
-          <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-xs text-slate-500">
+          <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-xs text-muted-foreground">
             <span>
               Select {group.minSelect}-{group.maxSelect}
             </span>
@@ -93,7 +93,7 @@ export function OptionGroupCard({
             onClick={() => onDelete(group)}
             disabled={isUpdating}
           >
-            <Trash2 className="text-red-600" />
+            <Trash2 className="text-destructive" />
           </Button>
         </div>
       </div>
