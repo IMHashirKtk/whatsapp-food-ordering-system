@@ -41,6 +41,7 @@ router.get(
 router.post(
   "/",
   authenticate,
+  authorize("OWNER", "MANAGER"),
   validate(createCategorySchema),
   asyncHandler(controller.create),
 );
@@ -48,6 +49,7 @@ router.post(
 router.put(
   "/:id",
   authenticate,
+  authorize("OWNER", "MANAGER"),
   validate(idSchema),
   validate(updateCategorySchema),
   asyncHandler(controller.update),
@@ -56,6 +58,7 @@ router.put(
 router.delete(
   "/:id",
   authenticate,
+  authorize("OWNER", "MANAGER"),
   validate(idSchema),
   asyncHandler(controller.remove),
 );

@@ -41,18 +41,22 @@ const isCartCustomerConflict = (error) => {
   );
 };
 
-export const getOrCreateCart = async (
-  customerId,
-  restaurantId,
-  db = prisma,
-) => {
-  const customer = await db.customer.findFirst({
+export const getCustomer = (customerId, restaurantId, db = prisma) => {
+  return db.customer.findFirst({
     where: {
       id: customerId,
       restaurantId,
     },
     select: { id: true },
   });
+};
+
+export const getOrCreateCart = async (
+  customerId,
+  restaurantId,
+  db = prisma,
+) => {
+  const customer = await getCustomer(customerId, restaurantId, db);
 
   if (!customer) {
     return null;

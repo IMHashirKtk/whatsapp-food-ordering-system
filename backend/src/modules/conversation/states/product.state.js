@@ -11,15 +11,7 @@ import * as productOptionsState from "./product-options.state.js";
 import * as categoryState from "./category.state.js";
 
 export const handle = async (conversation, message) => {
-  console.log(">>> ENTERED PRODUCT STATE");
-
   conversation = await conversationService.getConversationById(conversation.id);
-
-  console.log("Conversation:", {
-    id: conversation.id,
-    state: conversation.state,
-    context: conversation.context,
-  });
 
   const { categoryId } = conversation.context || {};
 

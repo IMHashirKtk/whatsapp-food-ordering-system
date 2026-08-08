@@ -15,7 +15,7 @@ export const getCart = asyncHandler(async (req, res) => {
 
 export const addItem = asyncHandler(async (req, res) => {
   const cart = await cartService.addItem({
-    ...req.body,
+    ...req.validated.body,
     restaurantId: req.user.restaurantId,
   });
 

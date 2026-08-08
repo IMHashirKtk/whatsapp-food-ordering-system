@@ -39,6 +39,12 @@ const env = {
     appSecret: process.env.META_APP_SECRET?.trim() || null,
     apiVersion: process.env.META_API_VERSION || "v23.0",
   },
+
+  bootstrap: {
+    ownerName: process.env.BOOTSTRAP_OWNER_NAME,
+    ownerEmail: process.env.BOOTSTRAP_OWNER_EMAIL,
+    ownerPassword: process.env.BOOTSTRAP_OWNER_PASSWORD,
+  },
 };
 
 export default env;

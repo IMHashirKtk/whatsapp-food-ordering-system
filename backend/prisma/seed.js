@@ -17,7 +17,27 @@ const prisma = new PrismaClient({
   adapter,
 });
 
+const isProduction = process.env.NODE_ENV?.trim().toLowerCase() === "production";
+const isDemoSeedMode =
+  process.env.NODE_ENV?.trim().toLowerCase() === "development" ||
+  process.env.FOODAJI_SEED_MODE?.trim().toLowerCase() === "demo";
+const seedAdminEmail = process.env.SEED_ADMIN_EMAIL?.trim() || "admin@example.com";
+const seedAdminPassword = process.env.SEED_ADMIN_PASSWORD || "Admin@123";
+
+const assertSeedAllowed = () => {
+  if (isProduction) {
+    throw new Error("Database seed is disabled in production.");
+  }
+
+  if (!isDemoSeedMode) {
+    throw new Error(
+      "Database seed is development/demo-only. Set NODE_ENV=development or FOODAJI_SEED_MODE=demo.",
+    );
+  }
+};
+
 async function main() {
+  assertSeedAllowed();
   console.log("🌱 Seeding database...");
 
   /* ==========================
@@ -97,13 +117,13 @@ async function main() {
      Owner User
   ========================== */
 
-  const password = await bcrypt.hash("Admin@123", 10);
+  const password = await bcrypt.hash(seedAdminPassword, 10);
 
   await prisma.user.create({
     data: {
       restaurantId: restaurant.id,
       name: "Administrator",
-      email: "admin@example.com",
+      email: seedAdminEmail,
       password,
       role: "OWNER",
       isActive: true,
@@ -309,15 +329,12 @@ async function main() {
   console.log(`Slug : ${restaurant.slug}`);
   console.log("");
 
-  console.log("Admin Login");
-  console.log("-----------------------");
-  console.log("Email    : admin@example.com");
-  console.log("Password : Admin@123");
+  console.log("Development demo owner created from configured seed credentials.");
 }
 
 main()
   .catch((error) => {
-    console.error(error);
+    console.error(error?.message || "Database seed failed.");
     process.exit(1);
   })
   .finally(async () => {

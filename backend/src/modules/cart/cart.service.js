@@ -5,7 +5,13 @@ import { validateSelectedOptions } from "../menu/option-selection.service.js";
 import AppError from "../../utils/AppError.js";
 
 export const getCart = async (customerId, restaurantId) => {
-  return cartRepository.getOrCreateCart(customerId, restaurantId);
+  const cart = await cartRepository.getOrCreateCart(customerId, restaurantId);
+
+  if (!cart) {
+    throw new AppError("Cart not found.", 404);
+  }
+
+  return cart;
 };
 
 export const addItem = async ({
@@ -94,10 +100,22 @@ export const updateQuantity = async (itemId, quantity, restaurantId) => {
 };
 
 export const removeItem = async (itemId, restaurantId) => {
-  return cartRepository.removeItem(itemId, restaurantId);
+  const result = await cartRepository.removeItem(itemId, restaurantId);
+
+  if (result.count === 0) {
+    throw new AppError("Cart item not found.", 404);
+  }
+
+  return result;
 };
 
 export const clearCart = async (customerId, restaurantId) => {
+  const customer = await cartRepository.getCustomer(customerId, restaurantId);
+
+  if (!customer) {
+    throw new AppError("Cart not found.", 404);
+  }
+
   const cart = await cartRepository.getCart(customerId, restaurantId);
 
   if (!cart) {

@@ -1,8 +1,12 @@
 import axios from "axios";
 
+import env from "../../config/env.js";
 import * as settingsRepository from "../settings/settings.repository.js";
 
-const BASE_URL = `https://graph.facebook.com/${process.env.META_API_VERSION}`;
+const BASE_URL = `https://graph.facebook.com/${env.meta.apiVersion}`;
+
+export const buildMetaMessagesUrl = (phoneNumberId) =>
+  `${BASE_URL}/${phoneNumberId}/messages`;
 
 const getMetaConfig = async (restaurantId) => {
   const settings = await settingsRepository.getByRestaurantId(restaurantId);
@@ -30,7 +34,7 @@ export const sendMessage = async (restaurantId, payload) => {
 
   try {
     const response = await axios.post(
-      `${BASE_URL}/${meta.phoneNumberId}/messages`,
+      buildMetaMessagesUrl(meta.phoneNumberId),
       payload,
       {
         headers: {

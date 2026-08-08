@@ -78,6 +78,14 @@ export const CHECKOUT_ERROR_CODES = Object.freeze({
   RECONFIRM_REQUIRED: "CHECKOUT_RECONFIRM_REQUIRED",
 });
 
+export const shouldSendOrderStatusNotification = (status, settings) => {
+  if (status === ORDER_STATUS.CANCELLED) {
+    return settings?.cancellationNotificationsEnabled ?? true;
+  }
+
+  return settings?.statusNotificationsEnabled ?? true;
+};
+
 const checkoutConflict = (message, code) => {
   const error = new AppError(message, 409);
   error.code = code;
@@ -690,14 +698,16 @@ export const updateStatus = async (
   try {
     const restaurant = await restaurantService.getRestaurantById(restaurantId);
 
-    await metaService.sendOrderStatusNotification({
-      restaurantId,
-      to: existingOrder.customer?.whatsappId,
-      status,
-      orderNumber: existingOrder.orderNumber,
-      restaurantName: restaurant.name,
-      cancellationReason: normalizedCancellationReason,
-    });
+    if (shouldSendOrderStatusNotification(status, restaurant.settings)) {
+      await metaService.sendOrderStatusNotification({
+        restaurantId,
+        to: existingOrder.customer?.whatsappId,
+        status,
+        orderNumber: existingOrder.orderNumber,
+        restaurantName: restaurant.name,
+        cancellationReason: normalizedCancellationReason,
+      });
+    }
   } catch (error) {
     console.error("Failed to send order status WhatsApp notification.", {
       orderId: id,

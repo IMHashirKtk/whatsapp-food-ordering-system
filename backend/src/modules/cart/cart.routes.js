@@ -2,6 +2,8 @@ import { Router } from "express";
 
 import * as controller from "./cart.controller.js";
 import validate from "../../middleware/validate.js";
+import authenticate from "../../middleware/authenticate.js";
+import authorize from "../../middleware/authorize.js";
 
 import {
   idSchema,
@@ -11,6 +13,9 @@ import {
 } from "./cart.validation.js";
 
 const router = Router();
+
+router.use(authenticate);
+router.use(authorize("OWNER", "MANAGER"));
 
 router.get("/:customerId", validate(customerIdSchema), controller.getCart);
 
