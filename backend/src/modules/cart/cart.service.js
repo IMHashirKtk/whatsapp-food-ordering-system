@@ -11,6 +11,7 @@ export const addItem = async ({
   menuItemId,
   quantity,
   selectedOptions = [],
+  sourceMessageId = null,
 }) => {
   if (!Number.isInteger(quantity) || quantity < 1) {
     throw new Error("Quantity must be a positive integer.");
@@ -39,24 +40,38 @@ export const addItem = async ({
 
   const totalPrice = (basePrice + optionsTotal) * quantity;
 
-  await cartRepository.transaction(async (tx) => {
-    const cartItem = await cartRepository.addItem(tx, {
-      cartId: cart.id,
-      menuItemId,
-      quantity,
-      basePrice,
-      totalPrice,
-    });
-
-    for (const option of selectedOptionObjects) {
-      await cartRepository.addItemOption(tx, {
-        cartItemId: cartItem.id,
-        optionId: option.id,
-        name: option.name,
-        extraPrice: option.extraPrice,
+  try {
+    await cartRepository.transaction(async (tx) => {
+      const cartItem = await cartRepository.addItem(tx, {
+        cartId: cart.id,
+        menuItemId,
+        quantity,
+        basePrice,
+        totalPrice,
+        sourceMessageId,
       });
+
+      for (const option of selectedOptionObjects) {
+        await cartRepository.addItemOption(tx, {
+          cartItemId: cartItem.id,
+          optionId: option.id,
+          name: option.name,
+          extraPrice: option.extraPrice,
+        });
+      }
+    });
+  } catch (error) {
+    const target = error?.meta?.target;
+    const isSourceMessageConflict =
+      error?.code === "P2002" &&
+      (Array.isArray(target)
+        ? target.includes("sourceMessageId")
+        : String(target || "").includes("sourceMessageId"));
+
+    if (!sourceMessageId || !isSourceMessageConflict) {
+      throw error;
     }
-  });
+  }
 
   return cartRepository.getCart(customerId, restaurantId);
 };

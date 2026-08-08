@@ -2,9 +2,8 @@ import * as repository from "./restaurant.repository.js";
 import AppError from "../../utils/AppError.js";
 
 export const getRestaurantByMetaPhoneNumberId = async (phoneNumberId) => {
-  console.log("Looking for phoneNumberId:", phoneNumberId);
-  const restaurant = await repository.getByMetaPhoneNumberId(phoneNumberId);
-  console.log("Restaurant found:", restaurant);
+  const restaurant = await findRestaurantByMetaPhoneNumberId(phoneNumberId);
+
   if (!restaurant) {
     throw new AppError(
       "Restaurant not found for this WhatsApp Business number.",
@@ -13,6 +12,14 @@ export const getRestaurantByMetaPhoneNumberId = async (phoneNumberId) => {
   }
 
   return restaurant;
+};
+
+export const findRestaurantByMetaPhoneNumberId = (phoneNumberId) => {
+  if (typeof phoneNumberId !== "string" || !phoneNumberId.trim()) {
+    return null;
+  }
+
+  return repository.getByMetaPhoneNumberId(phoneNumberId.trim());
 };
 
 export const getRestaurantById = async (id) => {

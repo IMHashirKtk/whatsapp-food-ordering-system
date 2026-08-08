@@ -10,11 +10,13 @@ export const getById = (id) => {
 };
 
 export const getByMetaPhoneNumberId = (phoneNumberId) => {
+  if (typeof phoneNumberId !== "string" || !phoneNumberId.trim()) {
+    return Promise.resolve(null);
+  }
+
   return prisma.restaurant.findFirst({
     where: {
-      settings: {
-        metaPhoneNumberId: phoneNumberId,
-      },
+      settings: { metaPhoneNumberId: phoneNumberId.trim() },
     },
     include: {
       settings: true,

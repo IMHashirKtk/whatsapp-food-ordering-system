@@ -35,7 +35,15 @@ app.use(
 
 app.use(morgan("dev"));
 
-app.use(express.json());
+app.use(
+  express.json({
+    verify: (req, _res, buffer) => {
+      if (req.path === "/api/v1/meta/webhook") {
+        req.rawBody = Buffer.from(buffer);
+      }
+    },
+  }),
+);
 
 app.use(
   express.urlencoded({

@@ -200,6 +200,7 @@ export const handle = async (conversation, message) => {
           customer.id,
           customer.address,
           paymentMethod,
+          message.messageId,
         );
 
         await conversationService.setPaymentMethod(
@@ -247,13 +248,7 @@ export const handle = async (conversation, message) => {
           );
         }
 
-        return sendMessage(
-          conversation.restaurantId,
-          text(
-            message.from,
-            "Unable to place the order right now. Please return to payment selection and try again.",
-          ),
-        );
+        throw error;
       }
     }
 

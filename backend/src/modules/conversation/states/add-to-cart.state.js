@@ -10,11 +10,6 @@ import * as categoryState from "./category.state.js";
 import * as checkoutAddressState from "./checkout-address.state.js";
 
 export const handle = async (conversation, message) => {
-  console.log(">>> CART STATE");
-  console.log("message.type:", message.type);
-  console.log("message.text:", message.text);
-  console.log("message:", JSON.stringify(message, null, 2));
-
   // Waiting for quantity
   if (message.type === "text") {
     const quantity = Number(
@@ -36,6 +31,7 @@ export const handle = async (conversation, message) => {
       menuItemId: context.menuItemId,
       quantity,
       selectedOptions: context.selectedOptions,
+      sourceMessageId: message.messageId,
     });
 
     const cart = await cartService.getCart(

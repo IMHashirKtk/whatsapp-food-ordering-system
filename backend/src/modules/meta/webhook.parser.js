@@ -1,53 +1,126 @@
 import { parseCommand } from "./command.parser.js";
 
-export const parseWebhook = (payload) => {
-  const entry = payload?.entry?.[0];
-  if (!entry) return null;
+const supportedMessageTypes = new Set([
+  "text",
+  "image",
+  "audio",
+  "video",
+  "document",
+  "location",
+  "contacts",
+  "contact",
+  "sticker",
+  "reaction",
+  "interactive",
+]);
 
-  const change = entry.changes?.[0];
-  if (!change) return null;
+const getChangeValues = (payload) =>
+  (Array.isArray(payload?.entry) ? payload.entry : []).flatMap((entry) =>
+    Array.isArray(entry?.changes)
+      ? entry.changes
+          .map((change) => change?.value)
+          .filter((value) => value && typeof value === "object")
+      : [],
+  );
 
-  const value = change.value;
+const normalizeMessageType = (type) => {
+  if (typeof type !== "string") {
+    return "UNKNOWN";
+  }
 
-  const message = value?.messages?.[0];
-  if (!message) return null;
+  const normalizedType = type.toLowerCase();
 
+  if (!supportedMessageTypes.has(normalizedType)) {
+    return "UNKNOWN";
+  }
+
+  if (normalizedType === "contacts") {
+    return "CONTACT";
+  }
+
+  if (normalizedType === "interactive") {
+    return "INTERACTIVE";
+  }
+
+  return normalizedType.toUpperCase();
+};
+
+const normalizeInteractiveReply = (reply) => {
+  if (
+    !reply ||
+    typeof reply !== "object" ||
+    typeof reply.id !== "string" ||
+    !reply.id.trim()
+  ) {
+    return null;
+  }
+
+  return reply;
+};
+
+const parseMessage = (value, message) => {
+  if (
+    !message ||
+    typeof message.id !== "string" ||
+    !message.id.trim() ||
+    typeof message.from !== "string" ||
+    !message.from.trim() ||
+    typeof message.type !== "string"
+  ) {
+    return null;
+  }
+
+  const interactive = message.type === "interactive" ? message.interactive : null;
   const buttonReply =
-    message.type === "interactive" &&
-    message.interactive.type === "button_reply"
-      ? message.interactive.button_reply
+    interactive?.type === "button_reply"
+      ? normalizeInteractiveReply(interactive.button_reply)
       : null;
-
   const listReply =
-    message.type === "interactive" && message.interactive.type === "list_reply"
-      ? message.interactive.list_reply
+    interactive?.type === "list_reply"
+      ? normalizeInteractiveReply(interactive.list_reply)
       : null;
+  const timestamp = Number(message.timestamp);
 
   const parsedMessage = {
-    // Restaurant identification
-    phoneNumberId: value.metadata?.phone_number_id ?? null,
-    displayPhoneNumber: value.metadata?.display_phone_number ?? null,
-
-    // Customer
+    phoneNumberId: value?.metadata?.phone_number_id ?? null,
+    displayPhoneNumber: value?.metadata?.display_phone_number ?? null,
     messageId: message.id,
     from: message.from,
-    profileName: value.contacts?.[0]?.profile?.name ?? null,
-
-    // Message
-    timestamp: Number(message.timestamp),
+    profileName:
+      typeof value?.contacts?.[0]?.profile?.name === "string"
+        ? value.contacts[0].profile.name
+        : null,
+    timestamp: Number.isFinite(timestamp) ? timestamp : null,
     type: message.type,
-
-    text: message.type === "text" ? message.text.body : null,
-
+    messageType: normalizeMessageType(message.type),
+    text:
+      message.type === "text" && typeof message.text?.body === "string"
+        ? message.text.body
+        : null,
     buttonReply,
-
     listReply,
-
-    raw: payload,
   };
 
-  // Normalize global command (if any)
   parsedMessage.command = parseCommand(parsedMessage);
 
   return parsedMessage;
 };
+
+export const getWebhookPhoneNumberIds = (payload) =>
+  getChangeValues(payload).map(
+    (value) => value.metadata?.phone_number_id ?? null,
+  );
+
+export const parseWebhooks = (payload) =>
+  getChangeValues(payload).flatMap((value) =>
+    Array.isArray(value.messages)
+      ? value.messages
+          .map((message) => parseMessage(value, message))
+          .filter(Boolean)
+      : [],
+  );
+
+// Kept for compatibility with existing callers that expect one message.
+export const parseWebhook = (payload) => parseWebhooks(payload)[0] ?? null;
+
+export { normalizeMessageType };

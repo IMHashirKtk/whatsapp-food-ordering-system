@@ -56,12 +56,25 @@ const isOrderNumberConflict = (error) => {
     : String(target || "").includes("orderNumber");
 };
 
+const isSourceMessageConflict = (error) => {
+  if (error?.code !== "P2002") {
+    return false;
+  }
+
+  const target = error.meta?.target;
+
+  return Array.isArray(target)
+    ? target.includes("sourceMessageId")
+    : String(target || "").includes("sourceMessageId");
+};
+
 const createCheckoutTransaction = async ({
   restaurantId,
   customerId,
   deliveryAddress,
   paymentMethod,
   paymentStatus,
+  sourceMessageId,
   checkoutSettings,
   cart,
   totals,
@@ -85,6 +98,7 @@ const createCheckoutTransaction = async ({
             total: totals.total,
             paymentMethod,
             paymentStatus,
+            sourceMessageId,
             status: ORDER_STATUS.PENDING,
             estimatedReadyTime:
               checkoutSettings.settings.estimatedPreparationTime,
@@ -131,9 +145,26 @@ const createCheckoutTransaction = async ({
         return {
           order,
           customer,
+          created: true,
         };
       });
     } catch (error) {
+      if (isSourceMessageConflict(error) && sourceMessageId) {
+        const existingOrder = await orderRepository.getOrderBySourceMessageId(
+          sourceMessageId,
+          restaurantId,
+          customerId,
+        );
+
+        if (existingOrder) {
+          return {
+            order: existingOrder,
+            customer: existingOrder.customer,
+            created: false,
+          };
+        }
+      }
+
       if (!isOrderNumberConflict(error) || attempt === maxOrderNumberAttempts - 1) {
         throw error;
       }
@@ -240,7 +271,7 @@ const publishOrderCreatedSafely = (restaurantId, order, customer) => {
     console.error("[Realtime] Failed to publish order:created.", {
       orderId: order.id,
       restaurantId,
-      error,
+      error: error?.message,
     });
   }
 };
@@ -267,7 +298,7 @@ const publishOrderUpdatedSafely = (
     console.error("[Realtime] Failed to publish order:updated.", {
       orderId,
       restaurantId,
-      error,
+      error: error?.message,
     });
   }
 };
@@ -281,7 +312,20 @@ export const checkout = async (
   customerId,
   deliveryAddress,
   paymentMethod,
+  sourceMessageId = null,
 ) => {
+  if (sourceMessageId) {
+    const existingOrder = await orderRepository.getOrderBySourceMessageId(
+      sourceMessageId,
+      restaurantId,
+      customerId,
+    );
+
+    if (existingOrder) {
+      return existingOrder;
+    }
+  }
+
   if (!deliveryAddress || !deliveryAddress.trim()) {
     throw new AppError("Delivery address is required.", 400);
   }
@@ -321,16 +365,19 @@ export const checkout = async (
     deliveryAddress,
     paymentMethod,
     paymentStatus,
+    sourceMessageId,
     checkoutSettings,
     cart,
     totals,
   });
 
-  publishOrderCreatedSafely(
-    restaurantId,
-    transactionResult.order,
-    transactionResult.customer,
-  );
+  if (transactionResult.created !== false) {
+    publishOrderCreatedSafely(
+      restaurantId,
+      transactionResult.order,
+      transactionResult.customer,
+    );
+  }
 
   return transactionResult.order;
 };
@@ -511,7 +558,7 @@ export const updateStatus = async (
     console.error("Failed to send order status WhatsApp notification.", {
       orderId: id,
       status,
-      error,
+      error: error?.message,
     });
   }
 

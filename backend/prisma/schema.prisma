@@ -140,14 +140,20 @@ model Customer {
 
 model Message {
   id            String           @id @default(cuid())
-  customerId    String
+  customerId    String?
   metaMessageId String           @unique
   direction     MessageDirection
   type          MessageType
   content       String?
+  processingStatus    MessageProcessingStatus @default(COMPLETED)
+  processingStartedAt DateTime                 @default(now())
+  processingToken     String?
+  processedAt         DateTime?
   createdAt     DateTime         @default(now())
   updatedAt     DateTime         @updatedAt
-  customer      Customer         @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  customer      Customer?        @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  @@index([processingStatus, processingStartedAt])
 }
 
 model Category {
@@ -246,6 +252,7 @@ model CartItem {
   quantity   Int
   basePrice  Decimal          @db.Decimal(10, 2)
   totalPrice Decimal          @db.Decimal(10, 2)
+  sourceMessageId String?     @unique
   createdAt  DateTime         @default(now())
   updatedAt  DateTime         @updatedAt
   options    CartItemOption[]
@@ -311,6 +318,7 @@ model Order {
   paymentVerifiedAt DateTime?
   paymentVerifiedBy String?
   paymentVerificationNote String?
+  sourceMessageId String? @unique
 
   items      OrderItem[]
   customer   Customer    @relation(fields: [customerId], references: [id], onDelete: Cascade)
@@ -378,6 +386,12 @@ enum MessageType {
   BUTTON
   INTERACTIVE
   UNKNOWN
+}
+
+enum MessageProcessingStatus {
+  PROCESSING
+  COMPLETED
+  FAILED
 }
 
 enum ConversationState {

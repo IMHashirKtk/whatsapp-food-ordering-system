@@ -89,6 +89,32 @@ export const getCustomerOrders = (
   });
 };
 
+export const getOrderBySourceMessageId = (
+  sourceMessageId,
+  restaurantId,
+  customerId,
+) => {
+  if (!sourceMessageId) {
+    return null;
+  }
+
+  return prisma.order.findFirst({
+    where: {
+      sourceMessageId,
+      restaurantId,
+      customerId,
+    },
+    include: {
+      customer: {
+        select: {
+          name: true,
+          whatsappId: true,
+        },
+      },
+    },
+  });
+};
+
 export const getCustomerOrdersPage = async ({
   customerId,
   restaurantId,

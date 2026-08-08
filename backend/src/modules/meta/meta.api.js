@@ -40,19 +40,13 @@ export const sendMessage = async (restaurantId, payload) => {
       },
     );
 
-    console.log("META RESPONSE");
-    console.log(response.data);
-
     return response.data;
   } catch (error) {
-    console.log("META ERROR");
-
-    if (error.response) {
-      console.log(error.response.status);
-      console.log(error.response.data);
-    } else {
-      console.log(error.message);
-    }
+    console.error("Meta API request failed.", {
+      restaurantId,
+      status: error.response?.status ?? null,
+      error: error.message,
+    });
 
     throw error;
   }

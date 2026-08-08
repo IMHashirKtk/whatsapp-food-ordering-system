@@ -1,50 +1,175 @@
-import { parseWebhook } from "./webhook.parser.js";
-
-import * as restaurantService from "../restaurant/restaurant.service.js";
-import * as customerService from "../customer/customer.service.js";
+import env from "../../config/env.js";
+import AppError from "../../utils/AppError.js";
 import * as conversationService from "../conversation/conversation.service.js";
+import * as customerService from "../customer/customer.service.js";
+import * as restaurantService from "../restaurant/restaurant.service.js";
 import { text } from "./message.factory.js";
+import * as metaRepository from "./meta.repository.js";
+import { isValidMetaSignature } from "./meta.signature.js";
+import {
+  getWebhookPhoneNumberIds,
+  parseWebhooks,
+} from "./webhook.parser.js";
 import { sendMessage } from "./meta.api.js";
 import { getOrderStatusNotificationMessage } from "./meta.templates.js";
 
-export const processWebhook = async (payload) => {
-  const message = parseWebhook(payload);
-  console.log("===== BOT VERSION 2026-07-26 =====");
-  console.log("Parsed message:", message);
+const getMessageContent = (message) =>
+  message.text ?? message.buttonReply?.id ?? message.listReply?.id ?? null;
 
-  if (!message) {
-    console.log("Status webhook (ignored)");
-    return;
+const getVerificationSecret = async (payload) => {
+  if (env.meta.appSecret) {
+    return env.meta.appSecret;
   }
 
-  const restaurant = await restaurantService.getRestaurantByMetaPhoneNumberId(
+  const phoneNumberIds = [
+    ...new Set(
+      getWebhookPhoneNumberIds(payload).filter(
+        (phoneNumberId) =>
+          typeof phoneNumberId === "string" && phoneNumberId.trim(),
+      ),
+    ),
+  ];
+
+  if (phoneNumberIds.length === 0) {
+    return null;
+  }
+
+  const restaurants = await Promise.all(
+    phoneNumberIds.map((phoneNumberId) =>
+      restaurantService.findRestaurantByMetaPhoneNumberId(phoneNumberId),
+    ),
+  );
+
+  if (restaurants.some((restaurant) => !restaurant)) {
+    return null;
+  }
+
+  const secrets = [
+    ...new Set(
+      restaurants
+        .map((restaurant) => restaurant.settings?.webhookSecret?.trim())
+        .filter(Boolean),
+    ),
+  ];
+
+  return secrets.length === 1 ? secrets[0] : null;
+};
+
+export const verifyWebhookRequest = async ({
+  payload,
+  rawBody,
+  signature,
+}) => {
+  const secret = await getVerificationSecret(payload);
+
+  if (!secret) {
+    throw new AppError("Webhook authentication is unavailable.", 503);
+  }
+
+  if (!isValidMetaSignature(rawBody, signature, secret)) {
+    throw new AppError("Invalid webhook signature.", 403);
+  }
+};
+
+const processMessage = async (message) => {
+  if (
+    typeof message.phoneNumberId !== "string" ||
+    !message.phoneNumberId.trim()
+  ) {
+    return { status: "IGNORED_MISSING_TENANT" };
+  }
+
+  const restaurant = await restaurantService.findRestaurantByMetaPhoneNumberId(
     message.phoneNumberId,
   );
 
-  console.log("\n==============================");
-  console.log("Restaurant:", restaurant.name);
-  console.log("Customer:", message.from);
-  console.log("==============================");
+  if (!restaurant) {
+    return { status: "IGNORED_UNKNOWN_TENANT" };
+  }
 
-  const customer = await customerService.getOrCreateCustomer(
-    restaurant.id,
-    message.from,
-    message.profileName,
-  );
-  console.log("3. Customer found:", customer.id);
+  const claim = await metaRepository.claimIncomingMessage({
+    metaMessageId: message.messageId,
+    type: message.messageType,
+    content: getMessageContent(message),
+  });
 
-  const conversation = await conversationService.getOrCreateConversation(
-    customer.id,
-    restaurant.id,
-  );
+  if (claim.status !== "CLAIMED") {
+    return claim;
+  }
 
-  console.log("4. Conversation found:", conversation.id);
-  console.log("Conversation state:", conversation.state);
-  console.log("Conversation context:", conversation.context);
+  try {
+    const customer = await customerService.getOrCreateCustomer(
+      restaurant.id,
+      message.from,
+      message.profileName,
+    );
 
-  const { dispatch } = await import("../conversation/engine/dispatcher.js");
+    const attached = await metaRepository.attachCustomer(
+      claim.messageId,
+      claim.processingToken,
+      customer.id,
+    );
 
-  await dispatch(conversation, message);
+    if (attached.count !== 1) {
+      return { status: "CLAIM_LOST" };
+    }
+
+    const conversation = await conversationService.getOrCreateConversation(
+      customer.id,
+      restaurant.id,
+    );
+
+    const { dispatch } = await import("../conversation/engine/dispatcher.js");
+
+    await dispatch(conversation, message);
+    const completed = await metaRepository.completeMessage(
+      claim.messageId,
+      claim.processingToken,
+    );
+
+    if (completed.count !== 1) {
+      throw new Error("Message claim was lost before completion.");
+    }
+
+    return { status: "PROCESSED" };
+  } catch (error) {
+    try {
+      await metaRepository.failMessage(
+        claim.messageId,
+        claim.processingToken,
+      );
+    } catch (claimError) {
+      console.error("[MetaWebhook] Failed to release message claim.", {
+        messageId: message.messageId,
+        error: claimError?.message,
+      });
+    }
+
+    console.error("[MetaWebhook] Message processing failed.", {
+      messageId: message.messageId,
+      error: error?.message,
+    });
+    throw error;
+  }
+};
+
+export const processWebhook = async (payload) => {
+  const messages = parseWebhooks(payload);
+  const failures = [];
+
+  for (const message of messages) {
+    try {
+      await processMessage(message);
+    } catch (error) {
+      failures.push(error);
+    }
+  }
+
+  if (failures.length > 0) {
+    throw failures[0];
+  }
+
+  return { processed: messages.length };
 };
 
 export const sendOrderStatusNotification = async ({

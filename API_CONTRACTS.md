@@ -16,6 +16,45 @@ Authentication uses JWT Bearer Tokens.
 
 ---
 
+# WhatsApp Meta Webhooks
+
+GET
+
+```
+/api/v1/meta/webhook
+```
+
+The GET endpoint independently verifies Meta's subscription challenge using the
+configured `META_VERIFY_TOKEN`.
+
+POST
+
+```
+/api/v1/meta/webhook
+```
+
+The POST endpoint requires the `X-Hub-Signature-256` header. The signature is
+verified with the exact raw request body using the configured Meta App Secret
+(`META_APP_SECRET`). Existing tenant `webhookSecret` settings are used as the
+fallback when the global App Secret is not configured.
+
+Each customer message must include a non-empty
+`value.metadata.phone_number_id`. The phone number ID is resolved exactly to a
+configured restaurant; missing or unknown IDs are ignored and never fall back
+to an unconfigured restaurant.
+
+Meta deliveries may contain multiple entries, changes, and messages. Every
+valid customer message is processed using the metadata belonging to its own
+change. Status-only changes are acknowledged without entering the customer
+conversation flow.
+
+Meta message IDs are database-backed idempotency keys. A duplicate delivery is
+acknowledged without repeating customer, cart, order, statistics, or response
+side effects. If processing fails before completion, a later delivery may
+retry after the processing claim is released or expires.
+
+---
+
 # Authentication
 
 ## Login

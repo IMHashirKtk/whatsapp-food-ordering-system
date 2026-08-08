@@ -36,6 +36,7 @@ const env = {
     accessToken: process.env.META_ACCESS_TOKEN,
     phoneNumberId: process.env.META_PHONE_NUMBER_ID,
     verifyToken: process.env.META_VERIFY_TOKEN,
+    appSecret: process.env.META_APP_SECRET?.trim() || null,
     apiVersion: process.env.META_API_VERSION || "v23.0",
   },
 };
