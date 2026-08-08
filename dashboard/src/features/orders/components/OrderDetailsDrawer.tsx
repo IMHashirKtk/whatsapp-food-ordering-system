@@ -14,6 +14,7 @@ import { useOrder } from "../hooks/useOrder";
 import type { Order, OrderItem } from "../types";
 import { OrderStatusActions } from "./OrderStatusActions";
 import { OrderStatusBadge } from "./OrderStatusBadge";
+import { PaymentStatusActions } from "./PaymentStatusActions";
 import { OrderReceipt } from "./OrderReceipt";
 import { printOrderReceipt } from "../utils/printOrderReceipt";
 
@@ -344,6 +345,22 @@ export function OrderDetailsDrawer({
                   <DetailRow
                     label="Payment status"
                     value={<PaymentStatusBadge status={order.paymentStatus} />}
+                  />
+                  <DetailRow
+                    label="Payment action"
+                    value={<PaymentStatusActions order={order} />}
+                  />
+                  <DetailRow
+                    label="Verified at"
+                    value={formatDate(order.paymentVerifiedAt)}
+                  />
+                  <DetailRow
+                    label="Verified by"
+                    value={order.paymentVerifiedBy || "Not provided"}
+                  />
+                  <DetailRow
+                    label="Verification note"
+                    value={order.paymentVerificationNote?.trim() || "Not provided"}
                   />
                   <DetailRow
                     label="Order status"

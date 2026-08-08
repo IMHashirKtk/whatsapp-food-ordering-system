@@ -65,6 +65,9 @@ export interface Order {
 
   paymentMethod: PaymentMethod;
   paymentStatus: PaymentStatus;
+  paymentVerifiedAt: string | null;
+  paymentVerifiedBy: string | null;
+  paymentVerificationNote: string | null;
 
   status: OrderStatus;
   notes?: string | null;
@@ -99,4 +102,9 @@ export interface OrdersResponse {
 export interface UpdateOrderStatusRequest {
   status: OrderStatus;
   cancellationReason?: string;
+}
+
+export interface UpdatePaymentStatusRequest {
+  paymentStatus: PaymentStatus;
+  note?: string;
 }

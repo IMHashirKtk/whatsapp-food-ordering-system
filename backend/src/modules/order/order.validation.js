@@ -82,3 +82,13 @@ export const updateStatusSchema = z.object({
     cancellationReason: z.string().trim().min(3).max(500).optional(),
   }),
 });
+
+export const updatePaymentStatusSchema = z.object({
+  params: z.object({
+    id: z.string().cuid(),
+  }),
+  body: z.object({
+    paymentStatus: paymentStatusSchema,
+    note: z.string().trim().max(500).optional(),
+  }),
+});

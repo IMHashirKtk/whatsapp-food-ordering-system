@@ -12,6 +12,7 @@ import {
   customerOrdersSchema,
   getOrdersSchema,
   updateStatusSchema,
+  updatePaymentStatusSchema,
 } from "./order.validation.js";
 
 const router = Router();
@@ -62,6 +63,14 @@ router.patch(
   validate(orderIdSchema),
   validate(updateStatusSchema),
   orderController.updateStatus,
+);
+
+router.patch(
+  "/:id/payment-status",
+  authenticate,
+  authorize("OWNER", "MANAGER"),
+  validate(updatePaymentStatusSchema),
+  orderController.updatePaymentStatus,
 );
 
 export default router;

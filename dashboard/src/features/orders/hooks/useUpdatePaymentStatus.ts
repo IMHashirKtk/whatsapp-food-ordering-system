@@ -2,36 +2,32 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { queryKeys } from "@/config/queryKeys";
 
-import {
-  orderService,
-} from "../services/order.service";
-import type { Order, UpdateOrderStatusRequest } from "../types";
+import { orderService } from "../services/order.service";
+import type { Order, UpdatePaymentStatusRequest } from "../types";
 import { mergeOrder, updateCachedOrderLists } from "./orderCache";
 
-interface UpdateOrderStatusVariables {
+interface UpdatePaymentStatusVariables {
   id: string;
-  payload: UpdateOrderStatusRequest;
+  payload: UpdatePaymentStatusRequest;
 }
 
-export function useUpdateOrderStatus() {
+export function useUpdatePaymentStatus() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, payload }: UpdateOrderStatusVariables) =>
-      orderService.updateStatus(id, payload),
+    mutationFn: ({ id, payload }: UpdatePaymentStatusVariables) =>
+      orderService.updatePaymentStatus(id, payload),
 
     onSuccess: (updatedOrder, variables) => {
       const detailQueryKey = queryKeys.orders.detail(variables.id);
       const currentOrder = queryClient.getQueryData<Order>(detailQueryKey);
 
-      if (currentOrder) {
-        queryClient.setQueryData<Order>(
-          detailQueryKey,
-          mergeOrder(currentOrder, updatedOrder),
-        );
-      }
+      queryClient.setQueryData<Order>(
+        detailQueryKey,
+        mergeOrder(currentOrder, updatedOrder),
+      );
+      updateCachedOrderLists(queryClient, updatedOrder, false);
 
-      updateCachedOrderLists(queryClient, updatedOrder);
       void queryClient.invalidateQueries({
         queryKey: queryKeys.dashboard,
         refetchType: "active",

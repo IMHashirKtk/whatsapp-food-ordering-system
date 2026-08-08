@@ -293,6 +293,50 @@ export const updateCustomerStats = async (
   });
 };
 
+export const updatePaymentStatus = async (
+  id,
+  restaurantId,
+  currentPaymentStatus,
+  paymentStatus,
+  paymentVerifiedBy,
+  paymentVerificationNote,
+  db = prisma,
+) => {
+  const result = await db.order.updateMany({
+    where: {
+      id,
+      restaurantId,
+      paymentStatus: currentPaymentStatus,
+    },
+    data: {
+      paymentStatus,
+      paymentVerifiedAt: new Date(),
+      paymentVerifiedBy,
+      paymentVerificationNote,
+    },
+  });
+
+  if (result.count === 0) {
+    return null;
+  }
+
+  return db.order.findFirst({
+    where: {
+      id,
+      restaurantId,
+    },
+    include: {
+      customer: true,
+      items: {
+        include: {
+          menuItem: true,
+          options: true,
+        },
+      },
+    },
+  });
+};
+
 /* ==========================
    Order Items
 ========================== */

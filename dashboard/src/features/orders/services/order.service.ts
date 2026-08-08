@@ -6,6 +6,7 @@ import {
   GetOrdersParams,
   Order,
   OrdersPagination,
+  UpdatePaymentStatusRequest,
   UpdateOrderStatusRequest,
 } from "../types";
 
@@ -52,6 +53,18 @@ export const orderService = {
   ): Promise<Order> {
     const { data } = await axiosClient.patch<ApiResponse<Order>>(
       `/orders/${id}/status`,
+      payload,
+    );
+
+    return data.data;
+  },
+
+  async updatePaymentStatus(
+    id: string,
+    payload: UpdatePaymentStatusRequest,
+  ): Promise<Order> {
+    const { data } = await axiosClient.patch<ApiResponse<Order>>(
+      `/orders/${id}/payment-status`,
       payload,
     );
 

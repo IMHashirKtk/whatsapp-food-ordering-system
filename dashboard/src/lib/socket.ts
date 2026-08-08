@@ -3,7 +3,7 @@ import { io, type Socket } from "socket.io-client";
 import { env } from "@/config/env";
 import { TOKEN_KEY } from "@/lib/constants";
 
-import type { OrderStatus } from "@/features/orders/types";
+import type { OrderStatus, PaymentStatus } from "@/features/orders/types";
 
 export interface OrderRealtimeEvent {
   eventId: string;
@@ -12,6 +12,8 @@ export interface OrderRealtimeEvent {
   status: OrderStatus;
   occurredAt: string;
   updatedAt?: string;
+  paymentStatus?: PaymentStatus;
+  paymentVerifiedAt?: string | null;
   customerName?: string | null;
   customerWhatsappId?: string | null;
   total?: number | string | null;

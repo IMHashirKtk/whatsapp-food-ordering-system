@@ -46,6 +46,8 @@ const buildOrderUpdatedEventPayload = ({
   orderNumber,
   status,
   updatedAt,
+  paymentStatus,
+  paymentVerifiedAt,
 }) => {
   const payload = buildBaseOrderEventPayload({
     orderId,
@@ -57,6 +59,14 @@ const buildOrderUpdatedEventPayload = ({
 
   if (normalizedUpdatedAt) {
     payload.updatedAt = normalizedUpdatedAt;
+  }
+
+  if (paymentStatus) {
+    payload.paymentStatus = paymentStatus;
+  }
+
+  if (paymentVerifiedAt) {
+    payload.paymentVerifiedAt = normalizeUpdatedAt(paymentVerifiedAt);
   }
 
   return payload;

@@ -1540,6 +1540,65 @@ Response
 
 ---
 
+## Update Order Payment Status
+
+PATCH
+
+```
+/orders/:id/payment-status
+```
+
+Authentication: required. Allowed roles: `OWNER`, `MANAGER`.
+
+The order is scoped to the authenticated user's `restaurantId`; clients must
+not send a restaurant ID.
+
+Request
+
+```json
+{
+  "paymentStatus": "PAID",
+  "note": "Cash collected by rider"
+}
+```
+
+Allowed transitions for this version:
+
+- `UNPAID` -> `PAID`
+- `PENDING_VERIFICATION` -> `PAID`
+
+`PAID` is terminal. Transitions from `PAID` to another payment status are
+rejected. Payment verification is independent of order status, including
+`DELIVERED`.
+
+The backend sets these audit fields; clients cannot provide them:
+
+- `paymentVerifiedAt`: server timestamp
+- `paymentVerifiedBy`: authenticated user ID
+- `paymentVerificationNote`: trimmed optional note, maximum 500 characters
+
+Response
+
+```json
+{
+  "success": true,
+  "message": "Payment status updated successfully.",
+  "data": {}
+}
+```
+
+Errors:
+
+- `400` for invalid request data or unsupported target status
+- `404` when the order is not found in the authenticated restaurant
+- `409` when the payment is already verified or another update won the race
+
+Analytics definitions are unchanged: `recognizedRevenue` continues to
+include non-cancelled orders with `PAID` or `PENDING_VERIFICATION` payment
+status and excludes `UNPAID` orders.
+
+---
+
 ## Customer Orders
 
 Deprecated. Use `GET /customers/:id/orders` for new clients. This route remains

@@ -191,6 +191,12 @@ export const OrderReceipt = forwardRef<HTMLElement, OrderReceiptProps>(
             label="Payment status"
             value={formatLabel(order.paymentStatus)}
           />
+          {order.paymentStatus === "PAID" && order.paymentVerifiedAt ? (
+            <ReceiptMetaRow
+              label="Payment verified"
+              value={formatDate(order.paymentVerifiedAt)}
+            />
+          ) : null}
         </dl>
 
         {order.notes?.trim() ? (

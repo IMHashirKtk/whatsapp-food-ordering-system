@@ -251,6 +251,8 @@ const publishOrderUpdatedSafely = (
   orderNumber,
   status,
   updatedAt,
+  paymentStatus,
+  paymentVerifiedAt,
 ) => {
   try {
     publishOrderUpdated(restaurantId, {
@@ -258,6 +260,8 @@ const publishOrderUpdatedSafely = (
       orderNumber,
       status,
       updatedAt,
+      paymentStatus,
+      paymentVerifiedAt,
     });
   } catch (error) {
     console.error("[Realtime] Failed to publish order:updated.", {
@@ -510,6 +514,66 @@ export const updateStatus = async (
       error,
     });
   }
+
+  return updatedOrder;
+};
+
+export const updatePaymentStatus = async (
+  id,
+  restaurantId,
+  paymentVerifiedBy,
+  paymentStatus,
+  note,
+) => {
+  const existingOrder = await getOrder(id, restaurantId);
+
+  if (existingOrder.paymentStatus === "PAID") {
+    throw new AppError(
+      "Payment is already verified and cannot be changed.",
+      409,
+    );
+  }
+
+  if (paymentStatus !== "PAID") {
+    throw new AppError(
+      "Payment can only be changed to PAID during manual verification.",
+      400,
+    );
+  }
+
+  if (!["UNPAID", "PENDING_VERIFICATION"].includes(existingOrder.paymentStatus)) {
+    throw new AppError("Payment status transition is not allowed.", 409);
+  }
+
+  const normalizedNote = note?.trim() || null;
+  const updatedOrder = await orderRepository.transaction((tx) =>
+    orderRepository.updatePaymentStatus(
+      id,
+      restaurantId,
+      existingOrder.paymentStatus,
+      paymentStatus,
+      paymentVerifiedBy,
+      normalizedNote,
+      tx,
+    ),
+  );
+
+  if (!updatedOrder) {
+    throw new AppError(
+      "Payment status changed before this update completed.",
+      409,
+    );
+  }
+
+  publishOrderUpdatedSafely(
+    restaurantId,
+    id,
+    updatedOrder.orderNumber,
+    updatedOrder.status,
+    updatedOrder.updatedAt,
+    updatedOrder.paymentStatus,
+    updatedOrder.paymentVerifiedAt,
+  );
 
   return updatedOrder;
 };

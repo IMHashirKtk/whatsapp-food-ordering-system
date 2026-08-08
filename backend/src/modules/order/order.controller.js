@@ -95,3 +95,20 @@ export const updateStatus = asyncHandler(async (req, res) => {
     data: order,
   });
 });
+
+export const updatePaymentStatus = asyncHandler(async (req, res) => {
+  const { paymentStatus, note } = req.validated.body;
+  const order = await orderService.updatePaymentStatus(
+    req.validated.params.id,
+    req.user.restaurantId,
+    req.user.id,
+    paymentStatus,
+    note,
+  );
+
+  res.json({
+    success: true,
+    message: "Payment status updated successfully.",
+    data: order,
+  });
+});

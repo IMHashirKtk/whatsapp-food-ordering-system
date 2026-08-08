@@ -308,6 +308,9 @@ model Order {
   restaurantId  String
   paymentMethod PaymentMethod @default(COD)
   paymentStatus PaymentStatus @default(UNPAID)
+  paymentVerifiedAt DateTime?
+  paymentVerifiedBy String?
+  paymentVerificationNote String?
 
   items      OrderItem[]
   customer   Customer    @relation(fields: [customerId], references: [id], onDelete: Cascade)
