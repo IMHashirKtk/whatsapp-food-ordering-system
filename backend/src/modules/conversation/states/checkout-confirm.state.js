@@ -15,6 +15,7 @@ import {
 import { ButtonAction } from "../engine/command.constants.js";
 import { ConversationState } from "./state.constants.js";
 import { goToState } from "./state.helper.js";
+import * as categoryState from "./category.state.js";
 
 const loadCheckoutSettings = async (restaurantId) => {
   try {
@@ -55,7 +56,7 @@ const isCheckoutAvailable = (checkoutSettings) =>
   checkoutSettings?.isOpen === true &&
   checkoutSettings.settings.orderAcceptanceEnabled === true;
 
-export const show = async (conversation, phoneNumber) => {
+export const show = async (conversation, phoneNumber, notice = null) => {
   const latestConversation = await conversationService.getConversationById(
     conversation.id,
   );
@@ -126,7 +127,8 @@ export const show = async (conversation, phoneNumber) => {
   }
 
   const currencySymbol = checkoutSettings.settings.currencySymbol;
-  let summary = "🧾 *ORDER SUMMARY*\n\n";
+  let summary = notice ? `⚠️ ${notice}\n\n` : "";
+  summary += "🧾 *ORDER SUMMARY*\n\n";
 
   for (const item of cart.items) {
     summary += `🍔 ${item.menuItem.name}\n`;
@@ -223,6 +225,27 @@ export const handle = async (conversation, message) => {
           customerId: conversation.customerId,
           error: error?.message,
         });
+
+        if (
+          error?.code ===
+          orderService.CHECKOUT_ERROR_CODES.RECONFIRM_REQUIRED
+        ) {
+          return show(conversation, message.from, error.message);
+        }
+
+        if (error?.code === orderService.CHECKOUT_ERROR_CODES.CART_INVALID) {
+          await goToState(conversation, ConversationState.VIEWING_MENU);
+          await sendMessage(
+            conversation.restaurantId,
+            text(message.from, error.message),
+          );
+
+          return categoryState.handle(conversation, {
+            ...message,
+            buttonReply: null,
+            listReply: null,
+          });
+        }
 
         if (
           error?.statusCode === 400 &&

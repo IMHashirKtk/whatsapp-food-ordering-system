@@ -54,3 +54,9 @@ export const getProductWithOptions = async (menuItemId, restaurantId) => {
 
   return item;
 };
+
+export const getMenuItemsForCheckout = (
+  menuItemIds,
+  restaurantId,
+  db,
+) => menuRepository.getMenuItemsForCheckout(menuItemIds, restaurantId, db);

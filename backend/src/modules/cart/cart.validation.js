@@ -1,4 +1,10 @@
 import { z } from "zod";
+import { MAX_CART_QUANTITY, parseCartQuantity } from "./cart.rules.js";
+
+const quantitySchema = z.preprocess(
+  (value) => parseCartQuantity(value) ?? value,
+  z.number().int().min(1).max(MAX_CART_QUANTITY),
+);
 
 export const idSchema = z.object({
   params: z.object({
@@ -12,7 +18,7 @@ export const addItemSchema = z.object({
 
     menuItemId: z.string().cuid(),
 
-    quantity: z.coerce.number().int().min(1).max(20),
+    quantity: quantitySchema,
 
     selectedOptions: z.array(z.string().cuid()).optional().default([]),
   }),
@@ -20,7 +26,7 @@ export const addItemSchema = z.object({
 
 export const updateQuantitySchema = z.object({
   body: z.object({
-    quantity: z.coerce.number().int().min(1).max(20),
+    quantity: quantitySchema,
   }),
 });
 

@@ -3,9 +3,12 @@ import { randomBytes } from "node:crypto";
 import * as orderRepository from "./order.repository.js";
 import * as customerRepository from "../customer/customer.repository.js";
 import * as cartRepository from "../cart/cart.repository.js";
+import * as menuService from "../menu/menu.service.js";
 import * as metaService from "../meta/meta.service.js";
 import * as restaurantService from "../restaurant/restaurant.service.js";
 import * as settingsRepository from "../settings/settings.repository.js";
+import { isValidCartQuantity } from "../cart/cart.rules.js";
+import { validateSelectedOptions } from "../menu/option-selection.service.js";
 import {
   formatCurrency,
   getUsablePaymentMethods,
@@ -68,6 +71,123 @@ const isSourceMessageConflict = (error) => {
     : String(target || "").includes("sourceMessageId");
 };
 
+const isTransactionConflict = (error) => error?.code === "P2034";
+
+export const CHECKOUT_ERROR_CODES = Object.freeze({
+  CART_INVALID: "CHECKOUT_CART_INVALID",
+  RECONFIRM_REQUIRED: "CHECKOUT_RECONFIRM_REQUIRED",
+});
+
+const checkoutConflict = (message, code) => {
+  const error = new AppError(message, 409);
+  error.code = code;
+  return error;
+};
+
+const hasCartItemSnapshotChanged = (cartItem, current) => {
+  if (
+    toCents(cartItem.basePrice) !== toCents(current.basePrice) ||
+    toCents(cartItem.totalPrice) !== toCents(current.totalPrice) ||
+    cartItem.options.length !== current.options.length
+  ) {
+    return true;
+  }
+
+  const currentOptionsById = new Map(
+    current.options.map((option) => [option.id, option]),
+  );
+
+  return cartItem.options.some((option) => {
+    const currentOption = currentOptionsById.get(option.optionId);
+
+    return (
+      !currentOption ||
+      currentOption.name !== option.name ||
+      toCents(currentOption.extraPrice) !== toCents(option.extraPrice)
+    );
+  });
+};
+
+const revalidateCart = async (tx, cart, restaurantId) => {
+  const menuItems = await menuService.getMenuItemsForCheckout(
+    [...new Set(cart.items.map((item) => item.menuItemId))],
+    restaurantId,
+    tx,
+  );
+  const menuItemsById = new Map(menuItems.map((item) => [item.id, item]));
+  let snapshotChanged = false;
+  const items = [];
+
+  for (const cartItem of cart.items) {
+    const menuItem = menuItemsById.get(cartItem.menuItemId);
+
+    if (
+      !menuItem ||
+      menuItem.isAvailable !== true ||
+      !menuItem.category?.isActive
+    ) {
+      throw checkoutConflict(
+        `${cartItem.menuItem?.name || "An item in your cart"} is no longer available. Please review your cart.`,
+        CHECKOUT_ERROR_CODES.CART_INVALID,
+      );
+    }
+
+    if (!isValidCartQuantity(cartItem.quantity)) {
+      throw checkoutConflict(
+        `${menuItem.name} has an invalid quantity. Please update your cart.`,
+        CHECKOUT_ERROR_CODES.CART_INVALID,
+      );
+    }
+
+    let selectedOptions;
+
+    try {
+      selectedOptions = validateSelectedOptions(
+        menuItem,
+        cartItem.options.map((option) => option.optionId),
+      );
+    } catch {
+      throw checkoutConflict(
+        `${menuItem.name} has unavailable or invalid options. Please review your cart.`,
+        CHECKOUT_ERROR_CODES.CART_INVALID,
+      );
+    }
+
+    const basePriceCents = toCents(menuItem.basePrice);
+    const optionsTotalCents = selectedOptions.selectedOptions.reduce(
+      (total, option) => total + toCents(option.extraPrice),
+      0,
+    );
+    const current = {
+      basePrice: menuItem.basePrice,
+      totalPrice: fromCents(
+        (basePriceCents + optionsTotalCents) * cartItem.quantity,
+      ),
+      options: selectedOptions.selectedOptions,
+    };
+
+    if (hasCartItemSnapshotChanged(cartItem, current)) {
+      snapshotChanged = true;
+
+      await cartRepository.updateCartItemSnapshot(tx, cartItem.id, {
+        basePrice: current.basePrice,
+        totalPrice: current.totalPrice,
+        options: current.options,
+      });
+    }
+
+    items.push({
+      ...cartItem,
+      menuItem,
+      basePrice: current.basePrice,
+      totalPrice: current.totalPrice,
+      options: current.options,
+    });
+  }
+
+  return { items, snapshotChanged };
+};
+
 const createCheckoutTransaction = async ({
   restaurantId,
   customerId,
@@ -76,14 +196,51 @@ const createCheckoutTransaction = async ({
   paymentStatus,
   sourceMessageId,
   checkoutSettings,
-  cart,
-  totals,
 }) => {
   const maxOrderNumberAttempts = 0x10000;
 
   for (let attempt = 0; attempt < maxOrderNumberAttempts; attempt += 1) {
     try {
       return await orderRepository.transaction(async (tx) => {
+        const cart = await cartRepository.getCart(
+          customerId,
+          restaurantId,
+          tx,
+        );
+
+        if (!cart) {
+          throw new AppError("Cart not found.", 404);
+        }
+
+        if (cart.items.length === 0) {
+          throw new AppError("Cart is empty.", 400);
+        }
+
+        const revalidatedCart = await revalidateCart(
+          tx,
+          cart,
+          restaurantId,
+        );
+
+        if (revalidatedCart.snapshotChanged) {
+          return { reconfirm: true };
+        }
+
+        const totals = calculateCheckoutTotals(
+          revalidatedCart.items,
+          checkoutSettings,
+        );
+
+        if (totals.isBelowMinimum) {
+          throw new AppError(
+            `The minimum order amount is ${formatCurrency(
+              totals.minimumOrderAmount,
+              checkoutSettings.settings.currencySymbol,
+            )}.`,
+            400,
+          );
+        }
+
         const createdOrder = await orderRepository.createOrderWithCustomerSummary(
           {
             restaurantId,
@@ -106,7 +263,7 @@ const createCheckoutTransaction = async ({
           tx,
         );
 
-        for (const cartItem of cart.items) {
+        for (const cartItem of revalidatedCart.items) {
           const orderItem = await orderRepository.createOrderItem(
             {
               orderId: createdOrder.id,
@@ -122,7 +279,7 @@ const createCheckoutTransaction = async ({
             await orderRepository.createOrderItemOption(
               {
                 orderItemId: orderItem.id,
-                optionId: option.optionId,
+                optionId: option.optionId ?? option.id,
                 name: option.name,
                 extraPrice: option.extraPrice,
               },
@@ -147,7 +304,7 @@ const createCheckoutTransaction = async ({
           customer,
           created: true,
         };
-      });
+      }, { isolationLevel: "Serializable" });
     } catch (error) {
       if (isSourceMessageConflict(error) && sourceMessageId) {
         const existingOrder = await orderRepository.getOrderBySourceMessageId(
@@ -165,7 +322,10 @@ const createCheckoutTransaction = async ({
         }
       }
 
-      if (!isOrderNumberConflict(error) || attempt === maxOrderNumberAttempts - 1) {
+      if (
+        (!isOrderNumberConflict(error) && !isTransactionConflict(error)) ||
+        attempt === maxOrderNumberAttempts - 1
+      ) {
         throw error;
       }
     }
@@ -335,29 +495,8 @@ export const checkout = async (
     paymentMethod,
   );
 
-  const cart = await cartRepository.getCart(customerId, restaurantId);
-
-  if (!cart) {
-    throw new AppError("Cart not found.", 404);
-  }
-
-  if (cart.items.length === 0) {
-    throw new AppError("Cart is empty.", 400);
-  }
-
   const paymentStatus =
     paymentMethod === "COD" ? "UNPAID" : "PENDING_VERIFICATION";
-  const totals = calculateCheckoutTotals(cart.items, checkoutSettings);
-
-  if (totals.isBelowMinimum) {
-    throw new AppError(
-      `The minimum order amount is ${formatCurrency(
-        totals.minimumOrderAmount,
-        checkoutSettings.settings.currencySymbol,
-      )}.`,
-      400,
-    );
-  }
 
   const transactionResult = await createCheckoutTransaction({
     restaurantId,
@@ -367,9 +506,14 @@ export const checkout = async (
     paymentStatus,
     sourceMessageId,
     checkoutSettings,
-    cart,
-    totals,
   });
+
+  if (transactionResult.reconfirm) {
+    throw checkoutConflict(
+      "Menu prices changed. Please review your updated cart and confirm the order again.",
+      CHECKOUT_ERROR_CODES.RECONFIRM_REQUIRED,
+    );
+  }
 
   if (transactionResult.created !== false) {
     publishOrderCreatedSafely(

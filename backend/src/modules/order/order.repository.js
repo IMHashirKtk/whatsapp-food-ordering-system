@@ -383,6 +383,8 @@ export const createOrderItemOption = (data, db = prisma) => {
    Transactions
 ========================== */
 
-export const transaction = (callback) => {
-  return prisma.$transaction(callback);
+export const transaction = (callback, options) => {
+  return options
+    ? prisma.$transaction(callback, options)
+    : prisma.$transaction(callback);
 };

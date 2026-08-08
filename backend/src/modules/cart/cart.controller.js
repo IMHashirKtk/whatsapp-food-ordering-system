@@ -30,6 +30,7 @@ export const updateQuantity = asyncHandler(async (req, res) => {
   const item = await cartService.updateQuantity(
     req.params.id,
     req.body.quantity,
+    req.user.restaurantId,
   );
 
   res.json({
@@ -39,7 +40,7 @@ export const updateQuantity = asyncHandler(async (req, res) => {
 });
 
 export const removeItem = asyncHandler(async (req, res) => {
-  await cartService.removeItem(req.params.id);
+  await cartService.removeItem(req.params.id, req.user.restaurantId);
 
   res.json({
     success: true,

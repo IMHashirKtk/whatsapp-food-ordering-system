@@ -1,5 +1,8 @@
 import * as cartRepository from "./cart.repository.js";
 import * as menuService from "../menu/menu.service.js";
+import { assertValidCartQuantity } from "./cart.rules.js";
+import { validateSelectedOptions } from "../menu/option-selection.service.js";
+import AppError from "../../utils/AppError.js";
 
 export const getCart = async (customerId, restaurantId) => {
   return cartRepository.getOrCreateCart(customerId, restaurantId);
@@ -13,11 +16,7 @@ export const addItem = async ({
   selectedOptions = [],
   sourceMessageId = null,
 }) => {
-  if (!Number.isInteger(quantity) || quantity < 1) {
-    throw new Error("Quantity must be a positive integer.");
-  }
-
-  const cart = await cartRepository.getOrCreateCart(customerId, restaurantId);
+  assertValidCartQuantity(quantity);
 
   const menuItem = await menuService.getProductWithOptions(
     menuItemId,
@@ -25,17 +24,13 @@ export const addItem = async ({
   );
 
   const basePrice = Number(menuItem.basePrice);
+  const { optionsTotal, selectedOptions: selectedOptionObjects } =
+    validateSelectedOptions(menuItem, selectedOptions);
 
-  let optionsTotal = 0;
-  const selectedOptionObjects = [];
+  const cart = await cartRepository.getOrCreateCart(customerId, restaurantId);
 
-  for (const optionGroup of menuItem.optionGroups) {
-    for (const option of optionGroup.options) {
-      if (selectedOptions.includes(option.id)) {
-        optionsTotal += Number(option.extraPrice);
-        selectedOptionObjects.push(option);
-      }
-    }
+  if (!cart) {
+    throw new AppError("Cart not found.", 404);
   }
 
   const totalPrice = (basePrice + optionsTotal) * quantity;
@@ -76,8 +71,26 @@ export const addItem = async ({
   return cartRepository.getCart(customerId, restaurantId);
 };
 
-export const updateQuantity = async () => {
-  throw new Error("Not implemented yet.");
+export const updateQuantity = async (itemId, quantity, restaurantId) => {
+  assertValidCartQuantity(quantity);
+
+  const item = await cartRepository.getCartItem(itemId, restaurantId);
+
+  if (!item) {
+    throw new AppError("Cart item not found.", 404);
+  }
+
+  const unitPrice =
+    Number(item.basePrice) +
+    item.options.reduce((total, option) => total + Number(option.extraPrice), 0);
+  const totalPrice = Number((unitPrice * quantity).toFixed(2));
+
+  return cartRepository.updateQuantity(
+    itemId,
+    quantity,
+    totalPrice,
+    restaurantId,
+  );
 };
 
 export const removeItem = async (itemId, restaurantId) => {

@@ -34,6 +34,10 @@ export const getMenuItemById = (id, restaurantId) => {
     where: {
       id,
       restaurantId,
+      isAvailable: true,
+      category: {
+        isActive: true,
+      },
     },
     include: {
       category: true,
@@ -59,6 +63,9 @@ export const getMenuItemsByCategory = (categoryId, restaurantId) => {
       categoryId,
       restaurantId,
       isAvailable: true,
+      category: {
+        isActive: true,
+      },
     },
     orderBy: {
       name: "asc",
@@ -71,8 +78,13 @@ export const getMenuItemWithOptions = (menuItemId, restaurantId) => {
     where: {
       id: menuItemId,
       restaurantId,
+      isAvailable: true,
+      category: {
+        isActive: true,
+      },
     },
     include: {
+      category: true,
       optionGroups: {
         orderBy: {
           sortOrder: "asc",
@@ -82,6 +94,38 @@ export const getMenuItemWithOptions = (menuItemId, restaurantId) => {
             where: {
               isAvailable: true,
             },
+            orderBy: {
+              sortOrder: "asc",
+            },
+          },
+        },
+      },
+    },
+  });
+};
+
+export const getMenuItemsForCheckout = (
+  menuItemIds,
+  restaurantId,
+  db = prisma,
+) => {
+  if (!menuItemIds.length) {
+    return Promise.resolve([]);
+  }
+
+  return db.menuItem.findMany({
+    where: {
+      id: { in: menuItemIds },
+      restaurantId,
+    },
+    include: {
+      category: true,
+      optionGroups: {
+        orderBy: {
+          sortOrder: "asc",
+        },
+        include: {
+          options: {
             orderBy: {
               sortOrder: "asc",
             },

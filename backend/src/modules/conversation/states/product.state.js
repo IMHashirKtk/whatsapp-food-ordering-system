@@ -8,6 +8,7 @@ import { ConversationState } from "./state.constants.js";
 import { goToState } from "./state.helper.js";
 
 import * as productOptionsState from "./product-options.state.js";
+import * as categoryState from "./category.state.js";
 
 export const handle = async (conversation, message) => {
   console.log(">>> ENTERED PRODUCT STATE");
@@ -40,10 +41,20 @@ export const handle = async (conversation, message) => {
     );
 
     if (!products.length) {
-      return sendMessage(
+      await goToState(conversation, ConversationState.VIEWING_MENU);
+      await sendMessage(
         conversation.restaurantId,
-        text(message.from, "❌ No products are available in this category."),
+        text(
+          message.from,
+          "No products are currently available in that category. Please choose another category.",
+        ),
       );
+
+      return categoryState.handle(conversation, {
+        ...message,
+        buttonReply: null,
+        listReply: null,
+      });
     }
 
     return sendMessage(
